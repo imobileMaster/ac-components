@@ -1,17 +1,17 @@
 'use strict';
 
-describe("loadingIndicator", function() {
-    var element, scope, $compile, $templateCache;
+describe("acComponents.directives.acLoadingIndicator", function() {
+    var element, scope, $compile;
  
-    beforeEach(module('acComponents.directives')); // Name of the module my directive is in
-    beforeEach(module('acComponents.templates')); // The external template file referenced by templateUrl
+    beforeEach(module('acComponents.directives'));
+    beforeEach(module('acComponents.templates'));
  
     beforeEach(inject(function(_$compile_, $rootScope) {
         scope = $rootScope;
         $compile = _$compile_;
     }));
     
-     it("has a class of ac-loading-indicator", function () {
+    it("has a class of ac-loading-indicator", function () {
         element = angular.element('<div ac-loading-indicator></dv>');
         $compile(element)(scope);
         scope.$digest();

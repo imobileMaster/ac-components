@@ -3,19 +3,19 @@
         i.fa.fa-close.fa-lg
     .ac-drawer-tools
         ul
-            li(ng-click="drawer.visible = !drawer.visible", data-toggle="tooltip", data-placement="left", title="Show Bulletin")
+            li(ng-click="drawer.visible = !drawer.visible")
                 i.fa.fa-file-text-o.fa-fw.fa-2x.fa-inverse.ac-middle
-            li(ng-click="toggleFilter('obsType:incident')", ng-class="{on: filters.obsType.indexOf('incident') !== -1}", data-toggle="tooltip", data-placement="left", title="Toggle Incidents")
+            li(ng-click="toggleFilter('obsType:incident')", ng-class="{on: filters.obsType.indexOf('incident') !== -1}")
                 i.fa.fa-warning.fa-fw.fa-2x.fa-inverse.ac-middle
-            li(ng-click="toggleFilter('obsType:snowpack')", ng-class="{on: filters.obsType.indexOf('snowpack') !== -1}", data-toggle="tooltip", data-placement="left", title="Toggle Snowpack")
+            li(ng-click="toggleFilter('obsType:snowpack')", ng-class="{on: filters.obsType.indexOf('snowpack') !== -1}")
                 i.fa.fa-bar-chart.fa-fw.fa-2x.fa-inverse.ac-middle.ac-icon.ac-icon-avalanche
-            li(ng-click="toggleFilter('obsType:simple')", ng-class="{on: filters.obsType.indexOf('simple') !== -1}", data-toggle="tooltip", data-placement="left", title="Toggle Simple")
+            li(ng-click="toggleFilter('obsType:simple')", ng-class="{on: filters.obsType.indexOf('simple') !== -1}")
                 i.fa.fa-camera.fa-fw.fa-2x.fa-inverse.ac-middle
-            li(ng-click="toggleFilter('obsType:weather')", ng-class="{on: filters.obsType.indexOf('weather') !== -1}", data-toggle="tooltip", data-placement="left", title="Toggle Weather")
+            li(ng-click="toggleFilter('obsType:weather')", ng-class="{on: filters.obsType.indexOf('weather') !== -1}")
                 span.ac-icon.ac-icon-weather
                     i.fa.fa-sun-o.fa-inverse.fa-2x.ac-middle
                     i.fa.fa-cloud.fa-inverse.fa-2x.ac-middle
-            li(ng-click="toggleFilter('obsType:avalanche')", ng-class="{on: filters.obsType.indexOf('avalanche') !== -1}", data-toggle="tooltip", data-placement="left", title="Toggle Avalanches")
+            li(ng-click="toggleFilter('obsType:avalanche')", ng-class="{on: filters.obsType.indexOf('avalanche') !== -1}")
                 span.ac-icon.ac-icon-avalanche
                     i.fa.fa-play.fa-inverse.fa-2x
                     i.fa.fa-cloud.fa-inverse.fa-1x
