@@ -1,0 +1,29 @@
+{
+  "generator-angularjs-gulp-library": {
+    "props": {
+      "author": {
+        "name": "Yves Richard",
+        "email": "yves.richard@tesera.com"
+      },
+      "libraryName": {
+        "original": "ac-components",
+        "camelized": "acComponents",
+        "dasherized": "ac-components",
+        "slugified": "ac-components",
+        "parts": [
+          "ac",
+          "components"
+        ]
+      },
+      "includeModuleDirectives": true,
+      "includeModuleFilters": true,
+      "includeModuleServices": true,
+      "includeAngularModuleResource": false,
+      "includeAngularModuleCookies": false,
+      "includeAngularModuleSanitize": true,
+      "librarySrcDirectory": "src/acComponents",
+      "libraryUnitTestDirectory": "test/unit/acComponents",
+      "libraryUnitE2eDirectory": "test/e2e/acComponents"
+    }
+  }
+}
