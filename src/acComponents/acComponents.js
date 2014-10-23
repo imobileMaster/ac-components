@@ -18,5 +18,6 @@ angular.module('acComponents',
         'acComponents.directives',
         'acComponents.filters',
         'acComponents.services',
+        'acComponents.templates',
         'ngSanitize'
     ]);

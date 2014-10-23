@@ -1,10 +1,11 @@
 angular.module('acComponents.services')
     .factory('acForecast', function ($http, acImageCache) {
+        var apiUrl = 'http://localhost:9000';
         var forecasts;
 
         function cacheDangerIcons(){
             var dangerIcons = _.map(forecasts.features, function (f) {
-                return f.properties.dangerIconUrl;
+                return apiUrl + f.properties.dangerIconUrl;
             });
 
             acImageCache.cache(dangerIcons);
@@ -12,7 +13,7 @@ angular.module('acComponents.services')
 
         return {
             fetch: function () {
-                return $http.get('api/forecasts').then(function (res) {
+                return $http.get(apiUrl + '/api/forecasts').then(function (res) {
                     forecasts = res.data;
                     cacheDangerIcons();
                     return forecasts;
@@ -21,7 +22,7 @@ angular.module('acComponents.services')
             getOne: function (region) {
                 region = _.find(forecasts.features, {id: region});
 
-                return $http.get(region.properties.forecastUrl).then(function (res) {
+                return $http.get(apiUrl + region.properties.forecastUrl).then(function (res) {
                     return res.data;
                 });
             }

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html ng-app="acComponentsExampleApp">
+    <head>
+        <title>acComponents Example</title>
+        <link rel="stylesheet" type="text/css" href="../bower/mapbox.js/mapbox.css">
+        <link rel="stylesheet" type="text/css" href="../bower/leaflet-sidebar/src/L.Control.Sidebar.css">
+        <link rel="stylesheet" type="text/css" href="../bower/Leaflet.label/dist/leaflet.label.css">
+        <style type="text/css">
+            html, body {
+                height: 100%;
+                width: 100%;
+                padding: 0;
+                margin: 0;
+            }
+
+            #map {
+                height: 100%;
+                width: 100%;
+            }
+        </style>
+    </head>
+    <body ng-controller="exampleController">
+        <div ac-mapbox-map ac-map-sidebar="sidebar" ac-regions="regions" ac-region="current.region"></div>
+        <div id="sidebar">
+            <div ac-forecast-mini ac-forecast="current.region.feature.properties.forecast"></div>
+        </div>
+        <script src="../bower/lodash/dist/lodash.min.js"></script>
+        <script src="../bower/jquery/dist/jquery.min.js"></script>
+        <script src="../bower/angular/angular.min.js"></script>
+        <script src="../bower/angular-sanitize/angular-sanitize.min.js"></script>
+        <script src="../bower/mapbox.js/mapbox.js"></script>
+        <script src="../bower/Leaflet.label/dist/leaflet.label.js"></script>
+        <script src="../bower/leaflet-sidebar/src/L.Control.Sidebar.js"></script>
+        <script src="../dist/ac-components.js"></script>
+        <script>
+            angular.module('acComponentsExampleApp', ['acComponents'])
+                .constant('MAPBOX_ACCESS_TOKEN', 'pk.eyJ1IjoiYXZhbGFuY2hlY2FuYWRhIiwiYSI6Im52VjFlWW8ifQ.-jbec6Q_pA7uRgvVDkXxsA')
+                .constant('MAPBOX_MAP_ID', 'tesera.jbnoj7kp')
+
+                .controller('exampleController', function ($scope, acForecast, acObservation) {
+                    $scope.current = {
+                        region: {}
+                    };
+
+                    acForecast.fetch().then(function (forecasts) {
+                        $scope.regions = forecasts;
+                    });
+
+                    $scope.$watch('current.region', function (newRegion, oldRegion) {
+                        if(newRegion && newRegion !== oldRegion) {
+                            $scope.imageLoaded = false;
+
+                            if(!newRegion.feature.properties.forecast) {
+                                acForecast.getOne(newRegion.feature.id).then(function (forecast) {
+                                    newRegion.feature.properties.forecast = forecast;
+                                });
+                            }
+                        }
+                    });
+                });
+        </script>
+    </body>
+</html>

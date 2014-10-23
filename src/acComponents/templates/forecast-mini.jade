@@ -50,8 +50,8 @@
                                     .panel-heading
                                         | {{ forecast.dangerRatings[0].date | date:'EEEE' }}
                                     .panel-body.ac-forecast-nowcast
-                                        div(ac-loading-indicator, ng-hide="imageLoaded")
-                                        img.ac-nowcast(ng-show="forecast.region && imageLoaded", ng-src="{{forecast.region && '/api/forecasts/' + forecast.region  + '/nowcast.svg' || ''}}", ac-image-loading)
+                                        //- div(ac-loading-indicator, ng-hide="imageLoaded")
+                                        img.ac-nowcast(ng-show="forecast.region", ng-src="{{forecast.region && 'http://localhost:9000/api/forecasts/' + forecast.region  + '/nowcast.svg' || ''}}")
                                     table.table.table-condensed.ac-forecast-days
                                         thead.ac-thead-dark
                                             tr
