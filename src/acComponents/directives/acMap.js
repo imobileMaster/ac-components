@@ -39,9 +39,9 @@ angular.module('acComponents.directives')
                     map.fitBounds(bcBounds);
                 });
 
-                var sidebar = L.control.sidebar($scope.sidebar, {
-                    position: 'right'
-                }).addTo(map);
+                // var sidebar = L.control.sidebar($scope.sidebar, {
+                //     position: 'right'
+                // }).addTo(map);
 
 
                 // function invalidateSize() {
@@ -126,17 +126,11 @@ angular.module('acComponents.directives')
 
                 $scope.$watch('region', function (region) {
                     if(region && layers.regions) {
-                        sidebar.hide();
-
                         layers.regions.eachLayer(function (layer) {
                             var style = (layer === region ? styles.region.selected : styles.region.default);
                             layer.setStyle(style);
                             layers.currentRegion = layer;
                         });
-
-                        $timeout(function () {
-                            sidebar.show();
-                        }, 1000);
                     }
                 });
 

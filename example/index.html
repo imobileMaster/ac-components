@@ -5,6 +5,8 @@
         <link rel="stylesheet" type="text/css" href="../bower/mapbox.js/mapbox.css">
         <link rel="stylesheet" type="text/css" href="../bower/leaflet-sidebar/src/L.Control.Sidebar.css">
         <link rel="stylesheet" type="text/css" href="../bower/Leaflet.label/dist/leaflet.label.css">
+        <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="css/ac-theme.css">
         <style type="text/css">
             html, body {
                 height: 100%;
@@ -21,13 +23,17 @@
     </head>
     <body ng-controller="exampleController">
         <div ac-mapbox-map ac-map-sidebar="sidebar" ac-regions="regions" ac-region="current.region"></div>
-        <div id="sidebar">
+        <div ac-drawer ng-class="{'ac-drawer--expanded': current.region && current.region.feature.properties.forecast && drawer.visible}">
             <div ac-forecast-mini ac-forecast="current.region.feature.properties.forecast"></div>
         </div>
+        <!-- <div id="sidebar">
+            <div ac-forecast-mini ac-forecast="current.region.feature.properties.forecast"></div>
+        </div> -->
         <script src="../bower/lodash/dist/lodash.min.js"></script>
         <script src="../bower/jquery/dist/jquery.min.js"></script>
         <script src="../bower/angular/angular.min.js"></script>
         <script src="../bower/angular-sanitize/angular-sanitize.min.js"></script>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.js"></script>
         <script src="../bower/mapbox.js/mapbox.js"></script>
         <script src="../bower/Leaflet.label/dist/leaflet.label.js"></script>
         <script src="../bower/leaflet-sidebar/src/L.Control.Sidebar.js"></script>
@@ -37,9 +43,12 @@
                 .constant('MAPBOX_ACCESS_TOKEN', 'pk.eyJ1IjoiYXZhbGFuY2hlY2FuYWRhIiwiYSI6Im52VjFlWW8ifQ.-jbec6Q_pA7uRgvVDkXxsA')
                 .constant('MAPBOX_MAP_ID', 'tesera.jbnoj7kp')
 
-                .controller('exampleController', function ($scope, acForecast, acObservation) {
+                .controller('exampleController', function ($scope, $timeout, acForecast) {
                     $scope.current = {
                         region: {}
+                    };
+                    $scope.drawer = {
+                        visible: false
                     };
 
                     acForecast.fetch().then(function (forecasts) {
@@ -48,6 +57,7 @@
 
                     $scope.$watch('current.region', function (newRegion, oldRegion) {
                         if(newRegion && newRegion !== oldRegion) {
+                            $scope.drawer.visible = false;
                             $scope.imageLoaded = false;
 
                             if(!newRegion.feature.properties.forecast) {
@@ -55,6 +65,10 @@
                                     newRegion.feature.properties.forecast = forecast;
                                 });
                             }
+
+                            $timeout(function () {
+                                $scope.drawer.visible = true;
+                            }, 800);
                         }
                     });
                 });
