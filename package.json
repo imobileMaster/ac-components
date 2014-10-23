@@ -5,6 +5,9 @@
     "name": "Yves Richard",
     "email": "yves.richard@tesera.com"
   },
+  "scripts": {
+    "run": "gulp test"
+  },
   "dependencies": {},
   "devDependencies": {
     "chai": "^1.9.1",
@@ -27,7 +30,10 @@
     "karma-sinon-chai": "^0.2.0",
     "mocha": "^1.21.4",
     "sinon": "^1.10.3",
-    "sinon-chai": "^2.5.0"
+    "sinon-chai": "^2.5.0",
+    "gulp-webserver": "~0.8.3",
+    "gulp-angular-templatecache": "~1.4.2",
+    "gulp-jade": "~0.9.0"
   },
   "engines": {
     "node": ">=0.8.0"
