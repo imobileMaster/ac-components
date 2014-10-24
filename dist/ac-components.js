@@ -287,9 +287,9 @@ angular.module('acComponents.services')
         };
     }]);
 angular.module('acComponents.services')
-    .factory('acForecast', ["$http", "$q", "acImageCache", function ($http, $q, acImageCache) {
+    .factory('acForecast', ["$http", "$q", "acImageCache", "AC_API_ROOT_URL", function ($http, $q, acImageCache, AC_API_ROOT_URL) {
         var forecasts;
-        var apiUrl = 'http://localhost:9000'; // todo: move to constants
+        var apiUrl = AC_API_ROOT_URL; // todo: move to constants
 
         function cacheDangerIcons(){
             var dangerIcons = _.map(forecasts.features, function (f) {
