@@ -1,21 +1,21 @@
 var gulp = require('gulp'),
-        karma = require('karma').server,
-        concat = require('gulp-concat'),
-        uglify = require('gulp-uglify'),
-        rename = require('gulp-rename'),
-        ngAnnotate = require('gulp-ng-annotate'),
-        sourceFiles = [
-            'src/acComponents/acComponents.prefix',
-            'src/acComponents/acComponents.js',
-            'src/acComponents/directives/**/*.js',
-            'src/acComponents/filters/**/*.js',
-            'src/acComponents/services/**/*.js',
-            'src/acComponents/templates/**/*.js',
-            'src/acComponents/acComponents.suffix'
-        ],
-        webserver = require('gulp-webserver'),
-        templateCache = require('gulp-angular-templatecache'),
-        jade = require('gulp-jade');
+    karma = require('karma').server,
+    concat = require('gulp-concat'),
+    uglify = require('gulp-uglify'),
+    rename = require('gulp-rename'),
+    ngAnnotate = require('gulp-ng-annotate'),
+    sourceFiles = [
+        'src/acComponents/acComponents.prefix',
+        'src/acComponents/acComponents.js',
+        'src/acComponents/directives/**/*.js',
+        'src/acComponents/filters/**/*.js',
+        'src/acComponents/services/**/*.js',
+        'src/acComponents/templates/**/*.js',
+        'src/acComponents/acComponents.suffix'
+    ],
+    webserver = require('gulp-webserver'),
+    templateCache = require('gulp-angular-templatecache'),
+    jade = require('gulp-jade');
 
 gulp.task('example', function() {
     gulp.src('.')
