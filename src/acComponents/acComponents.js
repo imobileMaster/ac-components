@@ -6,7 +6,8 @@
 angular.module('acComponents.config', [])
     .value('acComponents.config', {
         debug: true
-    });
+    })
+    .constant('AC_API_ROOT_URL', '');
 
 // Modules
 angular.module('acComponents.directives', []);
