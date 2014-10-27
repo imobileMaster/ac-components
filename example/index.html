@@ -3,7 +3,6 @@
     <head>
         <title>acComponents Example</title>
         <link rel="stylesheet" type="text/css" href="../bower/mapbox.js/mapbox.css">
-        <link rel="stylesheet" type="text/css" href="../bower/leaflet-sidebar/src/L.Control.Sidebar.css">
         <link rel="stylesheet" type="text/css" href="../bower/Leaflet.label/dist/leaflet.label.css">
         <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
         <link rel="stylesheet" type="text/css" href="css/ac-theme.css">
@@ -29,6 +28,7 @@
         <!-- <div id="sidebar">
             <div ac-forecast-mini ac-forecast="current.region.feature.properties.forecast"></div>
         </div> -->
+        <script src="../vendor/geojson-utils.js"></script>
         <script src="../bower/lodash/dist/lodash.min.js"></script>
         <script src="../bower/jquery/dist/jquery.min.js"></script>
         <script src="../bower/angular/angular.min.js"></script>
@@ -36,7 +36,6 @@
         <script src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.js"></script>
         <script src="../bower/mapbox.js/mapbox.js"></script>
         <script src="../bower/Leaflet.label/dist/leaflet.label.js"></script>
-        <script src="../bower/leaflet-sidebar/src/L.Control.Sidebar.js"></script>
         <script src="../dist/ac-components.js"></script>
         <script>
             angular.module('acComponentsExampleApp', ['acComponents'])

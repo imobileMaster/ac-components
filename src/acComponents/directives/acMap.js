@@ -39,18 +39,15 @@ angular.module('acComponents.directives')
                     map.fitBounds(bcBounds);
                 });
 
-                // var sidebar = L.control.sidebar($scope.sidebar, {
-                //     position: 'right'
-                // }).addTo(map);
+                acBreakpoint.setBreakpoints({
+                    xs: 480,
+                    sm: 600,
+                    md: 1025,
+                });
 
-
-                // function invalidateSize() {
-                //     el.height($($window).height()-75);
-                //     map.invalidateSize();
-                // }
-
-                // angular.element(document).ready(invalidateSize);
-                // angular.element($window).bind('resize', invalidateSize);
+                $rootScope.$on('breakpoint', function (e, breakpoint) {
+                    $scope.device.size = breakpoint;
+                });
 
                 // function refreshObsLayer() {
                 //     if (map.hasLayer(layers.obs)){
@@ -74,7 +71,117 @@ angular.module('acComponents.directives')
                 //         }
                 //     }).addTo(map);
                 // }
+                
+                function latLngToGeoJSON(latlng){
+                    return {
+                        type: 'Point',
+                        coordinates: [latlng.lng, latlng.lat]
+                    };
+                }
 
+                function getMapPadding(){
+                    switch($scope.device.size) {
+                        case 'xs':
+                            return L.point([0, 0]);
+                        case 'sm':
+                            return L.point([350, 0]);
+                        case 'md':
+                        case 'lg':
+                            return L.point([480, 0]);
+                        default:
+                            return L.point([0,0]);
+                    }
+                }
+
+                function getMapOffset(){
+                    return getMapPadding().divideBy(2);
+                }
+
+                // offfset can be negative i.e. [-240, 0]
+                function offsetLatLng(latlng, offset){
+                    var point = map.latLngToLayerPoint(latlng);
+                    return map.layerPointToLatLng(point.subtract(offset));
+                }
+
+                function getMapCenter(){
+                    var offset = getMapOffset();
+                    return offsetLatLng(map.getCenter(), offset);
+                }
+
+                function getMapBounds() {
+                    var latLngBounds = map.getBounds();
+                    var min = map.latLngToLayerPoint(latLngBounds.getNorthWest());
+                    var max = map.latLngToLayerPoint(latLngBounds.getSouthEast());
+                    var padding = getMapPadding();
+
+                    var bounds = L.bounds(min, max.subtract(padding));
+                    var nw = map.layerPointToLatLng(bounds.max);
+                    var se = map.layerPointToLatLng(bounds.min);
+
+                    return L.latLngBounds(nw, se);
+                }
+
+                function getMapCenterBuffer(){
+                    var mapCenter = getMapCenter();
+                    var centerPoint = map.latLngToLayerPoint(mapCenter);
+                    var buffer = L.bounds([centerPoint.x-50, centerPoint.y-50], [centerPoint.x+50, centerPoint.y+50]);
+
+                    var nw = map.layerPointToLatLng(buffer.max);
+                    var se = map.layerPointToLatLng(buffer.min);
+
+                    return  L.latLngBounds(nw, se);
+                }
+
+                function setRegionFocus() {
+                    if(map.getZoom() >= 8) {
+                        var region;
+                        var centerBuffer = getMapCenterBuffer();
+                        var regions = layers.regions.getLayers();
+                        var mapCenter = getMapCenter();
+                        var mapBounds = getMapBounds();
+
+                        var intersectsCenterBuffer = _.filter(regions, function (r) {
+                            return centerBuffer.intersects(r.getBounds());
+                        });
+
+                        var withinMapBounds = _.filter(regions, function (r) {
+                            return mapBounds.contains(r.getBounds());
+                        });
+
+                        var containsMapCenter = _.find(regions, function (r) {
+                            return gju.pointInPolygon(latLngToGeoJSON(mapCenter), r.feature.geometry);
+                        });
+
+                        var centroidInMapBounds = _.filter(regions, function (r) {
+                            return mapBounds.contains(r.feature.properties.centroid);
+                        });
+
+                        var intersectsCenterBufferAnWithinMapBounds = _.intersection(intersectsCenterBuffer, withinMapBounds);
+
+                        if(intersectsCenterBufferAnWithinMapBounds.length === 1){
+                            region = intersectsCenterBufferAnWithinMapBounds[0];
+                        } else if(intersectsCenterBufferAnWithinMapBounds.length > 1) {
+                            region = _.min(intersectsCenterBufferAnWithinMapBounds, function (r) {
+                                return r.feature.properties.centroid.distanceTo(mapCenter);
+                            });
+                        } else if(centroidInMapBounds.length === 1){
+                            region = centroidInMapBounds[0];
+                        } else if(centroidInMapBounds.length > 1){
+                            region = _.min(centroidInMapBounds, function (r) {
+                                return r.feature.properties.centroid.distanceTo(mapCenter);
+                            });
+                        } else if (containsMapCenter) {
+                            region = containsMapCenter;
+                        }
+
+                        $scope.$apply(function () {
+                            $scope.region = region;
+                        });
+                    }
+                }
+
+                map.on('dragend', setRegionFocus);
+                
                 map.on('moveend', function () {
                     if(layers.dangerIcons) {
                         if(map.getZoom() <= 6 && map.hasLayer(layers.dangerIcons)) {
@@ -88,6 +195,8 @@ angular.module('acComponents.directives')
                 map.on('zoomend', function () {
                     var mapZoom = map.getZoom();
                     var opacity = 0.2;
+
+                    setRegionFocus();
 
                     if(layers.currentRegion) {
                         if(mapZoom <= 9) {
