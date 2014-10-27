@@ -9,7 +9,8 @@
 angular.module('acComponents.config', [])
     .value('acComponents.config', {
         debug: true
-    });
+    })
+    .constant('AC_API_ROOT_URL', '');
 
 // Modules
 angular.module('acComponents.directives', []);
@@ -301,15 +302,19 @@ angular.module('acComponents.services')
 
         return {
             fetch: function () {
+                var deferred = $q.defer();
+
                 if(forecasts) {
-                    return forecasts;
+                    deferred.resolve(forecasts);
                 } else {
-                    return $http.get(apiUrl + '/api/forecasts').then(function (res) {
+                    $http.get(apiUrl + '/api/forecasts').then(function (res) {
                         forecasts = res.data;
                         cacheDangerIcons();
-                        return forecasts;
+                        deferred.resolve(forecasts);
                     });
                 }
+
+                return deferred.promise;
             },
             getOne: function (region) {
                 return $q.when(this.fetch()).then(function () {
