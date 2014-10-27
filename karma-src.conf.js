@@ -29,6 +29,7 @@ module.exports = function(config) {
       'bower/angular/angular.js',
       'bower/angular-sanitize/angular-sanitize.js',
       'bower/angular-mocks/angular-mocks.js',
+      'bower/lodash/dist/lodash.js',
       'src/**/*.js',
       'test/unit/**/*.js',
       'src/acComponents/templates/*.jade'
