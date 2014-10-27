@@ -160,7 +160,6 @@ angular.module('acComponents.directives')
 
                                 if(featureData.properties.centroid) {
                                     var centroid = L.latLng(featureData.properties.centroid[1], featureData.properties.centroid[0]);
-                                    layer.feature.properties.centroid = centroid;
 
                                     L.marker(centroid, {
                                         icon: L.icon({
