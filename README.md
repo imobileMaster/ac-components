@@ -1,7 +1,7 @@
 ac-components
 =============
 
-Avalanche Canada AngularJS Components Library. Includes a Mapbox map directive, services to request avalanche canada products and directives to display them.
+Avalanche Canada AngularJS Components Library. Includes a Mapbox map directive, services to request Avalanche Canada products and directives to display them.
 
 ###Dependencies
 * lodash
