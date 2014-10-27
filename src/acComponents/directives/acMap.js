@@ -33,11 +33,20 @@ angular.module('acComponents.directives')
                 var map = L.mapbox.map(el[0].id, MAPBOX_MAP_ID, {attributionControl: false});
 
                 var provinces = L.mapbox.geocoder('mapbox.places-province-v1');
+                var locateControl = L.control.locate().addTo(map);
 
-                provinces.query('British-Columbia', function (err, results) {
-                    var bcBounds = L.latLngBounds([results.bounds[1], results.bounds[0]], [results.bounds[3], results.bounds[2]]);
-                    map.fitBounds(bcBounds);
+                map.on('locationfound', function () {
+                    localStorage['locate'] = true;
                 });
+
+                if(localStorage['locate'] === 'true') {
+                    locateControl.locate();
+                } else {
+                    provinces.query('British-Columbia', function (err, results) {
+                        var bcBounds = L.latLngBounds([results.bounds[1], results.bounds[0]], [results.bounds[3], results.bounds[2]]);
+                        map.fitBounds(bcBounds);
+                    });
+                }
 
                 acBreakpoint.setBreakpoints({
                     xs: 480,
@@ -181,7 +190,7 @@ angular.module('acComponents.directives')
                 }
 
                 map.on('dragend', setRegionFocus);
-                
+
                 map.on('moveend', function () {
                     if(layers.dangerIcons) {
                         if(map.getZoom() <= 6 && map.hasLayer(layers.dangerIcons)) {
