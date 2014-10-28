@@ -7,7 +7,6 @@ var ngAnnotate = require('gulp-ng-annotate');
 var webserver = require('gulp-webserver');
 var templateCache = require('gulp-angular-templatecache');
 var jade = require('gulp-jade');
-var concat = require('gulp-concat');
 var sourceFiles = [
     'src/acComponents/acComponents.prefix',
     'src/acComponents/acComponents.js',
