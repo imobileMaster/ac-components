@@ -10,7 +10,7 @@ angular.module('acComponents.config', [])
     .value('acComponents.config', {
         debug: true
     })
-    .constant('AC_API_ROOT_URL', '');
+    .constant('AC_API_ROOT_URL', 'http://avalanche-canada-dev.elasticbeanstalk.com');
 
 // Modules
 angular.module('acComponents.directives', []);
@@ -60,7 +60,7 @@ angular.module('acComponents.directives')
         };
     });
 angular.module('acComponents.directives')
-    .directive('acMapboxMap', ["$rootScope", "$window", "$timeout", "acBreakpoint", "MAPBOX_ACCESS_TOKEN", "MAPBOX_MAP_ID", function ($rootScope, $window, $timeout, acBreakpoint, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID) {
+    .directive('acMapboxMap', ["$rootScope", "$window", "$timeout", "acBreakpoint", "MAPBOX_ACCESS_TOKEN", "MAPBOX_MAP_ID", "AC_API_ROOT_URL", function ($rootScope, $window, $timeout, acBreakpoint, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, AC_API_ROOT_URL) {
         return {
             template: '<div id="map"></div>',
             replace: true,
@@ -339,7 +339,7 @@ angular.module('acComponents.directives')
 
                                     L.marker(centroid, {
                                         icon: L.icon({
-                                            iconUrl: 'http://localhost:9000'+featureData.properties.dangerIconUrl,
+                                            iconUrl: AC_API_ROOT_URL+featureData.properties.dangerIconUrl,
                                             iconSize: [80, 80]
                                         })
                                     }).on('click', showRegion).addTo(layers.dangerIcons);

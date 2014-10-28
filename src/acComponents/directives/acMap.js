@@ -1,5 +1,5 @@
 angular.module('acComponents.directives')
-    .directive('acMapboxMap', function ($rootScope, $window, $timeout, acBreakpoint, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID) {
+    .directive('acMapboxMap', function ($rootScope, $window, $timeout, acBreakpoint, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, AC_API_ROOT_URL) {
         return {
             template: '<div id="map"></div>',
             replace: true,
@@ -278,7 +278,7 @@ angular.module('acComponents.directives')
 
                                     L.marker(centroid, {
                                         icon: L.icon({
-                                            iconUrl: 'http://localhost:9000'+featureData.properties.dangerIconUrl,
+                                            iconUrl: AC_API_ROOT_URL+featureData.properties.dangerIconUrl,
                                             iconSize: [80, 80]
                                         })
                                     }).on('click', showRegion).addTo(layers.dangerIcons);
