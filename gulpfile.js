@@ -69,6 +69,12 @@ gulp.task('example:copy', function () {
             .pipe(gulp.dest('./example/'+dep));
     }
 
+    gulp.src('./bower/mapbox.js/images/*')
+        .pipe(gulp.dest('./example/css/images'));
+
+    gulp.src('./dist/ac-components.js')
+        .pipe(gulp.dest('./example/js'));
+
 });
 
 /**
