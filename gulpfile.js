@@ -7,6 +7,8 @@ var ngAnnotate = require('gulp-ng-annotate');
 var webserver = require('gulp-webserver');
 var templateCache = require('gulp-angular-templatecache');
 var jade = require('gulp-jade');
+var fs = require('fs');
+var awspublish = require('gulp-awspublish');
 var sourceFiles = [
     'src/acComponents/acComponents.prefix',
     'src/acComponents/acComponents.js',
@@ -69,12 +71,37 @@ gulp.task('example:copy', function () {
             .pipe(gulp.dest('./example/'+dep));
     }
 
-    gulp.src('./bower/mapbox.js/images/*')
+    gulp.src('./bower/mapbox.js/images/*.png')
         .pipe(gulp.dest('./example/css/images'));
 
     gulp.src('./dist/ac-components.js')
         .pipe(gulp.dest('./example/js'));
+});
 
+// requires aws-credentials.json in root project or will default to using std AWS ENV_VARS
+// { key: '...',  secret: '...', bucket: '...' }
+gulp.task('example:publish', function () {
+    var aws;
+    var publisher;
+
+    fs.exists(__dirname + '/aws-credentials.json', function (exists) {
+        if(exists) {
+            aws = require('./aws-credentials.json');
+        } else {
+            aws = {
+                key: process.env.AWS_ACCESS_KEY_ID,
+                secret: process.env.AWS_SECRET_KEY,
+                bucket: 'ac-components-example',
+                region: 'us-west-2'
+            };
+        }
+
+        publisher = awspublish.create(aws);
+
+        return gulp.src('./example/**/*')
+            .pipe(publisher.publish())
+            .pipe(awspublish.reporter());
+    });
 });
 
 /**

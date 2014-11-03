@@ -16,3 +16,5 @@ libpeerconnection.log
 
 # Bower components
 bower
+
+aws-credentials.json
