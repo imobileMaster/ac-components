@@ -143,8 +143,8 @@ gulp.task('test-dist-minified', function (done) {
 });
 
 gulp.task('watch', function () {
-    gulp.watch('./src/acComponents/**/*.js', ['build']);
-    gulp.watch('./src/acComponents/templates/*.jade', ['templates']);
+    gulp.watch('./src/acComponents/**/*.js', ['build', 'example:copy']);
+    gulp.watch('./src/acComponents/templates/*.jade', ['templates', 'example:copy']);
 });
 
 gulp.task('dev', ['build', 'templates', 'watch', 'example']);
