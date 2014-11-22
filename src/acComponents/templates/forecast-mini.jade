@@ -6,7 +6,7 @@
         .row
             .col-xs-12
                 p
-                    | The avalanche forecast for this region is produced by one of our partner agencies. 
+                    | The avalanche forecast for this region is produced by one of our partner agencies.
                     | The link below will take you to the forecast page on the partner agency's own website.
                 a(ng-href="{{forecast.externalUrl}}", target="_blank")
                     i.fa.fa-external-link
@@ -20,7 +20,7 @@
             .col-md-6
                 dl
                     dd.small
-                        strong.ac-text-primary DATE ISSUED 
+                        strong.ac-text-primary DATE ISSUED
                     dt.small
                         span.ac-text-default {{ forecast.dateIssued | date:'EEEE MMMM d, y h:mm a' | uppercase }}
             .col-md-6
@@ -42,6 +42,9 @@
                     a(href="", role='tab', data-target="#problems", data-toggle='tab') Problems
                   li
                     a(href="", role='tab', data-target="#details", data-toggle='tab') Details
+                  li
+                    a(href="/forecasts/{{forecast.region}}", role='tab',  data-toggle='tab') Full Page
+
                 .tab-content
                     #forecast.tab-pane.active
                         .row
@@ -60,25 +63,25 @@
                                                 th {{ forecast.dangerRatings[2].date | date:'EEEE' }}
                                         tbody
                                             tr
-                                                td.ac-veg-zone--alp 
+                                                td.ac-veg-zone--alp
                                                     strong Alpine
-                                                td(class="ac-danger-rating--{{ forecast.dangerRatings[1].dangerRating.alp.split(':')[1].toLowerCase()}}") 
+                                                td(class="ac-danger-rating--{{ forecast.dangerRatings[1].dangerRating.alp.split(':')[1].toLowerCase()}}")
                                                     strong {{ forecast.dangerRatings[1].dangerRating.alp.replace(':', ' ') }}
-                                                td(class="ac-danger-rating--{{ forecast.dangerRatings[2].dangerRating.alp.split(':')[1].toLowerCase()}}") 
+                                                td(class="ac-danger-rating--{{ forecast.dangerRatings[2].dangerRating.alp.split(':')[1].toLowerCase()}}")
                                                     strong {{ forecast.dangerRatings[2].dangerRating.alp.replace(':', ' ') }}
                                             tr
-                                                td.ac-veg-zone--tln 
+                                                td.ac-veg-zone--tln
                                                     strong Treeline
-                                                td(class="ac-danger-rating--{{ forecast.dangerRatings[1].dangerRating.tln.split(':')[1].toLowerCase()}}") 
+                                                td(class="ac-danger-rating--{{ forecast.dangerRatings[1].dangerRating.tln.split(':')[1].toLowerCase()}}")
                                                     strong {{ forecast.dangerRatings[1].dangerRating.tln.replace(':', ' ') }}
-                                                td(class="ac-danger-rating--{{ forecast.dangerRatings[2].dangerRating.tln.split(':')[1].toLowerCase()}}") 
+                                                td(class="ac-danger-rating--{{ forecast.dangerRatings[2].dangerRating.tln.split(':')[1].toLowerCase()}}")
                                                     strong {{ forecast.dangerRatings[2].dangerRating.tln.replace(':', ' ') }}
                                             tr
-                                                td.ac-veg-zone--btl 
+                                                td.ac-veg-zone--btl
                                                     strong Bellow Treeline
-                                                td(class="ac-danger-rating--{{ forecast.dangerRatings[1].dangerRating.btl.split(':')[1].toLowerCase()}}") 
+                                                td(class="ac-danger-rating--{{ forecast.dangerRatings[1].dangerRating.btl.split(':')[1].toLowerCase()}}")
                                                     strong {{ forecast.dangerRatings[1].dangerRating.btl.replace(':', ' ') }}
-                                                td(class="ac-danger-rating--{{ forecast.dangerRatings[2].dangerRating.btl.split(':')[1].toLowerCase()}}") 
+                                                td(class="ac-danger-rating--{{ forecast.dangerRatings[2].dangerRating.btl.split(':')[1].toLowerCase()}}")
                                                     strong {{ forecast.dangerRatings[2].dangerRating.btl.replace(':', ' ') }}
                                             tr
                                                 td
