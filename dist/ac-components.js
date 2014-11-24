@@ -117,6 +117,21 @@ angular.module('acComponents.directives')
                     $scope.device.size = breakpoint;
                 });
 
+                function getInvalidateSize(topOffset) {
+                    return function () {
+                        el.height($($window).height()-Number(topOffset));
+                        map.invalidateSize();
+                    }
+                }
+
+                if(attrs.topOffset) {
+                    var offset = Number(attrs.topOffset);
+                    var invalidateSize = getInvalidateSize(offset);
+                    
+                    angular.element(document).ready(invalidateSize);
+                    angular.element($window).bind('resize', invalidateSize);
+                }
+
                 // function refreshObsLayer() {
                 //     if (map.hasLayer(layers.obs)){
                 //         map.removeLayer(layers.obs);

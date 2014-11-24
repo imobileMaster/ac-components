@@ -61,7 +61,7 @@ angular.module('acComponents.directives')
         };
     });
 angular.module('acComponents.directives')
-    .directive('acMapboxMap', ["$rootScope", "$window", "$timeout", "acBreakpoint", "MAPBOX_ACCESS_TOKEN", "MAPBOX_MAP_ID", "AC_API_ROOT_URL", function ($rootScope, $window, $timeout, acBreakpoint, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, AC_API_ROOT_URL) {
+    .directive('acMapboxMap', ["$rootScope", "$log", "$window", "$timeout", "acBreakpoint", "MAPBOX_ACCESS_TOKEN", "MAPBOX_MAP_ID", "AC_API_ROOT_URL", function ($rootScope, $log, $window, $timeout, acBreakpoint, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, AC_API_ROOT_URL) {
         return {
             template: '<div id="map"></div>',
             replace: true,
@@ -93,13 +93,13 @@ angular.module('acComponents.directives')
 
                 L.mapbox.accessToken = MAPBOX_ACCESS_TOKEN;
                 var map = L.mapbox.map(el[0].id, MAPBOX_MAP_ID, {attributionControl: false});
+                map.setView([52.3, -120.74966],6);
 
-                var provinces = L.mapbox.geocoder('mapbox.places-province-v1');
-
+                /*var provinces = L.mapbox.geocoder('mapbox.places-province-v1');
                 provinces.query('British-Columbia', function (err, results) {
                     var bcBounds = L.latLngBounds([results.bounds[1], results.bounds[0]], [results.bounds[3], results.bounds[2]]);
                     map.fitBounds(bcBounds);
-                });
+                });*/
 
                 L.control.locate({
                     locateOptions: {
@@ -116,6 +116,21 @@ angular.module('acComponents.directives')
                 $rootScope.$on('breakpoint', function (e, breakpoint) {
                     $scope.device.size = breakpoint;
                 });
+
+                function getInvalidateSize(topOffset) {
+                    return function () {
+                        el.height($($window).height()-Number(topOffset));
+                        map.invalidateSize();
+                    }
+                }
+
+                if(attrs.topOffset) {
+                    var offset = Number(attrs.topOffset);
+                    var invalidateSize = getInvalidateSize(offset);
+                    
+                    angular.element(document).ready(invalidateSize);
+                    angular.element($window).bind('resize', invalidateSize);
+                }
 
                 // function refreshObsLayer() {
                 //     if (map.hasLayer(layers.obs)){
@@ -139,7 +154,7 @@ angular.module('acComponents.directives')
                 //         }
                 //     }).addTo(map);
                 // }
-                
+
                 function latLngToGeoJSON(latlng){
                     return {
                         type: 'Point',
@@ -262,6 +277,8 @@ angular.module('acComponents.directives')
 
                 map.on('zoomend', function () {
                     var mapZoom = map.getZoom();
+                    $log.info('map zoom', mapZoom);
+
                     var opacity = 0.2;
 
                     setRegionFocus();
@@ -361,6 +378,7 @@ angular.module('acComponents.directives')
             }
         };
     }]);
+
 angular.module('acComponents.filters')
     .filter('acNormalizeForecastTitle', function () {
         return function (item) {
