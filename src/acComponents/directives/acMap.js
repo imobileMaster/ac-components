@@ -70,28 +70,25 @@ angular.module('acComponents.directives')
                     angular.element($window).bind('resize', invalidateSize);
                 }
 
-                // function refreshObsLayer() {
-                //     if (map.hasLayer(layers.obs)){
-                //         map.removeLayer(layers.obs);
-                //     }
+                function refreshObsLayer() {
+                    if (map.hasLayer(layers.obs)){
+                        map.removeLayer(layers.obs);
+                    }
 
-                //     layers.obs = L.geoJson($scope.obs, {
-                //         pointToLayer: function (featureData, latlng) {
-                //             var icons = {
-                //                 avalanche: L.AwesomeMarkers.icon({prefix: 'fa', icon: 'eye', markerColor: 'red'}),
-                //                 incident: L.AwesomeMarkers.icon({prefix: 'fa', icon: 'warning', markerColor: 'blue'}),
-                //                 simple: L.AwesomeMarkers.icon({prefix: 'fa', icon: 'warning', markerColor: 'orange'}),
-                //                 snowpack: L.AwesomeMarkers.icon({prefix: 'fa', icon: 'bar-chart', markerColor: 'darkred'}),
-                //                 weather: L.AwesomeMarkers.icon({prefix: 'fa', icon: 'warning', markerColor: 'green'})
-                //             };
+                    if($scope.obs.length > 0 ) {
+                        var markers = $scope.obs.map(function (ob) {
+                            return L.marker(ob.latlng, {
+                                icon: L.mapbox.marker.icon({
+                                    'marker-size': 'large',
+                                    'marker-symbol': 'beer',
+                                    'marker-color': '#09c'
+                                })
+                            }).bindPopup(ob.obid);
+                        });
 
-                //             return L.marker(latlng, {icon: icons[featureData.properties.obsType]});
-                //         },
-                //         filter: function (featureData, layer) {
-                //             return _.contains($scope.filters.obsType, featureData.properties.obsType);
-                //         }
-                //     }).addTo(map);
-                // }
+                        layers.obs = L.featureGroup(markers).addTo(map);
+                    }
+                }
 
                 function latLngToGeoJSON(latlng){
                     return {
@@ -306,13 +303,12 @@ angular.module('acComponents.directives')
                     }
                 });
 
-                // $scope.$watch('obs', function (obs) {
-                //     if(obs && obs.features) {
-                //         refreshObsLayer();
-                //     }
-                // });
+                $scope.$watch('obs', function (obs) {
+                    if(obs) {
+                        refreshObsLayer();
+                    }
+                });
 
-                // $scope.$watchCollection('filters.obsType', refreshObsLayer);
             }
         };
     });
