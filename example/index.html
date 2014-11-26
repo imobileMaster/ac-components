@@ -20,7 +20,7 @@
         </style>
     </head>
     <body ng-controller="exampleController">
-        <div ac-mapbox-map ac-map-sidebar="sidebar" ac-regions="regions" ac-region="current.region"></div>
+        <div ac-mapbox-map ac-map-sidebar="sidebar" ac-regions="regions" ac-region="current.region" obs="obs"></div>
         <div ac-drawer ng-class="{'ac-drawer--expanded': current.region && current.region.feature.properties.forecast && drawer.visible}">
             <div ac-forecast-mini ac-forecast="current.region.feature.properties.forecast"></div>
         </div>
@@ -32,9 +32,9 @@
             angular.module('acComponentsExampleApp', ['acComponents'])
                 .constant('MAPBOX_ACCESS_TOKEN', 'pk.eyJ1IjoiYXZhbGFuY2hlY2FuYWRhIiwiYSI6Im52VjFlWW8ifQ.-jbec6Q_pA7uRgvVDkXxsA')
                 .constant('MAPBOX_MAP_ID', 'tesera.jbnoj7kp')
-                .constant('AC_API_ROOT_URL', 'http://avalanche-canada-dev.elasticbeanstalk.com')
+                .constant('AC_API_ROOT_URL', 'http://localhost:9000')
 
-                .controller('exampleController', function ($scope, $timeout, acForecast) {
+                .controller('exampleController', function ($scope, $timeout, acForecast, acObservation) {
                     $scope.current = {
                         region: {}
                     };
@@ -61,6 +61,10 @@
                                 $scope.drawer.visible = true;
                             }, 800);
                         }
+                    });
+
+                    acObservation.byPeriod('2:days').then(function (obs) {
+                        $scope.obs = obs;
                     });
                 });
         </script>
