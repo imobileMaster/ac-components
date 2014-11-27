@@ -147,8 +147,8 @@ angular.module('acComponents.directives')
 
                             var marker = L.marker(ob.latlng, {
                                 icon: L.mapbox.marker.icon({
-                                    'marker-size': 'large',
-                                    'marker-symbol': 'beer',
+                                    'marker-size': 'small',
+                                    'marker-symbol': 'circle',
                                     'marker-color': '#09c'
                                 })
                             });
