@@ -6,7 +6,8 @@
     "email": "yves.richard@tesera.com"
   },
   "scripts": {
-    "run": "gulp test"
+    "start": "gulp dev && http-server ./example",
+    "test": "gulp test"
   },
   "dependencies": {},
   "devDependencies": {
