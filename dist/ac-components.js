@@ -145,7 +145,7 @@ angular.module('acComponents.directives')
                                     'marker-symbol': 'beer',
                                     'marker-color': '#09c'
                                 })
-                            }).bindPopup(ob.obid);
+                            }).bindPopup('<a href="/share/' + ob.obid + '">' + ob.obid + '</a>');
                         });
 
                         layers.obs = L.featureGroup(markers).addTo(map);
