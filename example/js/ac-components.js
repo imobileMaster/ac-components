@@ -61,7 +61,7 @@ angular.module('acComponents.directives')
         };
     });
 angular.module('acComponents.directives')
-    .directive('acMapboxMap', ["$rootScope", "$log", "$window", "$timeout", "acBreakpoint", "MAPBOX_ACCESS_TOKEN", "MAPBOX_MAP_ID", "AC_API_ROOT_URL", function ($rootScope, $log, $window, $timeout, acBreakpoint, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, AC_API_ROOT_URL) {
+    .directive('acMapboxMap', ["$http", "$rootScope", "$log", "$window", "$timeout", "acBreakpoint", "MAPBOX_ACCESS_TOKEN", "MAPBOX_MAP_ID", "AC_API_ROOT_URL", function ($http, $rootScope, $log, $window, $timeout, acBreakpoint, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, AC_API_ROOT_URL) {
         return {
             template: '<div id="map"></div>',
             replace: true,
@@ -139,13 +139,30 @@ angular.module('acComponents.directives')
 
                     if($scope.obs.length > 0 ) {
                         var markers = $scope.obs.map(function (ob) {
-                            return L.marker(ob.latlng, {
+                            var popup = L.popup();
+
+                            function togglePopup(){
+                                
+                            };
+
+                            var marker = L.marker(ob.latlng, {
                                 icon: L.mapbox.marker.icon({
                                     'marker-size': 'large',
                                     'marker-symbol': 'beer',
                                     'marker-color': '#09c'
                                 })
-                            }).bindPopup('<a href="/share/' + ob.obid + '">' + ob.obid + '</a>');
+                            });
+
+                            marker.on('click', function () {
+                                $http.get(AC_API_ROOT_URL+'/api/min/observations/' + ob.obid + '.html').then(function (res) {
+                                    var html = res.data;
+                                    popup.setContent(html);
+                                    marker.bindPopup(popup);
+                                    marker.togglePopup();
+                                });
+                            });
+
+                            return marker;
                         });
 
                         layers.obs = L.featureGroup(markers).addTo(map);
