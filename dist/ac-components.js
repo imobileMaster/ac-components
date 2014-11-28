@@ -263,6 +263,20 @@ angular.module('acComponents.directives')
                     }
                 }
 
+
+                function refreshRegionsLayer(){
+                    var zoom = map.getZoom();
+                    var regionsVisible = map.hasLayer(layers.regions);
+
+                    if(zoom < 6 && regionsVisible) {
+                        map.removeLayer(layers.regions);
+                    } else if (zoom >= 6 && !regionsVisible) {
+                        map.addLayer(layers.regions);
+                    } else if (zoom > 10 && regionsVisible) {
+                        map.removeLayer(layers.regions);
+                    }
+                }
+
                 map.on('dragend', setRegionFocus);
 
                 map.on('moveend', function () {
@@ -277,11 +291,7 @@ angular.module('acComponents.directives')
 
                 map.on('zoomend', function () {
                     var mapZoom = map.getZoom();
-                    $log.info('map zoom', mapZoom);
-
                     var opacity = 0.2;
-
-                    setRegionFocus();
 
                     if(layers.currentRegion) {
                         if(mapZoom <= 9) {
@@ -307,23 +317,20 @@ angular.module('acComponents.directives')
                         }
                     }
 
-                    // if(layers.obs && mapZoom > 7 && !map.hasLayer(layers.obs)) {
-                    //     $scope.filters.obsType = ['avalanche', 'incident', 'snowpack', 'simple', 'weather'];
-                    //     $scope.filters.obsPeriod = ['7:days'];
-                    //     map.addLayer(layers.obs);
-                    // } else if(layers.obs && mapZoom <= 7 && map.hasLayer(layers.obs)){
-                    //     $scope.filters.obsType = [];
-                    //     map.removeLayer(layers.obs);
-                    // }
+                    refreshRegionsLayer();
 
                 });
 
                 $scope.$watch('region', function (region) {
+
                     if(region && layers.regions) {
                         layers.regions.eachLayer(function (layer) {
-                            var style = (layer === region ? styles.region.selected : styles.region.default);
-                            layer.setStyle(style);
-                            layers.currentRegion = layer;
+                            if(layer === region){
+                                layer.setStyle(styles.region.selected);
+                                layers.currentRegion = layer;
+                            } else {
+                                layer.setStyle(styles.region.default)
+                            }
                         });
                     }
                 });
@@ -340,7 +347,11 @@ angular.module('acComponents.directives')
 
                                 function showRegion(evt){
                                     if(map.getZoom() < 9) {
-                                        map.fitBounds(layer.getBounds());
+                                        var padding = getMapPadding();
+
+                                        map.fitBounds(layer.getBounds(), {
+                                            paddingBottomRight: padding
+                                        });
                                     } else {
                                         map.panTo(evt.latlng);
                                     }
@@ -364,7 +375,9 @@ angular.module('acComponents.directives')
                                 }
 
                             }
-                        }).addTo(map);
+                        });
+
+                        refreshRegionsLayer();
                     }
                 });
 

@@ -47,7 +47,7 @@ gulp.task('build', function() {
         .pipe(gulp.dest('./dist'))
 });
 
-gulp.task('example:copy', function () {
+gulp.task('example:copy', ['build'], function () {
     var deps = {
         css: [
             './bower/mapbox.js/mapbox.css',
