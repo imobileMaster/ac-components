@@ -9,6 +9,7 @@ var templateCache = require('gulp-angular-templatecache');
 var jade = require('gulp-jade');
 var fs = require('fs');
 var awspublish = require('gulp-awspublish');
+var rename = require("gulp-rename");
 var sourceFiles = [
     'src/acComponents/acComponents.prefix',
     'src/acComponents/acComponents.js',
@@ -99,6 +100,9 @@ gulp.task('example:publish', function () {
         publisher = awspublish.create(aws);
 
         return gulp.src('./example/**/*')
+            .pipe(rename(function (path) {
+                path.dirname = "/quickreport/" + path.dirname;
+            }))
             .pipe(publisher.publish())
             .pipe(awspublish.reporter());
     });
