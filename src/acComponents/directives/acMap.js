@@ -96,7 +96,7 @@ angular.module('acComponents.directives')
                                 L.marker(centroid, {
                                     icon: L.icon({
                                         iconUrl: acForecast.getDangerIconUrl(featureData.id),
-                                        iconSize: [80, 80]
+                                        iconSize: [60, 60]
                                     })
                                 }).on('click', showRegion).addTo(layers.dangerIcons);
                             }
@@ -124,9 +124,9 @@ angular.module('acComponents.directives')
                     if(layers.dangerIcons) {
                         var dangerIconsVisible = map.hasLayer(layers.dangerIcons);
 
-                        if(map.getZoom() <= 6 && dangerIconsVisible) {
+                        if(map.getZoom() < 6 && dangerIconsVisible) {
                             map.removeLayer(layers.dangerIcons);
-                        } else if (map.getZoom() > 6 && !dangerIconsVisible){
+                        } else if (map.getZoom() >= 6 && !dangerIconsVisible){
                             map.addLayer(layers.dangerIcons);
                         }
                     }
