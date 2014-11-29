@@ -86,6 +86,10 @@ angular.module('acComponents.directives')
                         },
                         hover: {
                             color: '#B43A7E'
+                        },
+                        selectedhover: {
+                            fillColor: '#489BDF',
+                            color: '#B43A7E'
                         }
                     }
                 };
@@ -148,6 +152,8 @@ angular.module('acComponents.directives')
                                     });
                                 }
 
+                                layers.currentRegion = layer;
+
                                 $scope.$apply(function () {
                                     $scope.region = layer;
                                 });
@@ -156,11 +162,19 @@ angular.module('acComponents.directives')
                             layer.on('click', showRegion);
 
                             layer.on('mouseover', function() {
-                                layer.setStyle(styles.region.hover);
+                                if(layer == layers.currentRegion){
+                                    layer.setStyle(styles.region.selectedhover);
+                                } else {
+                                    layer.setStyle(styles.region.hover);
+                                }
                             });
 
                             layer.on('mouseout', function() {
-                                layer.setStyle(styles.region.default);
+                                if(layer == layers.currentRegion){
+                                    layer.setStyle(styles.region.selected);
+                                } else {
+                                    layer.setStyle(styles.region.default);
+                                }
                             });
 
                             if(featureData.properties.centroid) {
