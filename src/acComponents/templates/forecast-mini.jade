@@ -21,13 +21,13 @@
                     dd.small
                         strong.ac-text-primary DATE ISSUED
                     dt.small
-                        span.ac-text-default {{ forecast.dateIssued | date:'EEEE MMMM d, y h:mm a' | uppercase }}
+                        span.ac-text-default {{ forecast.dateIssued | dateUtc:'dddd MMMM D, YYYY'  | uppercase }}
             .col-md-6
                 dl
                     dd.small
                         strong.ac-text-primary VALID UNTIL
                     dt.small
-                        span.ac-text-default {{ forecast.validUntil | date:'EEEE MMMM d, y h:mm a' | uppercase }}
+                        span.ac-text-default {{ forecast.validUntil | dateUtc:'dddd MMMM D, YYYY' | uppercase }}
         .row
             .col-xs-12
                 p.ac-forecast-highlights
@@ -50,7 +50,7 @@
                             .col-xs-12
                                 .panel.panel-primary
                                     .panel-heading
-                                        | {{ forecast.dangerRatings[0].date | date:'EEEE' }}
+                                        | {{ forecast.dangerRatings[0].date | dateUtc:'dddd' }}
                                     .panel-body.ac-forecast-nowcast
                                         //- div(ac-loading-indicator, ng-hide="imageLoaded")
                                         img.ac-nowcast(ng-show="forecast.region", ng-src="{{forecast.region && apiUrl+'/api/forecasts/' + forecast.region  + '/nowcast.svg' || ''}}")
@@ -58,8 +58,8 @@
                                         thead.ac-thead-dark
                                             tr
                                                 th
-                                                th {{ forecast.dangerRatings[1].date | date:'EEEE' }}
-                                                th {{ forecast.dangerRatings[2].date | date:'EEEE' }}
+                                                th {{ forecast.dangerRatings[1].date | dateUtc:'dddd' }}
+                                                th {{ forecast.dangerRatings[2].date | dateUtc:'dddd' }}
                                         tbody
                                             tr
                                                 td.ac-veg-zone--alp
