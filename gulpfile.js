@@ -64,6 +64,8 @@ gulp.task('example:copy', ['build'], function () {
             './bower/angular-sanitize/angular-sanitize.min.js',
             './bower/mapbox.js/mapbox.js',
             './bower/Leaflet.label/dist/leaflet.label.js',
+            './bower/leaflet.locatecontrol/src/L.Control.Locate.js',
+            './bower/moment/min/moment.min.js',
             './bower/leaflet.locatecontrol/src/L.Control.Locate.js'
         ],
         map: [
