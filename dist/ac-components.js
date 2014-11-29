@@ -83,6 +83,9 @@ angular.module('acComponents.directives')
                         },
                         selected: {
                             fillColor: '#489BDF'
+                        },
+                        hover: {
+                            color: '#B43A7E'
                         }
                     }
                 };
@@ -152,6 +155,14 @@ angular.module('acComponents.directives')
 
                             layer.on('click', showRegion);
 
+                            layer.on('mouseover', function() {
+                                layer.setStyle(styles.region.hover);
+                            });
+
+                            layer.on('mouseout', function() {
+                                layer.setStyle(styles.region.default);
+                            });
+
                             if(featureData.properties.centroid) {
                                 var centroid = L.latLng(featureData.properties.centroid[1], featureData.properties.centroid[0]);
 
@@ -203,9 +214,9 @@ angular.module('acComponents.directives')
                     if(layers.obs) {
                         var obsVisible = map.hasLayer(layers.obs);
 
-                        if(map.getZoom() < 6 && obsVisible) {
+                        if(map.getZoom() < 7 && obsVisible) {
                             map.removeLayer(layers.obs);
-                        } else if (map.getZoom() >= 6 && !obsVisible){
+                        } else if (map.getZoom() >= 7 && !obsVisible){
                             map.addLayer(layers.obs);
                         }
                     }

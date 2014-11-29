@@ -21,6 +21,9 @@ angular.module('acComponents.directives')
                         },
                         selected: {
                             fillColor: '#489BDF'
+                        },
+                        hover: {
+                            color: '#B43A7E'
                         }
                     }
                 };
@@ -89,6 +92,14 @@ angular.module('acComponents.directives')
                             }
 
                             layer.on('click', showRegion);
+
+                            layer.on('mouseover', function() {
+                                layer.setStyle(styles.region.hover);
+                            });
+
+                            layer.on('mouseout', function() {
+                                layer.setStyle(styles.region.default);
+                            });
 
                             if(featureData.properties.centroid) {
                                 var centroid = L.latLng(featureData.properties.centroid[1], featureData.properties.centroid[0]);
