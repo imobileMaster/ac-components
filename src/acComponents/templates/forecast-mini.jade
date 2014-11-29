@@ -21,13 +21,13 @@
                     dd.small
                         strong.ac-text-primary DATE ISSUED
                     dt.small
-                        span.ac-text-default {{ forecast.dateIssued | dateUtc:'dddd MMMM D, YYYY'  | uppercase }}
+                        span.ac-text-default {{ forecast.dateIssued | date:'EEEE MMMM d, y h:mm a'  | uppercase }}
             .col-md-6
                 dl
                     dd.small
                         strong.ac-text-primary VALID UNTIL
                     dt.small
-                        span.ac-text-default {{ forecast.validUntil | dateUtc:'dddd MMMM D, YYYY' | uppercase }}
+                        span.ac-text-default {{ forecast.validUntil | date:'EEEE MMMM d, y h:mm a' | uppercase }}
         .row
             .col-xs-12
                 p.ac-forecast-highlights
