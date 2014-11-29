@@ -77,11 +77,6 @@ angular.module('acComponents.directives')
 
                     if($scope.obs.length > 0 ) {
                         var markers = $scope.obs.map(function (ob) {
-                            var popup = L.popup();
-
-                            function togglePopup(){
-                                
-                            };
 
                             var marker = L.marker(ob.latlng, {
                                 icon: L.mapbox.marker.icon({
@@ -92,7 +87,9 @@ angular.module('acComponents.directives')
 
                             marker.on('click', function () {
                                 $http.get(AC_API_ROOT_URL+'/api/min/observations/' + ob.obid + '.html').then(function (res) {
+                                    var popup = L.popup();
                                     var html = res.data;
+
                                     popup.setContent(html);
                                     marker.bindPopup(popup);
                                     marker.togglePopup();

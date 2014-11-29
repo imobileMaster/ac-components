@@ -23,8 +23,8 @@ var sourceFiles = [
 gulp.task('example', function() {
     gulp.src('.')
         .pipe(webserver({
-          livereload: true,
-          directoryListing: true
+            livereload: true,
+            directoryListing: true
         }));
 });
 
@@ -63,13 +63,22 @@ gulp.task('example:copy', ['build'], function () {
             './bower/mapbox.js/mapbox.js',
             './bower/Leaflet.label/dist/leaflet.label.js',
             './bower/leaflet.locatecontrol/src/L.Control.Locate.js'
+        ],
+        map: [
+            './bower/jquery/dist/jquery.min.map',
+            './bower/angular/angular.min.js.map',
+            './bower/angular-sanitize/angular-sanitize.min.js.map'
         ]
     };
 
     for (var dep in deps) {
-        gulp.src(deps[dep])
-            .pipe(concat('vendor.'+dep))
-            .pipe(gulp.dest('./example/'+dep));
+        if(dep !== 'map'){
+            gulp.src(deps[dep])
+                .pipe(concat('vendor.'+dep))
+                .pipe(gulp.dest('./example/'+dep));
+        } else {
+            gulp.src(deps[dep]).pipe(gulp.dest('./example/js'));
+        }
     }
 
     gulp.src('./bower/mapbox.js/images/*.png')
