@@ -134,7 +134,7 @@ angular.module('acComponents.directives')
                             return styles.region.default;
                         },
                         onEachFeature: function (featureData, layer) {
-                            layer.bindLabel(featureData.properties.name, {noHide: true});
+                            layer.bindLabel(featureData.properties.name);
 
                             function showRegion(evt){
                                 if(map.getZoom() < 9) {
@@ -155,12 +155,19 @@ angular.module('acComponents.directives')
                             if(featureData.properties.centroid) {
                                 var centroid = L.latLng(featureData.properties.centroid[1], featureData.properties.centroid[0]);
 
-                                L.marker(centroid, {
+                                var marker = L.marker(centroid, {
                                     icon: L.icon({
                                         iconUrl: acForecast.getDangerIconUrl(featureData.id),
-                                        iconSize: [60, 60]
+                                        iconSize: [60, 60],
+                                        labelAnchor: [6, 0]
                                     })
-                                }).on('click', showRegion).addTo(layers.dangerIcons);
+                                });
+
+                                marker.setZIndexOffset(200);
+                                marker.on('click', showRegion);
+                                marker.bindLabel(featureData.properties.name, {pane: 'popupPane'});
+
+                                layers.dangerIcons.addLayer(marker);
                             }
                         }
                     });
@@ -254,10 +261,13 @@ angular.module('acComponents.directives')
                                 });
                             });
 
+                            marker.setZIndexOffset(100);
+
                             return marker;
                         });
 
                         layers.obs = L.featureGroup(markers);
+                        layers.obs.bringToFront();
                     }
 
                     refreshLayers();
