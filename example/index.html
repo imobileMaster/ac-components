@@ -24,7 +24,7 @@
         <div ac-drawer ng-class="{'ac-drawer--expanded': current.region && current.region.feature.properties.forecast && drawer.visible}">
             <div ac-forecast-mini ac-forecast="current.region.feature.properties.forecast"></div>
         </div>
-        <script src="js/geojson-utils.js"></script>
+        <script src="./js/geojson-utils.js"></script>
         <script src="./js/vendor.js"></script>
         <script src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.js"></script>
         <script src="./js/ac-components.js"></script>
@@ -35,15 +35,24 @@
                 .constant('AC_API_ROOT_URL', 'http://avalanche-canada-qa.elasticbeanstalk.com')
 
                 .controller('exampleController', function ($scope, $timeout, acForecast, acObservation) {
-                    $scope.current = {
-                        region: {}
-                    };
-                    $scope.drawer = {
-                        visible: false
-                    };
+                    angular.extend($scope, {
+                        current: {
+                            region: null
+                        },
+                        drawer: {
+                            visible: false
+                        },
+                        imageLoaded: false,
+                        regions: [],
+                        obs: []
+                    });
 
                     acForecast.fetch().then(function (forecasts) {
                         $scope.regions = forecasts;
+                    });
+
+                    acObservation.byPeriod('2:days').then(function (obs) {
+                        $scope.obs = obs;
                     });
 
                     $scope.$watch('current.region', function (newRegion, oldRegion) {
@@ -63,9 +72,6 @@
                         }
                     });
 
-                    acObservation.byPeriod('2:days').then(function (obs) {
-                        $scope.obs = obs;
-                    });
                 });
         </script>
     </body>
