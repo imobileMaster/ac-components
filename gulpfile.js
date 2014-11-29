@@ -59,6 +59,7 @@ gulp.task('example:copy', ['build'], function () {
             './bower/lodash/dist/lodash.min.js',
             './bower/jquery/dist/jquery.min.js',
             './bower/angular/angular.min.js',
+            './bower/angular-sanitize/angular-sanitize.js',
             './bower/angular-sanitize/angular-sanitize.min.js',
             './bower/mapbox.js/mapbox.js',
             './bower/Leaflet.label/dist/leaflet.label.js',

@@ -135,6 +135,16 @@ angular.module('acComponents.directives')
                     angular.element($window).bind('resize', invalidateSize);
                 }
 
+                function getDangerIcon(options) {
+                    var size = map.getZoom() <= 6 ? 60 : 80;
+
+                    return L.icon({
+                        iconUrl: options.iconUrl || acForecast.getDangerIconUrl(options.regionId),
+                        iconSize: [size, size],
+                        labelAnchor: [6, 0]
+                    });
+                };
+
                 function initRegionsLayer(){
                     layers.regions = L.geoJson($scope.regions, {
                         style: function(feature) {
@@ -180,14 +190,10 @@ angular.module('acComponents.directives')
                             if(featureData.properties.centroid) {
                                 var centroid = L.latLng(featureData.properties.centroid[1], featureData.properties.centroid[0]);
 
-                                var marker = L.marker(centroid, {
-                                    icon: L.icon({
-                                        iconUrl: acForecast.getDangerIconUrl(featureData.id),
-                                        iconSize: [60, 60],
-                                        labelAnchor: [6, 0]
-                                    })
-                                });
+                                var marker = L.marker(centroid);
+                                var icon = getDangerIcon({regionId: featureData.id});
 
+                                marker.setIcon(icon);
                                 marker.setZIndexOffset(200);
                                 marker.on('click', showRegion);
                                 marker.bindLabel(featureData.properties.name, {pane: 'popupPane'});
@@ -222,6 +228,14 @@ angular.module('acComponents.directives')
                             map.removeLayer(layers.dangerIcons);
                         } else if (map.getZoom() >= 6 && !dangerIconsVisible){
                             map.addLayer(layers.dangerIcons);
+                        }
+
+                        if (zoom > 6){
+                            layers.dangerIcons.eachLayer(function (dangerIconLayer) {
+                                var iconUrl = dangerIconLayer.options.icon.options.iconUrl;
+                                var icon = getDangerIcon({ iconUrl: iconUrl });
+                                dangerIconLayer.setIcon(icon);
+                            });
                         }
                     }
 
