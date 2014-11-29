@@ -1,16 +1,12 @@
 angular.module('acComponents.directives')
-    .directive('acMapboxMap', function ($http, $rootScope, $log, $window, $timeout, acBreakpoint, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, AC_API_ROOT_URL) {
+    .directive('acMapboxMap', function ($rootScope, $window, $timeout, acBreakpoint, acObservation, acForecast, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID) {
         return {
             template: '<div id="map"></div>',
             replace: true,
             scope: {
-                mapboxAccessToken: '@',
-                mapboxMapId: '@',
-                sidebar: '@acMapSidebar',
                 region: '=acRegion',
                 regions: '=acRegions',
-                obs: '=',
-                filters: '='
+                obs: '=acObs'
             },
             link: function ($scope, el, attrs) {
                 $scope.device = {};
@@ -99,7 +95,7 @@ angular.module('acComponents.directives')
 
                                 L.marker(centroid, {
                                     icon: L.icon({
-                                        iconUrl: AC_API_ROOT_URL+featureData.properties.dangerIconUrl,
+                                        iconUrl: acForecast.getDangerIconUrl(featureData.id),
                                         iconSize: [80, 80]
                                     })
                                 }).on('click', showRegion).addTo(layers.dangerIcons);
@@ -187,11 +183,10 @@ angular.module('acComponents.directives')
                             });
 
                             marker.on('click', function () {
-                                $http.get(AC_API_ROOT_URL+'/api/min/observations/' + ob.obid + '.html').then(function (res) {
+                                acObservation.getOne(ob.obid, 'html').then(function (obHtml) {
                                     var popup = L.popup();
-                                    var html = res.data;
 
-                                    popup.setContent(html);
+                                    popup.setContent(obHtml);
                                     marker.bindPopup(popup);
                                     marker.togglePopup();
                                 });

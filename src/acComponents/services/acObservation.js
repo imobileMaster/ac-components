@@ -7,6 +7,14 @@ angular.module('acComponents.services')
                 return $http.get(AC_API_ROOT_URL+'/api/min/observations', opt).then(function (res) {
                     return res.data;
                 });
+            },
+            getOne: function(obid, format) {
+                var format = '.'+format || '';
+                var obUrl = AC_API_ROOT_URL+'/api/min/observations/' + obid + format;
+                
+                return $http.get(obUrl).then(function (res) {
+                    return res.data;
+                });
             }
         };
     });

@@ -61,18 +61,14 @@ angular.module('acComponents.directives')
         };
     });
 angular.module('acComponents.directives')
-    .directive('acMapboxMap', ["$http", "$rootScope", "$log", "$window", "$timeout", "acBreakpoint", "MAPBOX_ACCESS_TOKEN", "MAPBOX_MAP_ID", "AC_API_ROOT_URL", function ($http, $rootScope, $log, $window, $timeout, acBreakpoint, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, AC_API_ROOT_URL) {
+    .directive('acMapboxMap', ["$rootScope", "$window", "$timeout", "acBreakpoint", "acObservation", "acForecast", "MAPBOX_ACCESS_TOKEN", "MAPBOX_MAP_ID", function ($rootScope, $window, $timeout, acBreakpoint, acObservation, acForecast, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID) {
         return {
             template: '<div id="map"></div>',
             replace: true,
             scope: {
-                mapboxAccessToken: '@',
-                mapboxMapId: '@',
-                sidebar: '@acMapSidebar',
                 region: '=acRegion',
                 regions: '=acRegions',
-                obs: '=',
-                filters: '='
+                obs: '=acObs'
             },
             link: function ($scope, el, attrs) {
                 $scope.device = {};
@@ -161,7 +157,7 @@ angular.module('acComponents.directives')
 
                                 L.marker(centroid, {
                                     icon: L.icon({
-                                        iconUrl: AC_API_ROOT_URL+featureData.properties.dangerIconUrl,
+                                        iconUrl: acForecast.getDangerIconUrl(featureData.id),
                                         iconSize: [80, 80]
                                     })
                                 }).on('click', showRegion).addTo(layers.dangerIcons);
@@ -249,11 +245,10 @@ angular.module('acComponents.directives')
                             });
 
                             marker.on('click', function () {
-                                $http.get(AC_API_ROOT_URL+'/api/min/observations/' + ob.obid + '.html').then(function (res) {
+                                acObservation.getOne(ob.obid, 'html').then(function (obHtml) {
                                     var popup = L.popup();
-                                    var html = res.data;
 
-                                    popup.setContent(html);
+                                    popup.setContent(obHtml);
                                     marker.bindPopup(popup);
                                     marker.togglePopup();
                                 });
@@ -484,14 +479,19 @@ angular.module('acComponents.services')
 
                 return deferred.promise;
             },
-            getOne: function (region) {
+            getOne: function (regionId) {
                 return $q.when(this.fetch()).then(function () {
-                    region = _.find(forecasts.features, {id: region});
+                    var region = _.find(forecasts.features, {id: regionId});
 
                     return $http.get(apiUrl + region.properties.forecastUrl).then(function (res) {
                         return res.data;
                     });
                 });
+            },
+            getDangerIconUrl: function(regionId) {
+                var region = _.find(forecasts.features, {id: regionId});
+                
+                return AC_API_ROOT_URL + region.properties.dangerIconUrl
             }
         };
     }]);
@@ -512,6 +512,14 @@ angular.module('acComponents.services')
                 var opt = {params: {period: period || '2:days'}};
 
                 return $http.get(AC_API_ROOT_URL+'/api/min/observations', opt).then(function (res) {
+                    return res.data;
+                });
+            },
+            getOne: function(obid, format) {
+                var format = '.'+format || '';
+                var obUrl = AC_API_ROOT_URL+'/api/min/observations/' + obid + format;
+                
+                return $http.get(obUrl).then(function (res) {
                     return res.data;
                 });
             }

@@ -27,14 +27,19 @@ angular.module('acComponents.services')
 
                 return deferred.promise;
             },
-            getOne: function (region) {
+            getOne: function (regionId) {
                 return $q.when(this.fetch()).then(function () {
-                    region = _.find(forecasts.features, {id: region});
+                    var region = _.find(forecasts.features, {id: regionId});
 
                     return $http.get(apiUrl + region.properties.forecastUrl).then(function (res) {
                         return res.data;
                     });
                 });
+            },
+            getDangerIconUrl: function(regionId) {
+                var region = _.find(forecasts.features, {id: regionId});
+                
+                return AC_API_ROOT_URL + region.properties.dangerIconUrl
             }
         };
     });

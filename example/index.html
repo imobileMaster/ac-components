@@ -20,7 +20,7 @@
         </style>
     </head>
     <body ng-controller="exampleController">
-        <div ac-mapbox-map ac-map-sidebar="sidebar" ac-regions="regions" ac-region="current.region" obs="obs"></div>
+        <div ac-mapbox-map ac-regions="regions" ac-region="current.region" ac-obs="obs"></div>
         <div ac-drawer ng-class="{'ac-drawer--expanded': current.region && current.region.feature.properties.forecast && drawer.visible}">
             <div ac-forecast-mini ac-forecast="current.region.feature.properties.forecast"></div>
         </div>
