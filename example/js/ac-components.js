@@ -264,7 +264,7 @@ angular.module('acComponents.directives')
 
                             marker.on('click', function () {
                                 acObservation.getOne(ob.obid, 'html').then(function (obHtml) {
-                                    var popup = L.popup();
+                                    var popup = L.popup({maxWidth: 400});
 
                                     popup.setContent(obHtml);
                                     marker.bindPopup(popup);
@@ -421,7 +421,7 @@ angular.module('acComponents.directives')
                 });
 
                 $scope.$watch('obs', function (newObs, oldObs) {
-                    if(newObs && newObs !== oldObs) {
+                    if(newObs) {
                         refreshObsLayer();
                     }
                 });
