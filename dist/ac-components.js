@@ -465,7 +465,7 @@ angular.module('acComponents.directives')
                 });
 
                 $scope.$watch('ob', function (newObs, oldObs) {
-                    if(newObs.latlng) {
+                    if(newObs && newObs.latlng) {
                         acObservation.getOne(newObs.obid, 'html').then(function (obHtml) {
                             var marker = L.marker(newObs.latlng, {
                                 icon: L.mapbox.marker.icon({
