@@ -659,7 +659,8 @@ angular.module('acComponents.directives')
                     if (!map) {
                         L.mapbox.accessToken = MAPBOX_ACCESS_TOKEN;
                         map = L.mapbox.map('location-map', MAPBOX_MAP_ID, {
-                            attributionControl: false
+                            attributionControl: false,
+                            scrollWheelZoom: false
                         });
                         map.on('click', onMapClick);
                     }
@@ -704,9 +705,7 @@ angular.module('acComponents.directives')
                     }
                 }
             }
-
         };
-
     }]);
 
 angular.module('acComponents.filters')
@@ -820,7 +819,7 @@ angular.module('acComponents.services')
             //process files
             if (reportData.files && reportData.files.length > 0) {
                 angular.forEach(reportData.files, function(file, counter) {
-                    //check file type image/video for now just image
+                    //TODO-JPB check file type image/video for now just image
                     if (file) {
                         fd.append('file' + counter, file, 'image-' + counter + '.jpg');
                     }
@@ -829,19 +828,14 @@ angular.module('acComponents.services')
 
             //process data
             angular.forEach(reportData, function(value, key) {
-
                 if (key !== 'files' && key !== 'latlng' && angular.isObject(value)) {
-                    // TODO-JPB clean up strings
                     fd.append(key, "'" + JSON.stringify(value) + "'");
-                    //console.log('SKIPPED appending-stringified: ' + key + ':' + JSON.stringify(value));
                 } else if (key === 'latlng') {
                     fd.append(key, JSON.stringify(value));
                 } else if (key === 'datetime') {
                     fd.append(key, moment(value).format());
-                    //console.log('appending-date: ' + key + ':' + moment(value).format());
                 } else if (key !== 'files' && !angular.isObject(value)) {
                     fd.append(key, value);
-                    //console.log('appending-plain: ' + key + ':' + value);
                 }
             });
             return $q.when(fd);
@@ -867,12 +861,12 @@ angular.module('acComponents.services')
 
         //private
         function onError(error) {
-            console.error(error);
+            //console.error(error);
             return $q.reject(error);
         }
 
         function onSuccess(response) {
-            console.log(response);
+            //console.log(response);
             return response.data;
         }
 

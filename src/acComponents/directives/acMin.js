@@ -46,7 +46,8 @@ angular.module('acComponents.directives')
                     if (!map) {
                         L.mapbox.accessToken = MAPBOX_ACCESS_TOKEN;
                         map = L.mapbox.map('location-map', MAPBOX_MAP_ID, {
-                            attributionControl: false
+                            attributionControl: false,
+                            scrollWheelZoom: false
                         });
                         map.on('click', onMapClick);
                     }
