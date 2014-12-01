@@ -2,8 +2,8 @@
 <html ng-app="acComponentsExampleApp">
     <head>
         <title>acComponents Example</title>
-        <link href="./css/vendor.css" rel="stylesheet">
-        <link rel="stylesheet" type="text/css" href="css/ac-theme.css">
+        <link href="/css/vendor.css" rel="stylesheet">
+        <link href="/css/ac-theme.css" rel="stylesheet" >
         <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
         <style type="text/css">
             html, body {
@@ -13,31 +13,71 @@
                 margin: 0;
             }
 
-            #map {
+            .fullpage {
                 height: 100%;
                 width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            .ac-drawer {
+                top: 0;
             }
         </style>
     </head>
-    <body ng-controller="exampleController">
-        <div ac-mapbox-map ac-regions="regions" ac-region="current.region" ac-obs="obs"></div>
-        <div ac-drawer ng-class="{'ac-drawer--expanded': current.region && current.region.feature.properties.forecast && drawer.visible}">
-            <div ac-forecast-mini ac-forecast="current.region.feature.properties.forecast"></div>
-        </div>
-        <script src="./js/geojson-utils.js"></script>
-        <script src="./js/vendor.js"></script>
+    <body>
+        <div ng-view class="container-fluid fullpage"></div>
+        <script src="/js/geojson-utils.js"></script>
+        <script src="/js/vendor.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.3/angular-route.js"></script>
         <script src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.js"></script>
-        <script src="./js/ac-components.js"></script>
+        <script src="/js/ac-components.js"></script>
         <script>
             angular.module('acComponents')
                 .constant('AC_API_ROOT_URL', 'http://localhost:9000')
 
-            angular.module('acComponentsExampleApp', ['acComponents'])
+            angular.module('acComponentsExampleApp', ['acComponents', 'ngRoute'])
                 .constant('MAPBOX_ACCESS_TOKEN', 'pk.eyJ1IjoiYXZhbGFuY2hlY2FuYWRhIiwiYSI6Im52VjFlWW8ifQ.-jbec6Q_pA7uRgvVDkXxsA')
                 .constant('MAPBOX_MAP_ID', 'tesera.jbnoj7kp')
                 .constant('AC_API_ROOT_URL', 'http://localhost:9000')
+                .config(function ($routeProvider, $locationProvider) {
 
-                .controller('exampleController', function ($scope, $timeout, acForecast, acObservation) {
+                    $locationProvider.html5Mode(true);
+
+                    $routeProvider.when('/', {
+                        resolve: {
+                            regions: function (acForecast) {
+                                return acForecast.fetch();
+                            },
+                            obs: function (acObservation) {
+                                return acObservation.byPeriod('2:days');
+                            },
+                            ob: function () {
+                                return [];
+                            }
+                        },
+                        templateUrl: '/partials/map.html',
+                        controller: 'exampleController',
+                    })
+                    .when('/share/:title/:obid', {
+                        resolve: {
+                            regions: function (acForecast) {
+                                return acForecast.fetch();
+                            },
+                            obs: function () {
+                                return [];
+                            },
+                            ob: function ($route, acObservation) {
+                                return acObservation.getOne($route.current.params.obid);
+                            }
+                        },
+                        templateUrl: '/partials/map.html',
+                        controller: 'exampleController',
+                    });
+
+                    
+                })
+                .controller('exampleController', function ($scope, $timeout, regions, obs, ob, acForecast) {
                     angular.extend($scope, {
                         current: {
                             region: null
@@ -46,16 +86,9 @@
                             visible: false
                         },
                         imageLoaded: false,
-                        regions: [],
-                        obs: []
-                    });
-
-                    acForecast.fetch().then(function (forecasts) {
-                        $scope.regions = forecasts;
-                    });
-
-                    acObservation.byPeriod('2:days').then(function (obs) {
-                        $scope.obs = obs;
+                        regions: regions,
+                        obs: obs,
+                        ob: ob
                     });
 
                     $scope.$watch('current.region', function (newRegion, oldRegion) {

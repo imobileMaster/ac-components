@@ -1,0 +1,6 @@
+<div class="fullpage">
+    <div class="fullpage" ac-mapbox-map ac-regions="regions" ac-region="current.region" ac-obs="obs" ac-ob="ob"></div>
+    <div ac-drawer ng-class="{'ac-drawer--expanded': current.region && current.region.feature.properties.forecast && drawer.visible}">
+        <div ac-forecast-mini ac-forecast="current.region.feature.properties.forecast"></div>
+    </div>
+</div> 

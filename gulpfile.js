@@ -4,6 +4,7 @@ var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
 var ngAnnotate = require('gulp-ng-annotate');
+var express = require('express');
 var webserver = require('gulp-webserver');
 var templateCache = require('gulp-angular-templatecache');
 var jade = require('gulp-jade');
@@ -21,10 +22,10 @@ var sourceFiles = [
 ];
 
 gulp.task('example', function() {
-    gulp.src('.')
+    gulp.src('example')
         .pipe(webserver({
             livereload: true,
-            directoryListing: true
+            fallback: 'index.html'
         }));
 });
 

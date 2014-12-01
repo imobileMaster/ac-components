@@ -6,7 +6,7 @@
     "email": "yves.richard@tesera.com"
   },
   "scripts": {
-    "start": "gulp dev && http-server ./example",
+    "start": "gulp dev",
     "test": "gulp test"
   },
   "dependencies": {},
@@ -35,7 +35,8 @@
     "gulp-webserver": "~0.8.3",
     "gulp-angular-templatecache": "~1.4.2",
     "gulp-jade": "~0.9.0",
-    "gulp-awspublish": "0.0.23"
+    "gulp-awspublish": "0.0.23",
+    "express": "~4.10.4"
   },
   "engines": {
     "node": ">=0.8.0"
