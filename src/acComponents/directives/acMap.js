@@ -1,12 +1,13 @@
 angular.module('acComponents.directives')
-    .directive('acMapboxMap', function ($rootScope, $window, $timeout, acBreakpoint, acObservation, acForecast, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID) {
+    .directive('acMapboxMap', function ($rootScope, $window, $location, $timeout, acBreakpoint, acObservation, acForecast, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID) {
         return {
             template: '<div id="map"></div>',
             replace: true,
             scope: {
                 region: '=acRegion',
                 regions: '=acRegions',
-                obs: '=acObs'
+                obs: '=acObs',
+                ob: '=acOb'
             },
             link: function ($scope, el, attrs) {
                 $scope.device = {};
@@ -144,6 +145,15 @@ angular.module('acComponents.directives')
                     refreshLayers();
                 }
 
+                function refreshDangerIconsLayer(){
+                    layers.dangerIcons.eachLayer(function (dangerIconLayer) {
+                        var iconUrl = dangerIconLayer.options.icon.options.iconUrl;
+                        var icon = getDangerIcon({ iconUrl: iconUrl });
+
+                        dangerIconLayer.setIcon(icon);
+                    });
+                }
+
                 function refreshLayers(){
                     var zoom = map.getZoom();
 
@@ -168,13 +178,12 @@ angular.module('acComponents.directives')
                             map.addLayer(layers.dangerIcons);
                         }
 
-                        if (zoom > 6){
-                            layers.dangerIcons.eachLayer(function (dangerIconLayer) {
-                                var iconUrl = dangerIconLayer.options.icon.options.iconUrl;
-                                var icon = getDangerIcon({ iconUrl: iconUrl });
-                                
-                                dangerIconLayer.setIcon(icon);
-                            });
+                        var dangerIcon = layers.dangerIcons.getLayers()[0];
+                        if(dangerIcon){
+                            var dangerIconSize = dangerIcon.options.icon.options.iconSize;
+                            if ((zoom > 6 && dangerIconSize === [60, 60]) || (dangerIconSize === [80, 80])) {
+                                refreshDangerIconsLayer();
+                            } 
                         }
                     }
 
@@ -382,7 +391,7 @@ angular.module('acComponents.directives')
                 });
 
                 $scope.$watch('regions', function (newRegions, oldRegions) {
-                    if(newRegions && newRegions !== oldRegions && newRegions.features) {
+                    if(newRegions && newRegions.features) {
                         initRegionsLayer();
                     }
                 });
@@ -390,6 +399,32 @@ angular.module('acComponents.directives')
                 $scope.$watch('obs', function (newObs, oldObs) {
                     if(newObs) {
                         refreshObsLayer();
+                    }
+                });
+
+                $scope.$watch('ob', function (newObs, oldObs) {
+                    if(newObs.latlng) {
+                        acObservation.getOne(newObs.obid, 'html').then(function (obHtml) {
+                            var marker = L.marker(newObs.latlng, {
+                                icon: L.mapbox.marker.icon({
+                                    'marker-size': 'small',
+                                    'marker-color': '#09c'
+                                })
+                            });
+
+                            marker.bindPopup(obHtml, {maxWidth: 400});
+                            marker.on('popupclose', function () {
+                                map.removeLayer(marker);
+                                $timeout(function () {
+                                    $location.path('/');
+                                }, 0);
+                            });
+
+                            marker.setZIndexOffset(10000);
+                            map.addLayer(marker);
+
+                            marker.togglePopup();
+                        });
                     }
                 });
 
