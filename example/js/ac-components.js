@@ -242,8 +242,8 @@ angular.module('acComponents.directives')
 
                         var dangerIcon = layers.dangerIcons.getLayers()[0];
                         if(dangerIcon){
-                            var dangerIconSize = dangerIcon.options.icon.options.iconSize;
-                            if ((zoom > 6 && dangerIconSize === [60, 60]) || (dangerIconSize === [80, 80])) {
+                            var dangerIconSize = dangerIcon.options.icon.options.iconSize[0];
+                            if ((zoom > 6 && dangerIconSize === 60) || (zoom <= 6 && dangerIconSize === 80)) {
                                 refreshDangerIconsLayer();
                             } 
                         }
@@ -465,7 +465,7 @@ angular.module('acComponents.directives')
                 });
 
                 $scope.$watch('ob', function (newObs, oldObs) {
-                    if(newObs.latlng) {
+                    if(newObs && newObs.latlng) {
                         acObservation.getOne(newObs.obid, 'html').then(function (obHtml) {
                             var marker = L.marker(newObs.latlng, {
                                 icon: L.mapbox.marker.icon({
