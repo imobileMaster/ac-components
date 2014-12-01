@@ -136,8 +136,6 @@ angular.module('acComponents.directives')
                     angular.element($window).bind('resize', invalidateSize);
                 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
                 function getDangerIcon(options) {
                     var size = map.getZoom() <= 6 ? 60 : 80;
 
@@ -148,19 +146,13 @@ angular.module('acComponents.directives')
                     });
                 };
 
-=======
->>>>>>> moved css to index.html
                 function initRegionsLayer(){
                     layers.regions = L.geoJson($scope.regions, {
                         style: function(feature) {
                             return styles.region.default;
                         },
                         onEachFeature: function (featureData, layer) {
-<<<<<<< HEAD
                             layer.bindLabel(featureData.properties.name);
-=======
-                            layer.bindLabel(featureData.properties.name, {noHide: true});
->>>>>>> moved css to index.html
 
                             function showRegion(evt){
                                 if(map.getZoom() < 9) {
@@ -171,11 +163,8 @@ angular.module('acComponents.directives')
                                     });
                                 }
 
-<<<<<<< HEAD
                                 layers.currentRegion = layer;
 
-=======
->>>>>>> moved css to index.html
                                 $scope.$apply(function () {
                                     $scope.region = layer;
                                 });
@@ -183,7 +172,6 @@ angular.module('acComponents.directives')
 
                             layer.on('click', showRegion);
 
-<<<<<<< HEAD
                             layer.on('mouseover', function() {
                                 if(layer == layers.currentRegion){
                                     layer.setStyle(styles.region.selectedhover);
@@ -212,17 +200,6 @@ angular.module('acComponents.directives')
                                 marker.bindLabel(featureData.properties.name, {pane: 'popupPane'});
 
                                 layers.dangerIcons.addLayer(marker);
-=======
-                            if(featureData.properties.centroid) {
-                                var centroid = L.latLng(featureData.properties.centroid[1], featureData.properties.centroid[0]);
-
-                                L.marker(centroid, {
-                                    icon: L.icon({
-                                        iconUrl: AC_API_ROOT_URL+featureData.properties.dangerIconUrl,
-                                        iconSize: [80, 80]
-                                    })
-                                }).on('click', showRegion).addTo(layers.dangerIcons);
->>>>>>> moved css to index.html
                             }
                         }
                     });
@@ -230,7 +207,6 @@ angular.module('acComponents.directives')
                     refreshLayers();
                 }
 
-<<<<<<< HEAD
                 function refreshDangerIconsLayer(){
                     layers.dangerIcons.eachLayer(function (dangerIconLayer) {
                         var iconUrl = dangerIconLayer.options.icon.options.iconUrl;
@@ -240,8 +216,6 @@ angular.module('acComponents.directives')
                     });
                 }
 
-=======
->>>>>>> moved css to index.html
                 function refreshLayers(){
                     var zoom = map.getZoom();
 
@@ -260,7 +234,6 @@ angular.module('acComponents.directives')
                     if(layers.dangerIcons) {
                         var dangerIconsVisible = map.hasLayer(layers.dangerIcons);
 
-<<<<<<< HEAD
                         if(map.getZoom() < 6 && dangerIconsVisible) {
                             map.removeLayer(layers.dangerIcons);
                         } else if (map.getZoom() >= 6 && !dangerIconsVisible){
@@ -274,27 +247,14 @@ angular.module('acComponents.directives')
                                 refreshDangerIconsLayer();
                             } 
                         }
-=======
-                        if(map.getZoom() <= 6 && dangerIconsVisible) {
-                            map.removeLayer(layers.dangerIcons);
-                        } else if (map.getZoom() > 6 && !dangerIconsVisible){
-                            map.addLayer(layers.dangerIcons);
-                        }
->>>>>>> moved css to index.html
                     }
 
                     if(layers.obs) {
                         var obsVisible = map.hasLayer(layers.obs);
 
-<<<<<<< HEAD
                         if(map.getZoom() < 7 && obsVisible) {
                             map.removeLayer(layers.obs);
                         } else if (map.getZoom() >= 7 && !obsVisible){
-=======
-                        if(map.getZoom() < 6 && obsVisible) {
-                            map.removeLayer(layers.obs);
-                        } else if (map.getZoom() >= 6 && !obsVisible){
->>>>>>> moved css to index.html
                             map.addLayer(layers.obs);
                         }
                     }
@@ -325,11 +285,6 @@ angular.module('acComponents.directives')
                     }
                 }
 
-<<<<<<< HEAD
-=======
->>>>>>> added MIN form as modal to example
-=======
->>>>>>> moved css to index.html
                 function refreshObsLayer() {
                     if (map.hasLayer(layers.obs)){
                         map.removeLayer(layers.obs);
@@ -346,18 +301,10 @@ angular.module('acComponents.directives')
                             });
 
                             marker.on('click', function () {
-<<<<<<< HEAD
                                 acObservation.getOne(ob.obid, 'html').then(function (obHtml) {
                                     var popup = L.popup({maxWidth: 400});
 
                                     popup.setContent(obHtml);
-=======
-                                $http.get(AC_API_ROOT_URL+'/api/min/observations/' + ob.obid + '.html').then(function (res) {
-                                    var popup = L.popup();
-                                    var html = res.data;
-
-                                    popup.setContent(html);
->>>>>>> added MIN form as modal to example
                                     marker.bindPopup(popup);
                                     marker.togglePopup();
                                 });
@@ -368,16 +315,8 @@ angular.module('acComponents.directives')
                             return marker;
                         });
 
-<<<<<<< HEAD
-<<<<<<< HEAD
                         layers.obs = L.featureGroup(markers);
                         layers.obs.bringToFront();
-=======
-                        layers.obs = L.featureGroup(markers).addTo(map);
->>>>>>> added MIN form as modal to example
-=======
-                        layers.obs = L.featureGroup(markers);
->>>>>>> moved css to index.html
                     }
 
                     refreshLayers();
@@ -513,8 +452,6 @@ angular.module('acComponents.directives')
                     }
                 });
 
-<<<<<<< HEAD
-<<<<<<< HEAD
                 $scope.$watch('regions', function (newRegions, oldRegions) {
                     if(newRegions && newRegions.features) {
                         initRegionsLayer();
@@ -523,60 +460,6 @@ angular.module('acComponents.directives')
 
                 $scope.$watch('obs', function (newObs, oldObs) {
                     if(newObs) {
-=======
-                $scope.$watch('regions', function (regions) {
-                    if(regions && regions.features) {
-
-                        layers.regions = L.geoJson($scope.regions, {
-                            style: function(feature) {
-                                return styles.region.default;
-                            },
-                            onEachFeature: function (featureData, layer) {
-                                layer.bindLabel(featureData.properties.name, {noHide: true});
-
-                                function showRegion(evt){
-                                    if(map.getZoom() < 9) {
-                                        map.fitBounds(layer.getBounds());
-                                    } else {
-                                        map.panTo(evt.latlng);
-                                    }
-
-                                    $scope.$apply(function () {
-                                        $scope.region = layer;
-                                    });
-                                }
-
-                                layer.on('click', showRegion);
-
-                                if(featureData.properties.centroid) {
-                                    var centroid = L.latLng(featureData.properties.centroid[1], featureData.properties.centroid[0]);
-
-                                    L.marker(centroid, {
-                                        icon: L.icon({
-                                            iconUrl: AC_API_ROOT_URL+featureData.properties.dangerIconUrl,
-                                            iconSize: [80, 80]
-                                        })
-                                    }).on('click', showRegion).addTo(layers.dangerIcons);
-                                }
-
-                            }
-                        }).addTo(map);
-                    }
-                });
-
-                $scope.$watch('obs', function (obs) {
-                    if(obs) {
->>>>>>> added MIN form as modal to example
-=======
-                $scope.$watch('regions', function (newRegions, oldRegions) {
-                    if(newRegions && newRegions !== oldRegions && newRegions.features) {
-                        initRegionsLayer();
-                    }
-                });
-
-                $scope.$watch('obs', function (newObs, oldObs) {
-                    if(newObs && newObs !== oldObs) {
->>>>>>> moved css to index.html
                         refreshObsLayer();
                     }
                 });
