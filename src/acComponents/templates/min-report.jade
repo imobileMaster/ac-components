@@ -22,11 +22,16 @@
                           |  Date and Time
                         input#report-datetime.form-control(type="datetime-local", placeholder="", ng-model="report.datetime")
                       .form-group
+
+                      .form-group
                         label(for="report-location")
                           i.fa.fa-map-marker
                           |  Location
+                        #location-map
                         .form-control
-                          | ({{ report.location[0] }}, {{ report.location[1] }})
+                          span(ng-if="!report.latlng[0]") Drop pin on map to set location
+                          span(ng-if="report.latlng[0]")
+                            | ({{ report.latlng[0] }}, {{ report.latlng[1] }})
                       .form-group
                         label(for="report-files")
                           i.fa.fa-clock-o
@@ -46,12 +51,12 @@
                                 | {{ ridingCondition.prompt }}
                                 .checkbox(ng-if="ridingCondition.type=='multiple'", ng-repeat="(option, enabled) in ridingCondition.options")
                                   label
-                                    input(type="checkbox", ng-model="report.ridingConditions.options[option]")
+                                    input(type="checkbox", ng-model="report.ridingConditions[item].options[option]")
                                     | {{option}}
 
                                 .radio(ng-if="ridingCondition.type=='single'", ng-repeat="option in ridingCondition.options")
                                   label
-                                    input(type="radio", ng-model="report.ridingConditions.item.selected", ng-value="option")
+                                    input(type="radio", ng-model="report.ridingConditions[item].selected", ng-value="option")
                                     | {{option}}
                         .panel.panel-default
                           .panel-heading(id="avalanche-conditions", role="tap")
@@ -67,7 +72,7 @@
                                     | {{ option }}
                       .form-group
                         label Comments
-                        textarea.form-control(rows="3", ng-model="report.narrative")
+                        textarea.form-control(rows="3", ng-model="report.comment")
                       button.btn.btn-default(type="button", ng-click="submitReport()") SUBMIT REPORT
 
               .modal-footer
