@@ -2,8 +2,11 @@
     <div class="tools">
         <ul class="list-inline">
             <li>
-                <a href="#" ng-click="auth.signin({authParams: {scope: 'openid profile'}})">
-                    <i class="fa fa-2x fa-inverse" ng-class="{'fa-sign-in': auth.isAuthorized, 'fa-sign-out': !auth.isAuthorized }"></i>
+                <a href="#" ng-click="auth.signin({authParams: {scope: 'openid profile'}})" ng-hide="auth.isAuthenticated">
+                    <i class="fa fa-sign-in fa-2x fa-inverse" ></i>
+                </a>
+                <a href="#" ng-click="auth.signout()" ng-show="auth.isAuthenticated">
+                    <i class="fa fa-sign-out fa-2x fa-inverse"></i>
                 </a>
             </li>
             <li>
