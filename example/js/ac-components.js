@@ -599,10 +599,9 @@ angular.module('acComponents.directives')
                                 } else {
                                     $scope.report[field] = reportTemplate[field];
                                 }
-                            } else {
-                                $scope.report[field] = null;
                             }
                         }
+                        delete $scope.report.subid;
                     }, 0);
                 }
 
