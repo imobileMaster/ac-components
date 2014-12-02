@@ -52,10 +52,17 @@ angular.module('acComponents.directives')
                     if(token) {
                         $scope.minsubmitting = true;
                         acSubmission.submit($scope.report, token).then(function(result) {
-                            if (result.data) {
+                            if (result.data && !('error' in result.data)) {
+                                $scope.minsubmitting = false;
                                 $scope.report.subid = result.data.subid;
                                 console.log('submission: ' + result.data.subid);
+                            } else {
+                                $scope.minsubmitting = false;
+                                $scope.minerror = true;
                             }
+                        }, function () {
+                            $scope.minsubmitting = false;
+                            $scope.minerror = true;
                         });
                     }
                 };

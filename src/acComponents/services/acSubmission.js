@@ -41,7 +41,7 @@ angular.module('acComponents.services')
                             'Authorization': 'Bearer ' + token
                         }
                     });
-                })
+                });
             },
             byPeriod: function (period) {
                 var opt = {params: {period: period || '2:days'}};

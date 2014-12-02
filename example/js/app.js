@@ -1,13 +1,13 @@
 'use strict';
 
 angular.module('acComponents')
-    .constant('AC_API_ROOT_URL', 'http://avalanche-canada-qa.elasticbeanstalk.com/')
+    .constant('AC_API_ROOT_URL', 'http://localhost:9000')
 
 angular.module('acComponentsExampleApp', ['acComponents', 'ngRoute', 'auth0', 'angular-storage', 'angular-jwt'])
 
 .constant('MAPBOX_ACCESS_TOKEN', 'pk.eyJ1IjoiYXZhbGFuY2hlY2FuYWRhIiwiYSI6Im52VjFlWW8ifQ.-jbec6Q_pA7uRgvVDkXxsA')
     .constant('MAPBOX_MAP_ID', 'tesera.jbnoj7kp')
-    .constant('AC_API_ROOT_URL', 'http://avalanche-canada-qa.elasticbeanstalk.com/')
+    .constant('AC_API_ROOT_URL', 'http://localhost:9000')
     .config(function($routeProvider, $locationProvider) {
 
         // enables html5 push state

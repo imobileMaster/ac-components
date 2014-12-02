@@ -1,5 +1,5 @@
 .min-form
-    form(role="form", ng-show="!report.subid")
+    form(role="form", ng-show="!report.subid && !minerror")
         .form-group
           label(for="report-title")
             i.fa.fa-newspaper-o
@@ -83,4 +83,7 @@
         .alert.alert-success(role="alert")
             | Your report was successfully submited.
         div(ac-social-share)
+    div(ng-show="minerror")
+        .alert.alert-danger(role="alert")
+            | There was an error submittting you report.
 
