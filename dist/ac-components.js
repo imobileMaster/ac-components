@@ -86,7 +86,6 @@ angular.module('acComponents.directives')
                     scrollWheelZoom: false
                 }).on('click', function (e) {
                     if (!marker) {
-
                         setLatlng(e.latlng);
 
                         marker = L.marker(e.latlng, {
@@ -107,11 +106,17 @@ angular.module('acComponents.directives')
 
                             setLatlng(location);
                         });
+                    } else if(marker && !map.hasLayer(marker)) {
+                        setLatlng(e.latlng);
+                        marker
+                            .setLatLng(e.latlng)
+                            .addTo(map)
+                            .openPopup();
                     }
                 });
 
                 $scope.$watch('latlng', function (latlng) {
-                    if (marker && latlng[0] === 0 && latlng[1] === 0) {
+                    if (marker && latlng.length === 0) {
                         map.removeLayer(marker);
                     }
                 });
@@ -586,13 +591,19 @@ angular.module('acComponents.directives')
                 $scope.report = angular.copy(reportTemplate);
 
                 function resetForm() {
-                    for (var field in $scope.report) {
-                        if(field in reportTemplate) {
-                            $scope.report[field] = angular.copy(reportTemplate[field]);
-                        } else {
-                            $scope.report[field] = null;
+                    $timeout(function () {
+                        for (var field in $scope.report) {
+                            if(field in reportTemplate) {
+                                if(field === 'ridingConditions' || field === 'avalancheConditions'){
+                                    $scope.report[field] = angular.copy(reportTemplate[field]);
+                                } else {
+                                    $scope.report[field] = reportTemplate[field];
+                                }
+                            } else {
+                                $scope.report[field] = null;
+                            }
                         }
-                    }
+                    }, 0);
                 }
 
                 $scope.resetForm = resetForm;
@@ -602,7 +613,7 @@ angular.module('acComponents.directives')
                     if(token) {
                         acSubmission.submit($scope.report, token).then(function(result) {
                             if (result.data) {
-                                $scope.report = result.data;
+                                $scope.report.subid = result.data.subid;
                                 console.log('submission: ' + result.data.subid);
                             }
                         });
@@ -754,7 +765,7 @@ angular.module('acComponents.services')
     .service('acQuickReportData', function() {
         this.avalancheConditions = {
             type: 'multiple',
-            prompt: '',
+            prompt: null,
             options: {
                 'Slab avalanches today or yesterday': false,
                 'Whumphing or drum-like sounds or shooting cracks': false,
@@ -768,7 +779,7 @@ angular.module('acComponents.services')
                 prompt: 'Riding quality was:',
                 type: 'single',
                 options: ['Amazing', 'Good', 'OK', 'Terrible'],
-                selected: ''
+                selected: null
             },
 
             snowConditions: {

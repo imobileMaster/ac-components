@@ -2,7 +2,7 @@ angular.module('acComponents.services')
     .service('acQuickReportData', function() {
         this.avalancheConditions = {
             type: 'multiple',
-            prompt: '',
+            prompt: null,
             options: {
                 'Slab avalanches today or yesterday': false,
                 'Whumphing or drum-like sounds or shooting cracks': false,
@@ -16,7 +16,7 @@ angular.module('acComponents.services')
                 prompt: 'Riding quality was:',
                 type: 'single',
                 options: ['Amazing', 'Good', 'OK', 'Terrible'],
-                selected: ''
+                selected: null
             },
 
             snowConditions: {

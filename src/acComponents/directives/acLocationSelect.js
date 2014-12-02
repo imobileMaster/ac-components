@@ -24,7 +24,6 @@ angular.module('acComponents.directives')
                     scrollWheelZoom: false
                 }).on('click', function (e) {
                     if (!marker) {
-
                         setLatlng(e.latlng);
 
                         marker = L.marker(e.latlng, {
@@ -45,11 +44,17 @@ angular.module('acComponents.directives')
 
                             setLatlng(location);
                         });
+                    } else if(marker && !map.hasLayer(marker)) {
+                        setLatlng(e.latlng);
+                        marker
+                            .setLatLng(e.latlng)
+                            .addTo(map)
+                            .openPopup();
                     }
                 });
 
                 $scope.$watch('latlng', function (latlng) {
-                    if (marker && latlng[0] === 0 && latlng[1] === 0) {
+                    if (marker && latlng.length === 0) {
                         map.removeLayer(marker);
                     }
                 });

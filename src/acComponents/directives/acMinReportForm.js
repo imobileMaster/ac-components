@@ -31,13 +31,19 @@ angular.module('acComponents.directives')
                 $scope.report = angular.copy(reportTemplate);
 
                 function resetForm() {
-                    for (var field in $scope.report) {
-                        if(field in reportTemplate) {
-                            $scope.report[field] = angular.copy(reportTemplate[field]);
-                        } else {
-                            $scope.report[field] = null;
+                    $timeout(function () {
+                        for (var field in $scope.report) {
+                            if(field in reportTemplate) {
+                                if(field === 'ridingConditions' || field === 'avalancheConditions'){
+                                    $scope.report[field] = angular.copy(reportTemplate[field]);
+                                } else {
+                                    $scope.report[field] = reportTemplate[field];
+                                }
+                            } else {
+                                $scope.report[field] = null;
+                            }
                         }
-                    }
+                    }, 0);
                 }
 
                 $scope.resetForm = resetForm;
@@ -47,7 +53,7 @@ angular.module('acComponents.directives')
                     if(token) {
                         acSubmission.submit($scope.report, token).then(function(result) {
                             if (result.data) {
-                                $scope.report = result.data;
+                                $scope.report.subid = result.data.subid;
                                 console.log('submission: ' + result.data.subid);
                             }
                         });
