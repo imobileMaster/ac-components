@@ -25,8 +25,8 @@
           label(for="report-files")
             i.fa.fa-clock-o
             |  Add photo
-          input#report-files.form-control(type="file", file-model="report.files")
-          div 0 photos added
+          input#report-files.form-control(type="file", file-model="report.files", multiple)
+          div {{ report.files.length }} photos added
 
         .panel-group(id="min-collapsible-form", role="tablist")
           .panel.panel-default
