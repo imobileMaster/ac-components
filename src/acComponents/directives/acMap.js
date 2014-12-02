@@ -127,9 +127,9 @@ angular.module('acComponents.directives')
                             });
 
                             if(featureData.properties.centroid) {
-                                var centroid = L.latLng(featureData.properties.centroid[1], featureData.properties.centroid[0]);
+                                featureData.properties.centroid = L.latLng(featureData.properties.centroid[1], featureData.properties.centroid[0]);
 
-                                var marker = L.marker(centroid);
+                                var marker = L.marker(featureData.properties.centroid);
                                 var icon = getDangerIcon({regionId: featureData.id});
 
                                 marker.setIcon(icon);
