@@ -62,10 +62,13 @@
         .form-group
           label Comments
           textarea.form-control(rows="3", ng-model="report.comment")
-        button.btn.btn-default(type="button", ng-click="submitForm()") SUBMIT REPORT
+        button.btn.btn-default(type="button", ng-click="submitForm()", ng-disabled="minsubmitting")
+            i.fa.fa-fw.fa-lg.fa-spinner.fa-spin(ng-show="minsubmitting")
+            span(ng-hide="minsubmitting") SUBMIT REPORT
+            span(ng-show="minsubmitting") SUBMITING REPORT
 
     div(ng-show="report.subid")
         .alert.alert-success(role="alert")
-            | Your was successfully submited.
+            | Your report was successfully submited.
         div(ac-social-share)
 

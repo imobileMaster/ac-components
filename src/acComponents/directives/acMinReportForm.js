@@ -50,6 +50,7 @@ angular.module('acComponents.directives')
                 $scope.submitForm = function() {
                     var token = store.get('token');
                     if(token) {
+                        $scope.minsubmitting = true;
                         acSubmission.submit($scope.report, token).then(function(result) {
                             if (result.data) {
                                 $scope.report.subid = result.data.subid;
