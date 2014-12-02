@@ -15,7 +15,7 @@ angular.module('acComponents.directives')
                     }, 0);
                 }
 
-                $('#myModal').on('shown.bs.modal', function (e) {
+                $('#minForm').on('shown.bs.modal', function (e) {
                     map.invalidateSize();
                 });
 
@@ -45,6 +45,12 @@ angular.module('acComponents.directives')
 
                             setLatlng(location);
                         });
+                    }
+                });
+
+                $scope.$watch('latlng', function (latlng) {
+                    if (marker && latlng[0] === 0 && latlng[1] === 0) {
+                        map.removeLayer(marker);
                     }
                 });
             }

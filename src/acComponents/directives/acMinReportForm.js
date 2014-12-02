@@ -14,30 +14,40 @@ angular.module('acComponents.directives')
             }
         };
     })
-    .directive('acMin', function($timeout, acQuickReportData, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, store) {
+    .directive('acMinReportForm', function($timeout, acQuickReportData, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, store) {
         return {
-            templateUrl: 'submission-form.html',
+            templateUrl: 'min-report-form.html',
             replace: true,
             link: function($scope, el, attrs) {
-                $scope.report = {
+                var reportTemplate = {
                     title: 'auto: Quick Report',
                     datetime: moment().format('YYYY-MM-DDTHH:mm:ss'),
                     latlng: [],
                     files: [],
                     ridingConditions: angular.copy(acQuickReportData.ridingConditions),
                     avalancheConditions: angular.copy(acQuickReportData.avalancheConditions),
-                    comment: ''
+                    comment: null
                 };
+                $scope.report = angular.copy(reportTemplate);
 
-                $scope.addSubmission = function() {
-                    $('#myModal').modal('show');
-                };
+                function resetForm() {
+                    for (var field in $scope.report) {
+                        if(field in reportTemplate) {
+                            $scope.report[field] = angular.copy(reportTemplate[field]);
+                        } else {
+                            $scope.report[field] = null;
+                        }
+                    }
+                }
 
-                $scope.submit = function() {
+                $scope.resetForm = resetForm;
+
+                $scope.submitForm = function() {
                     var token = store.get('token');
                     if(token) {
                         acSubmission.submit($scope.report, token).then(function(result) {
                             if (result.data) {
+                                $scope.report = result.data;
                                 console.log('submission: ' + result.data.subid);
                             }
                         });
