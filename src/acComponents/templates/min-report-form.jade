@@ -47,18 +47,30 @@
                     label
                       input(type="radio", ng-model="report.ridingConditions[item].selected", ng-value="option")
                       | {{option}}
-          //- .panel.panel-default
-          //-   .panel-heading(id="avalanche-conditions", role="tap")
-          //-     h4.panel-title
-          //-       a(data-toggle="collapse", data-parent="#avalanche-conditions", href="#avalanche-conditions-collapse", aria-expanded="true", aria-controls="avalanche-conditions-collapse")
-          //-         | Avalanche conditions
-          //-   .panel-collapse.collapse.in(id="avalanche-conditions-collapse", role="tabpanel", aria-labelledby="avalanche-conditions-collapse" )
-          //-     .panel-body
-          //-       .form-group
-          //-         .checkbox(ng-repeat="(option, enabled) in report.avalancheConditions.options")
-          //-           label
-          //-             input(type="checkbox", ng-model="report.avalancheConditions.options[option]")
-          //-             | {{ option }}
+          .panel.panel-default
+            .panel-heading(id="avalanche-conditions", role="tap")
+              h4.panel-title
+                a(data-toggle="collapse", data-parent="#avalanche-conditions", href="#avalanche-conditions-collapse", aria-expanded="true", aria-controls="avalanche-conditions-collapse")
+                  | Avalanche conditions
+            .panel-collapse.collapse.in(id="avalanche-conditions-collapse", role="tabpanel", aria-labelledby="avalanche-conditions-collapse" )
+              .panel-body
+                .form-group
+                  .checkbox
+                    label
+                      input(type="checkbox", ng-model="report.avalancheConditions.slab")
+                      | Slab avalanches today or yesterday.
+                  .checkbox
+                    label
+                      input(type="checkbox", ng-model="report.avalancheConditions.sound")
+                      | Whumphing or drum-like sounds or shooting cracks.
+                  .checkbox
+                    label
+                      input(type="checkbox", ng-model="report.avalancheConditions.snow")
+                      | 30cm + of new snow, or significant drifitng, or rain in the last 48 hours.
+                  .checkbox
+                    label
+                      input(type="checkbox", ng-model="report.avalancheConditions.temp")
+                      | Rapid temperature rise to near zero degrees or wet surface snow.
         .form-group
           label Comments
           textarea.form-control(rows="3", ng-model="report.comment")
