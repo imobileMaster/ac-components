@@ -692,7 +692,7 @@ angular.module('acComponents.services')
     }]);
 angular.module('acComponents.services')
     .factory('acObservation', ["$http", "AC_API_ROOT_URL", function ($http, AC_API_ROOT_URL) {
-        var endpointUrl = AC_API_ROOT_URL + '/api/min/submissions';
+        var endpointUrl = AC_API_ROOT_URL + '/api/min/observations';
 
         return {
             byPeriod: function (period) {
@@ -716,7 +716,7 @@ angular.module('acComponents.services')
     .service('acQuickReportData', function() {
         this.avalancheConditions = {
             type: 'multiple',
-            prompt: 'ac',
+            prompt: '',
             options: {
                 'Slab avalanches today or yesterday': false,
                 'Whumphing or drum-like sounds or shooting cracks': false,

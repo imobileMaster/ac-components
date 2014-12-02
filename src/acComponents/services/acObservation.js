@@ -1,6 +1,6 @@
 angular.module('acComponents.services')
     .factory('acObservation', function ($http, AC_API_ROOT_URL) {
-        var endpointUrl = AC_API_ROOT_URL + '/api/min/submissions';
+        var endpointUrl = AC_API_ROOT_URL + '/api/min/observations';
 
         return {
             byPeriod: function (period) {
