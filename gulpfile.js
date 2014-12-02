@@ -22,7 +22,7 @@ var sourceFiles = [
 ];
 
 gulp.task('example', function() {
-    gulp.src('example')
+    return gulp.src('example')
         .pipe(webserver({
             livereload: true,
             fallback: 'index.html'
@@ -30,7 +30,7 @@ gulp.task('example', function() {
 });
 
 gulp.task('templates', function () {
-    gulp.src('src/acComponents/templates/*.jade')
+    return gulp.src('src/acComponents/templates/*.jade')
         .pipe(jade())
         .pipe(templateCache({
             module: 'acComponents.templates',
@@ -40,7 +40,7 @@ gulp.task('templates', function () {
 });
 
 gulp.task('build', function() {
-    gulp.src(sourceFiles)
+    return gulp.src(sourceFiles)
         .pipe(concat('ac-components.js'))
         .pipe(ngAnnotate())
         .pipe(gulp.dest('./dist/'))
