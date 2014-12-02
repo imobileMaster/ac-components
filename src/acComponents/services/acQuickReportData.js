@@ -1,5 +1,5 @@
 angular.module('acComponents.services')
-    .service('acMinReportData', function() {
+    .service('acQuickReportData', function() {
         this.avalancheConditions = {
             type: 'multiple',
             prompt: '',

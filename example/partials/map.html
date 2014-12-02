@@ -1,7 +1,34 @@
 <div class="fullpage">
+    <div class="tools">
+        <ul class="list-inline">
+            <li>
+                <a href="#" ng-click="auth.signin({authParams: {scope: 'openid profile'}})">
+                    <i class="fa fa-2x fa-inverse" ng-class="{'fa-sign-in': auth.isAuthorized, 'fa-sign-out': !auth.isAuthorized }"></i>
+                </a>
+            </li>
+            <li>
+                <a href="#" ng-click="addSubmission()">
+                    <i class="fa fa-plus-circle fa-2x fa-inverse"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
     <div class="fullpage" ac-mapbox-map ac-regions="regions" ac-region="current.region" ac-obs="obs" ac-ob="ob"></div>
     <div ac-drawer ng-class="{'ac-drawer--expanded': current.region && current.region.feature.properties.forecast && drawer.visible}">
         <div ac-forecast-mini ac-forecast="current.region.feature.properties.forecast"></div>
     </div>
-    <div ac-min></div>
-</div> 
+
+    <div id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button data-dismiss="modal" class="close"><span>close</span></button>
+                    <h4 class="modal-title">Mountain Information Network Report</h4>
+                </div>
+                <div class="modal-body">
+                    <div ac-min></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

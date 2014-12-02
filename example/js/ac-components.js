@@ -61,6 +61,59 @@ angular.module('acComponents.directives')
         };
     });
 angular.module('acComponents.directives')
+    .directive('acLocationSelect', ["MAPBOX_ACCESS_TOKEN", "MAPBOX_MAP_ID", "$timeout", function(MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, $timeout) {
+        return {
+            template: '<div style="height: 300px; width: 100%;"></div>',
+            scope: {
+                latlng: '='
+            },
+            link: function($scope, el, attrs) {
+                var map, marker;
+                L.mapbox.accessToken = MAPBOX_ACCESS_TOKEN;
+
+                function setLatlng(latlng){
+                    $timeout(function () {
+                        $scope.latlng = [latlng.lat, latlng.lng];
+                    }, 0);
+                }
+
+                $('#myModal').on('shown.bs.modal', function (e) {
+                    map.invalidateSize();
+                });
+
+                map = L.mapbox.map(el[0], MAPBOX_MAP_ID, {
+                    attributionControl: false,
+                    scrollWheelZoom: false
+                }).on('click', function (e) {
+                    if (!marker) {
+
+                        setLatlng(e.latlng);
+
+                        marker = L.marker(e.latlng, {
+                            icon: L.mapbox.marker.icon({
+                                'marker-color': 'f79118'
+                            }),
+                            draggable: true
+                        });
+
+                        marker.bindPopup('Position: ' + e.latlng.toString().substr(6) + '<br/>(drag to relocate)')
+                            .addTo(map)
+                            .openPopup();
+
+                        marker.on('dragend', function(e) {
+                            var location = marker.getLatLng();
+                            marker.setPopupContent('Position: ' + location.toString().substr(6) + '<br/>(drag to relocate)');
+                            marker.openPopup();
+
+                            setLatlng(location);
+                        });
+                    }
+                });
+            }
+        };
+    }]);
+
+angular.module('acComponents.directives')
     .directive('acMapboxMap', ["$rootScope", "$window", "$location", "$timeout", "acBreakpoint", "acObservation", "acForecast", "MAPBOX_ACCESS_TOKEN", "MAPBOX_MAP_ID", function ($rootScope, $window, $location, $timeout, acBreakpoint, acObservation, acForecast, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID) {
         return {
             template: '<div id="map"></div>',
@@ -510,83 +563,33 @@ angular.module('acComponents.directives')
             }
         };
     }])
-    .directive('acMin', ["$timeout", "acMinReportData", "acReport", "MAPBOX_ACCESS_TOKEN", "MAPBOX_MAP_ID", function($timeout, acMinReportData, acReport, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID) {
+    .directive('acMin', ["$timeout", "acQuickReportData", "acSubmission", "MAPBOX_ACCESS_TOKEN", "MAPBOX_MAP_ID", "store", function($timeout, acQuickReportData, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, store) {
         return {
-            templateUrl: 'min-report.html',
+            templateUrl: 'submission-form.html',
             replace: true,
-            link: function(scope, el, attrs) {
-                scope.report = {
+            link: function($scope, el, attrs) {
+                $scope.report = {
                     title: '',
                     datetime: moment().format('YYYY-MM-DDTHH:mm:ss'),
                     latlng: [],
                     files: [],
-                    ridingConditions: angular.copy(acMinReportData.ridingConditions),
-                    avalancheConditions: angular.copy(acMinReportData.avalancheConditions),
+                    ridingConditions: angular.copy(acQuickReportData.ridingConditions),
+                    avalancheConditions: angular.copy(acQuickReportData.avalancheConditions),
                     comment: ''
                 };
 
-                scope.submitReport = function() {
-                    console.log('report submitting..');
-                    //validate the form data
-                    acReport.prepareData(scope.report)
-                        .then(acReport.sendReport)
-                        .then(function(result) {
-                            if (result.data) {
-                                console.log('submission: ' + result.data.subid);
-                            }
-                        });
+                $scope.addSubmission = function() {
+                    $('#myModal').modal('show');
                 };
 
-                var map, marker;
-                scope.showMap = function() {
-                    if (!map) {
-                        L.mapbox.accessToken = MAPBOX_ACCESS_TOKEN;
-                        map = L.mapbox.map('location-map', MAPBOX_MAP_ID, {
-                            attributionControl: false,
-                            scrollWheelZoom: false
-                        });
-                        map.on('click', onMapClick);
-                    }
+                $scope.submit = function() {
+                    var token = store.get('token');
+                    acSubmission.submit($scope.report, token).then(function(result) {
+                        if (result.data) {
+                            console.log('submission: ' + result.data.subid);
+                        }
+                    });
                 };
-
-                //TODO-JPB remove as this is only necessary for the bootstrap modal. The map cannot be
-                //rendered before the modal is displayed as it's width is set to 100% and the container
-                //is 0px when the modal is not shown.
-                angular.element(document.getElementById('myModal')).on('shown.bs.modal', function(e) {
-                    scope.showMap();
-                });
-
-                function onMapClick(e) {
-                    if (!marker) {
-                        scope.$apply(function() {
-                            scope.report.latlng[0] = e.latlng.lat;
-                            scope.report.latlng[1] = e.latlng.lng;
-                        });
-                        var latlng = new L.LatLng(e.latlng.lat, e.latlng.lng);
-
-                        marker = L.marker(latlng, {
-                            icon: L.mapbox.marker.icon({
-                                'marker-color': 'f79118'
-                            }),
-                            draggable: true
-                        });
-
-                        marker
-                            .bindPopup('Position: ' + e.latlng.toString().substr(6) + "<br/>(drag to relocate)")
-                            .addTo(map)
-                            .openPopup();
-
-                        marker.on('dragend', function(e) {
-                            var position = marker.getLatLng();
-                            scope.$apply(function() {
-                                scope.report.latlng[0] = position.lat;
-                                scope.report.latlng[1] = position.lng;
-                            });
-                            marker.setPopupContent('Position: ' + position.toString().substr(6) + "<br/>(drag to relocate)");
-                            marker.openPopup();
-                        });
-                    }
-                }
             }
         };
     }]);
@@ -688,86 +691,32 @@ angular.module('acComponents.services')
         };
     }]);
 angular.module('acComponents.services')
-//    .constant('AC_API_ROOT_URL', 'http://avalanche-canada-env.elasticbeanstalk.com')
-.constant('AC_QA_API_ROOT_URL', 'http://avalanche-canada-qa.elasticbeanstalk.com');
+    .factory('acObservation', ["$http", "AC_API_ROOT_URL", function ($http, AC_API_ROOT_URL) {
+        var endpointUrl = AC_API_ROOT_URL + '/api/min/submissions';
 
-angular.module('acComponents.services')
-    .factory('acReport', ["$http", "$q", "AC_QA_API_ROOT_URL", function($http, $q, AC_QA_API_ROOT_URL) {
+        return {
+            byPeriod: function (period) {
+                var opt = {params: {period: period || '2:days'}};
 
-        var apiUrl = AC_QA_API_ROOT_URL; //todo use config value to pick URL
-
-        //public
-        function prepareData(reportData) {
-            var fd = new FormData();
-            //process files
-            if (reportData.files && reportData.files.length > 0) {
-                angular.forEach(reportData.files, function(file, counter) {
-                    //TODO-JPB check file type image/video for now just image
-                    if (file) {
-                        fd.append('file' + counter, file, 'image-' + counter + '.jpg');
-                    }
+                return $http.get(endpointUrl, opt).then(function (res) {
+                    return res.data;
+                });
+            },
+            getOne: function(obid, format) {
+                var format = '.'+format || '';
+                var obUrl = endpointUrl + '/' + obid + format;
+                
+                return $http.get(obUrl).then(function (res) {
+                    return res.data;
                 });
             }
-
-            //process data
-            angular.forEach(reportData, function(value, key) {
-                if (key !== 'files' && key !== 'latlng' && angular.isObject(value)) {
-                    fd.append(key, "'" + JSON.stringify(value) + "'");
-                } else if (key === 'latlng') {
-                    fd.append(key, JSON.stringify(value));
-                } else if (key === 'datetime') {
-                    fd.append(key, moment(value).format());
-                } else if (key !== 'files' && !angular.isObject(value)) {
-                    fd.append(key, value);
-                }
-            });
-            return $q.when(fd);
-        }
-
-        function sendReport(formData) {
-            //TODO-JPB -remove
-            var token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfaWQiOiJhMTg2YzQ0YzBmNzhhMTQzMzIyYmY1N2E5ZjZkMzc5NyIsImVtYWlsIjoianAuYmhhdm5hbmlAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImxhc3RfcGFzc3dvcmRfcmVzZXQiOiIyMDE0LTExLTExVDE3OjExOjIyLjQ0NloiLCJjbGllbnRJRCI6Im1jZ3pnbGJGazJnMU9jak9mVVpBMWZycWpaZGNzVmdDIiwicGljdHVyZSI6Imh0dHBzOi8vc2VjdXJlLmdyYXZhdGFyLmNvbS9hdmF0YXIvNjYzZmFkYWM4YzNkNWM2ZWZiNTZlMjBjMmMzMzliNjI_cz00ODAmcj1wZyZkPWh0dHBzJTNBJTJGJTJGc3NsLmdzdGF0aWMuY29tJTJGczIlMkZwcm9maWxlcyUyRmltYWdlcyUyRnNpbGhvdWV0dGU4MC5wbmciLCJ1c2VyX2lkIjoiYXV0aDB8NTQ2MjNkZDNmZTQ0MWViZDI2YmM0ZGU4IiwibmFtZSI6ImpwLmJoYXZuYW5pQGdtYWlsLmNvbSIsIm5pY2tuYW1lIjoianAuYmhhdm5hbmkiLCJpZGVudGl0aWVzIjpbeyJ1c2VyX2lkIjoiNTQ2MjNkZDNmZTQ0MWViZDI2YmM0ZGU4IiwicHJvdmlkZXIiOiJhdXRoMCIsImNvbm5lY3Rpb24iOiJVc2VybmFtZS1QYXNzd29yZC1BdXRoZW50aWNhdGlvbiIsImlzU29jaWFsIjpmYWxzZX1dLCJjcmVhdGVkX2F0IjoiMjAxNC0xMS0xMVQxNzoxMTozMi42ODRaIiwiZ2xvYmFsX2NsaWVudF9pZCI6IjVHR0t2WkVSOUkyeGZ3Y28zbExyN0FTYUhoWHc3YUQ5IiwiaXNzIjoiaHR0cHM6Ly9hdmFsYW5jaGVjYS5hdXRoMC5jb20vIiwic3ViIjoiYXV0aDB8NTQ2MjNkZDNmZTQ0MWViZDI2YmM0ZGU4IiwiYXVkIjoibWNnemdsYkZrMmcxT2NqT2ZVWkExZnJxalpkY3NWZ0MiLCJleHAiOjE0MTc0OTM4NTAsImlhdCI6MTQxNzQ1Nzg1MH0.OIrkQBzX4l7KbmLTHKV0Xo3Ob4OcNJjA3I4rhl9mrUo';
-            return $http.post(apiUrl + '/api/min/submissions', formData, {
-                    transformRequest: angular.identity,
-                    headers: {
-                        'Content-Type': undefined,
-                        'Authorization': 'Bearer ' + token
-                    }
-                })
-                .success(onSuccess)
-                .error(onError);
-        }
-
-        // function getReports() {}
-
-        // function getReport(id) {}
-
-        //private
-        function onError(error) {
-            //console.error(error);
-            return $q.reject(error);
-        }
-
-        function onSuccess(response) {
-            //console.log(response);
-            return response.data;
-        }
-
-        //public API
-        return {
-            prepareData: prepareData,
-            sendReport: sendReport,
-            // getReports: getReports,
-            // getReport: getReport
         };
-
     }]);
-
 angular.module('acComponents.services')
-    .service('acMinReportData', function() {
+    .service('acQuickReportData', function() {
         this.avalancheConditions = {
             type: 'multiple',
-            prompt: '',
+            prompt: 'ac',
             options: {
                 'Slab avalanches today or yesterday': false,
                 'Whumphing or drum-like sounds or shooting cracks': false,
@@ -844,20 +793,62 @@ angular.module('acComponents.services')
     });
 
 angular.module('acComponents.services')
-    .factory('acObservation', ["$http", "AC_API_ROOT_URL", function ($http, AC_API_ROOT_URL) {
+    .factory('acSubmission', ["$q", "$http", "AC_API_ROOT_URL", function ($q, $http, AC_API_ROOT_URL) {
+        var endpointUrl = AC_API_ROOT_URL + '/api/min/submissions';
+
+        function prepareData(reportData) {
+            var formData = new FormData();
+
+            //process files
+            if (reportData.files && reportData.files.length > 0) {
+                angular.forEach(reportData.files, function(file, counter) {
+                    //TODO-JPB check file type image/video for now just image
+                    if (file) {
+                        formData.append('file' + counter, file, 'image-' + counter + '.jpg');
+                    }
+                });
+            }
+
+            //process data
+            angular.forEach(reportData, function(value, key) {
+                if (key !== 'files' && key !== 'latlng' && angular.isObject(value)) {
+                    formData.append(key, JSON.stringify(value));
+                } else if (key === 'latlng') {
+                    formData.append(key, JSON.stringify(value));
+                } else if (key === 'datetime') {
+                    formData.append(key, moment(value).format());
+                } else if (key !== 'files' && !angular.isObject(value)) {
+                    formData.append(key, value);
+                }
+            });
+
+            return $q.when(formData);
+        }
+
         return {
+            submit: function (submission, token) {
+                return prepareData(submission).then(function (formData) {
+                    return $http.post(endpointUrl, formData, {
+                        transformRequest: angular.identity,
+                        headers: {
+                            'Content-Type': undefined,
+                            'Authorization': 'Bearer ' + token
+                        }
+                    });
+                })
+            },
             byPeriod: function (period) {
                 var opt = {params: {period: period || '2:days'}};
 
-                return $http.get(AC_API_ROOT_URL+'/api/min/observations', opt).then(function (res) {
+                return $http.get(endpointUrl, opt).then(function (res) {
                     return res.data;
                 });
             },
             getOne: function(obid, format) {
                 var format = '.'+format || '';
-                var obUrl = AC_API_ROOT_URL+'/api/min/observations/' + obid + format;
+                var obUrl = endpointUrl + obid + format;
                 
-                return $http.get(obUrl).then(function (res) {
+                return $http.get(endpointUrl).then(function (res) {
                     return res.data;
                 });
             }
@@ -866,5 +857,5 @@ angular.module('acComponents.services')
 angular.module("acComponents.templates", []).run(["$templateCache", function($templateCache) {$templateCache.put("drawer.html","<div class=\"ac-drawer\"><a ng-click=\"drawer.visible = false\" class=\"ac-drawer-close visible-xs\"><i class=\"fa fa-close fa-lg\"></i></a><div class=\"ac-drawer-tools\"><ul><li ng-click=\"drawer.visible = !drawer.visible\"><i class=\"fa fa-file-text-o fa-fw fa-2x fa-inverse ac-middle\"></i></li></ul></div><div ng-transclude=\"ng-transclude\" class=\"ac-drawer-body\"></div></div>");
 $templateCache.put("forecast-mini.html","<div class=\"panel\"><div ng-show=\"forecast.externalUrl\" class=\"panel-body\"><div class=\"row\"><div class=\"col-xs-12\"><h3 class=\"ac-forecast-region\">{{ forecast.name }}</h3></div></div><div class=\"row\"><div class=\"col-xs-12\"><p>Avalanche information for this region is not available in standard format.</p><a ng-href=\"{{forecast.externalUrl}}\" target=\"_blank\"><i class=\"fa fa-external-link\"></i>Click here for more information.</a></div></div></div><div ng-hide=\"forecast.externalUrl\" class=\"panel-body ac-forecast-mini-body\"><div class=\"row\"><div class=\"col-xs-12\"><h4 class=\"ac-forecast-region\">{{ forecast.bulletinTitle | acNormalizeForecastTitle }}</h4></div></div><div class=\"row ac-forecast-dates\"><div class=\"col-md-6\"><dl><dd class=\"small\"><strong class=\"ac-text-primary\">DATE ISSUED</strong></dd><dt class=\"small\"><span class=\"ac-text-default\">{{ forecast.dateIssued | date:\'EEEE MMMM d, y h:mm a\' | uppercase }}</span></dt></dl></div><div class=\"col-md-6\"><dl><dd class=\"small\"><strong class=\"ac-text-primary\">VALID UNTIL</strong></dd><dt class=\"small\"><span class=\"ac-text-default\">{{ forecast.validUntil | date:\'EEEE MMMM d, y h:mm a\' | uppercase }}</span></dt></dl></div></div><div class=\"row\"><div class=\"col-xs-12\"><p class=\"ac-forecast-highlights\"><strong ng-bind-html=\"forecast.highlights\"></strong></p></div></div><div class=\"row\"><div class=\"col-xs-12\"><ul role=\"tablist\" class=\"nav nav-pills\"><li class=\"active\"><a href=\"\" role=\"tab\" data-target=\"#forecast\" data-toggle=\"tab\">Forecast</a></li><li><a href=\"\" role=\"tab\" data-target=\"#problems\" data-toggle=\"tab\">Problems</a></li><li><a href=\"\" role=\"tab\" data-target=\"#details\" data-toggle=\"tab\">Details</a></li><li><a href=\"/forecasts/{{forecast.region}}\" role=\"tab\" data-toggle=\"tab\">Full Page</a></li></ul><div class=\"tab-content\"><div id=\"forecast\" class=\"tab-pane active\"><div class=\"row\"><div class=\"col-xs-12\"><div class=\"panel panel-primary\"><div class=\"panel-heading\">{{ forecast.dangerRatings[0].date | date:\'EEEE\' }}</div><div class=\"panel-body ac-forecast-nowcast\"><img ng-show=\"forecast.region\" ng-src=\"{{forecast.region &amp;&amp; apiUrl+\'/api/forecasts/\' + forecast.region  + \'/nowcast.svg\' || \'\'}}\" class=\"ac-nowcast\"/></div><table class=\"table table-condensed ac-forecast-days\"><thead class=\"ac-thead-dark\"><tr><th></th><th>{{ forecast.dangerRatings[1].date | date:\'EEEE\' }}</th><th>{{ forecast.dangerRatings[2].date | date:\'EEEE\' }}</th></tr></thead><tbody><tr><td class=\"ac-veg-zone--alp\"><strong>Alpine</strong></td><td class=\"ac-danger-rating--{{ forecast.dangerRatings[1].dangerRating.alp.split(\':\')[1].toLowerCase()}}\"><strong>{{ forecast.dangerRatings[1].dangerRating.alp.replace(\':\', \' \') }}</strong></td><td class=\"ac-danger-rating--{{ forecast.dangerRatings[2].dangerRating.alp.split(\':\')[1].toLowerCase()}}\"><strong>{{ forecast.dangerRatings[2].dangerRating.alp.replace(\':\', \' \') }}</strong></td></tr><tr><td class=\"ac-veg-zone--tln\"><strong>Treeline</strong></td><td class=\"ac-danger-rating--{{ forecast.dangerRatings[1].dangerRating.tln.split(\':\')[1].toLowerCase()}}\"><strong>{{ forecast.dangerRatings[1].dangerRating.tln.replace(\':\', \' \') }}</strong></td><td class=\"ac-danger-rating--{{ forecast.dangerRatings[2].dangerRating.tln.split(\':\')[1].toLowerCase()}}\"><strong>{{ forecast.dangerRatings[2].dangerRating.tln.replace(\':\', \' \') }}</strong></td></tr><tr><td class=\"ac-veg-zone--btl\"><strong>Bellow Treeline</strong></td><td class=\"ac-danger-rating--{{ forecast.dangerRatings[1].dangerRating.btl.split(\':\')[1].toLowerCase()}}\"><strong>{{ forecast.dangerRatings[1].dangerRating.btl.replace(\':\', \' \') }}</strong></td><td class=\"ac-danger-rating--{{ forecast.dangerRatings[2].dangerRating.btl.split(\':\')[1].toLowerCase()}}\"><strong>{{ forecast.dangerRatings[2].dangerRating.btl.replace(\':\', \' \') }}</strong></td></tr><tr><td><strong>Confidence:</strong></td><td colspan=\"2\"><span class=\"ac-text-default\">{{ forecast.confidence }}</span></td></tr></tbody></table></div></div></div></div><div id=\"problems\" class=\"tab-pane\"><div id=\"problemsAccordion\" class=\"panel-group\"><div ng-repeat=\"problem in forecast.problems\" class=\"panel panel-primary\"><div class=\"panel-heading\"><h4 class=\"panel-title\"><a href=\"\" data-target=\"#problem{{$index}}\" data-toggle=\"collapse\" data-parent=\"#problemsAccordion\">{{ problem.type }}<i class=\"fa fa-fw fa-level-down pull-right\"></i><small class=\"pull-right\">click to expand</small></a></h4></div><div id=\"problem{{$index}}\" class=\"panel-collapse collapse\"><div class=\"panel-body\"><div class=\"row\"><div class=\"col-md-6\"><div class=\"panel panel-default\"><div class=\"panel-heading\"><strong class=\"small\">What Elevations?</strong></div><div class=\"panel-body ac-problem-icon ac-problem-icon--elevations\"><img ng-src=\"{{problem.icons.elevations}}\" class=\"center-block\"/></div></div></div><div class=\"col-md-6\"><div class=\"panel panel-default\"><div class=\"panel-heading\"><strong class=\"small\">What Aspects?</strong></div><div class=\"panel-body ac-problem-icon ac-problem-icon--aspects\"><img ng-src=\"{{problem.icons.aspects}}\" class=\"center-block\"/></div></div></div></div><div class=\"row\"><div class=\"col-md-6\"><div class=\"panel panel-default\"><div class=\"panel-heading\"><strong class=\"small\">Chances of Avalanches?</strong></div><div class=\"panel-body ac-problem-icon ac-problem-icon--likelihood\"><img ng-src=\"{{problem.icons.likelihood}}\" class=\"center-block\"/></div></div></div><div class=\"col-md-6\"><div class=\"panel panel-default\"><div class=\"panel-heading\"><strong class=\"small\">Expected Size?</strong></div><div class=\"panel-body ac-problem-icon ac-problem-icon--expected-size\"><img ng-src=\"{{problem.icons.expectedSize}}\" class=\"center-block\"/></div></div></div></div><div class=\"row\"><div class=\"col-md-12\"><p ng-bind-html=\"problem.comment\" class=\"ac-problem narative\"></p><div class=\"panel panel-default ac-problem-travel-advice\"><div class=\"panel-heading\"><strong class=\"small\">Travel and Terrain Advice</strong></div><div class=\"panel-body\"><p ng-bind-html=\"problem.travelAndTerrainAdvice\"></p></div></div></div></div></div></div></div></div></div><div id=\"details\" class=\"tab-pane\"><div id=\"detailsAccordion\" class=\"panel-group\"><div class=\"panel panel-primary\"><div class=\"panel-heading\"><h4 class=\"panel-title\"><a href=\"\" data-target=\"#avalancheSummary\" data-toggle=\"collapse\" data-parent=\"#detailsAccordion\">Avalanche Summary<i class=\"fa fa-fw fa-level-down fa-lg pull-right\"></i><small class=\"pull-right\">click to expand</small></a></h4></div><div id=\"avalancheSummary\" class=\"panel-collapse collapse\"><div ng-bind-html=\"forecast.avalancheSummary\" class=\"panel-body\"></div></div></div><div class=\"panel panel-primary\"><div class=\"panel-heading\"><h4 class=\"panel-title\"><a href=\"\" data-target=\"#snowpackSummary\" data-toggle=\"collapse\" data-parent=\"#detailsAccordion\">Snowpack Summary<i class=\"fa fa-fw fa-level-down fa-lg pull-right\"></i><small class=\"pull-right\">click to expand</small></a></h4></div><div id=\"snowpackSummary\" class=\"panel-collapse collapse\"><div ng-bind-html=\"forecast.snowpackSummary\" class=\"panel-body\"></div></div></div><div class=\"panel panel-primary\"><div class=\"panel-heading\"><h4 class=\"panel-title\"><a href=\"\" data-target=\"#weatherForecast\" data-toggle=\"collapse\" data-parent=\"#detailsAccordion\">Weather Forecast<i class=\"fa fa-fw fa-level-down fa-lg pull-right\"></i><small class=\"pull-right\">click to expand</small></a></h4></div><div id=\"weatherForecast\" class=\"panel-collapse collapse\"><div ng-bind-html=\"forecast.weatherForecast\" class=\"panel-body\"></div></div></div></div></div></div></div></div></div></div>");
 $templateCache.put("loading-indicator.html","<div class=\"ac-loading-indicator\"><div class=\"rect1\"></div><div class=\"rect2\"></div><div class=\"rect3\"></div><div class=\"rect4\"></div><div class=\"rect5\"></div></div>");
-$templateCache.put("min-report.html","<div class=\"min-report\"><div class=\"min-report-button\"><button data-toggle=\"modal\" data-target=\"#myModal\" class=\"btn btn-primary btn-lg\">File MIN Report</button></div><div id=\"myModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"myModalLabel\" aria-hidden=\"true\" class=\"modal fade\"><div class=\"modal-dialog\"><div class=\"modal-content\"><div class=\"modal-header\"><button data-dismiss=\"modal\" class=\"close\"><span>close</span></button><h4 class=\"modal-title\">Mountain Information Network Report</h4></div><div class=\"modal-body\"><form role=\"form\"><div class=\"form-group\"><label for=\"report-title\"><i class=\"fa fa-newspaper-o\"></i> Report title</label><input id=\"report-title\" type=\"text\" placeholder=\"auto: Quick Report\" ng-model=\"report.title\" class=\"form-control\"/></div><div class=\"form-group\"><label for=\"report-datetime\"><i class=\"fa fa-clock-o\"></i> Date and Time</label><input id=\"report-datetime\" type=\"datetime-local\" placeholder=\"\" ng-model=\"report.datetime\" class=\"form-control\"/></div><div class=\"form-group\"></div><div class=\"form-group\"><label for=\"report-location\"><i class=\"fa fa-map-marker\"></i> Location</label><div id=\"location-map\"></div><div class=\"form-control\"><span ng-if=\"!report.latlng[0]\">Drop pin on map to set location</span><span ng-if=\"report.latlng[0]\">({{ report.latlng[0] }}, {{ report.latlng[1] }})</span></div></div><div class=\"form-group\"><label for=\"report-files\"><i class=\"fa fa-clock-o\"></i> Add photo</label><input id=\"report-files\" type=\"file\" file-model=\"report.files\" class=\"form-control\"/><div>0 photos added</div></div><div id=\"min-collapsible-form\" role=\"tablist\" class=\"panel-group\"><div class=\"panel panel-default\"><div id=\"riding-conditions-heading\" role=\"tap\" class=\"panel-heading\"><h4 class=\"panel-title\"><a data-toggle=\"collapse\" data-parent=\"#riding-conditions\" href=\"#riding-conditions-collapse\" aria-expanded=\"true\" aria-controls=\"riding-conditions-collapse\">Riding conditions</a></h4></div><div id=\"riding-conditions-collapse\" role=\"tabpanel\" aria-labelledby=\"riding-conditions-collapse\" class=\"panel-collapse collapse in\"><div class=\"panel-body\"><div ng-repeat=\"(item, ridingCondition) in report.ridingConditions\" class=\"form-group\">{{ ridingCondition.prompt }}<div ng-if=\"ridingCondition.type==\'multiple\'\" ng-repeat=\"(option, enabled) in ridingCondition.options\" class=\"checkbox\"><label><input type=\"checkbox\" ng-model=\"report.ridingConditions[item].options[option]\"/>{{option}}</label></div><div ng-if=\"ridingCondition.type==\'single\'\" ng-repeat=\"option in ridingCondition.options\" class=\"radio\"><label><input type=\"radio\" ng-model=\"report.ridingConditions[item].selected\" ng-value=\"option\"/>{{option}}</label></div></div></div></div></div><div class=\"panel panel-default\"><div id=\"avalanche-conditions\" role=\"tap\" class=\"panel-heading\"><h4 class=\"panel-title\"><a data-toggle=\"collapse\" data-parent=\"#avalanche-conditions\" href=\"#avalanche-conditions-collapse\" aria-expanded=\"true\" aria-controls=\"avalanche-conditions-collapse\">Avalanche conditions</a></h4></div><div id=\"avalanche-conditions-collapse\" role=\"tabpanel\" aria-labelledby=\"avalanche-conditions-collapse\" class=\"panel-collapse collapse in\"><div class=\"panel-body\"><div class=\"form-group\"><div ng-repeat=\"(option, enabled) in report.avalancheConditions.options\" class=\"checkbox\"><label><input type=\"checkbox\" ng-model=\"report.avalancheConditions.options[option]\"/>{{ option }}</label></div></div></div></div></div></div><div class=\"form-group\"><label>Comments</label><textarea rows=\"3\" ng-model=\"report.comment\" class=\"form-control\"></textarea></div><button type=\"button\" ng-click=\"submitReport()\" class=\"btn btn-default\">SUBMIT REPORT</button></form></div><div class=\"modal-footer\"><button data-dismiss=\"modal\" class=\"btn btn-default\">Close</button></div></div></div></div></div>");}]);
+$templateCache.put("submission-form.html","<form role=\"form\"><div class=\"form-group\"><label for=\"report-title\"><i class=\"fa fa-newspaper-o\"></i> Report title</label><input id=\"report-title\" type=\"text\" placeholder=\"auto: Quick Report\" ng-model=\"report.title\" class=\"form-control\"/></div><div class=\"form-group\"><label for=\"report-datetime\"><i class=\"fa fa-clock-o\"></i> Date and Time</label><input id=\"report-datetime\" type=\"datetime-local\" placeholder=\"\" ng-model=\"report.datetime\" class=\"form-control\"/></div><div class=\"form-group\"></div><div class=\"form-group\"><label for=\"report-location\"><i class=\"fa fa-map-marker\"></i> Location</label><div ac-location-select=\"ac-location-select\" latlng=\"report.latlng\" style=\"height: 300px; width: 100%;\"></div><div class=\"form-control\"><span ng-if=\"!report.latlng[0]\">Drop pin on map to set location</span><span ng-if=\"report.latlng[0]\">({{ report.latlng[0] }}, {{ report.latlng[1] }})</span></div></div><div class=\"form-group\"><label for=\"report-files\"><i class=\"fa fa-clock-o\"></i> Add photo</label><input id=\"report-files\" type=\"file\" file-model=\"report.files\" class=\"form-control\"/><div>0 photos added</div></div><div id=\"min-collapsible-form\" role=\"tablist\" class=\"panel-group\"><div class=\"panel panel-default\"><div id=\"riding-conditions-heading\" role=\"tap\" class=\"panel-heading\"><h4 class=\"panel-title\"><a data-toggle=\"collapse\" data-parent=\"#riding-conditions\" href=\"#riding-conditions-collapse\" aria-expanded=\"true\" aria-controls=\"riding-conditions-collapse\">Riding conditions</a></h4></div><div id=\"riding-conditions-collapse\" role=\"tabpanel\" aria-labelledby=\"riding-conditions-collapse\" class=\"panel-collapse collapse in\"><div class=\"panel-body\"><div ng-repeat=\"(item, ridingCondition) in report.ridingConditions\" class=\"form-group\">{{ ridingCondition.prompt }}<div ng-if=\"ridingCondition.type==\'multiple\'\" ng-repeat=\"(option, enabled) in ridingCondition.options\" class=\"checkbox\"><label><input type=\"checkbox\" ng-model=\"report.ridingConditions[item].options[option]\"/>{{option}}</label></div><div ng-if=\"ridingCondition.type==\'single\'\" ng-repeat=\"option in ridingCondition.options\" class=\"radio\"><label><input type=\"radio\" ng-model=\"report.ridingConditions[item].selected\" ng-value=\"option\"/>{{option}}</label></div></div></div></div></div><div class=\"panel panel-default\"><div id=\"avalanche-conditions\" role=\"tap\" class=\"panel-heading\"><h4 class=\"panel-title\"><a data-toggle=\"collapse\" data-parent=\"#avalanche-conditions\" href=\"#avalanche-conditions-collapse\" aria-expanded=\"true\" aria-controls=\"avalanche-conditions-collapse\">Avalanche conditions</a></h4></div><div id=\"avalanche-conditions-collapse\" role=\"tabpanel\" aria-labelledby=\"avalanche-conditions-collapse\" class=\"panel-collapse collapse in\"><div class=\"panel-body\"><div class=\"form-group\"><div ng-repeat=\"(option, enabled) in report.avalancheConditions.options\" class=\"checkbox\"><label><input type=\"checkbox\" ng-model=\"report.avalancheConditions.options[option]\"/>{{ option }}</label></div></div></div></div></div></div><div class=\"form-group\"><label>Comments</label><textarea rows=\"3\" ng-model=\"report.comment\" class=\"form-control\"></textarea></div><button type=\"button\" ng-click=\"submit()\" class=\"btn btn-default\">SUBMIT REPORT</button></form>");}]);
 }());
