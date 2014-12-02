@@ -1,14 +1,10 @@
 angular.module('acComponents.services')
     .service('acQuickReportData', function() {
         this.avalancheConditions = {
-            type: 'multiple',
-            prompt: null,
-            options: {
-                'Slab avalanches today or yesterday': false,
-                'Whumphing or drum-like sounds or shooting cracks': false,
-                '30cm+ of new snow, or significant drifting, or rain in the last 48 hours': false,
-                'Rapid temperature rise near zero': false
-            }
+            'slab': true,
+            'sound': false,
+            'snow': true,
+            'temp': false
         };
 
         this.ridingConditions = {
