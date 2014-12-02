@@ -32,7 +32,22 @@ angular.module('acComponentsExampleApp')
 
         $httpProvider.interceptors.push('jwtInterceptor');
     }])
-    .run(function (auth) {
+    .run(function (auth, $rootScope, store, jwtHelper, $location) {
         // hooks routing requiresLogin data attribute
         auth.hookEvents();
-    })
+
+        // makes sure login spans refreshes
+        $rootScope.$on('$locationChangeStart', function() {
+            if (!auth.isAuthenticated) {
+                var token = store.get('token');
+                if (token) {
+                    if (!jwtHelper.isTokenExpired(token)) {
+                        auth.authenticate(store.get('profile'), token);
+                    } else {
+                      // Either show Login page or use the refresh token to get a new idToken
+                      $location.path('/');
+                    }
+                }
+            }
+        });
+    });

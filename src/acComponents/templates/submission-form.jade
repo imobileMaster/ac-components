@@ -3,12 +3,12 @@ form(role="form")
       label(for="report-title")
         i.fa.fa-newspaper-o
         |  Report title
-      input#report-title.form-control(type="text", placeholder="auto: Quick Report", ng-model="report.title")
+      input#report-title.form-control(type="text", ng-model="report.title")
     .form-group
       label(for="report-datetime")
         i.fa.fa-clock-o
         |  Date and Time
-      input#report-datetime.form-control(type="datetime-local", placeholder="", ng-model="report.datetime")
+      input#report-datetime.form-control(type="datetime-local", ng-model="report.datetime")
     .form-group
 
     .form-group

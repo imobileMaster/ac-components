@@ -20,7 +20,7 @@ angular.module('acComponents.directives')
             replace: true,
             link: function($scope, el, attrs) {
                 $scope.report = {
-                    title: '',
+                    title: 'auto: Quick Report',
                     datetime: moment().format('YYYY-MM-DDTHH:mm:ss'),
                     latlng: [],
                     files: [],
@@ -35,11 +35,13 @@ angular.module('acComponents.directives')
 
                 $scope.submit = function() {
                     var token = store.get('token');
-                    acSubmission.submit($scope.report, token).then(function(result) {
-                        if (result.data) {
-                            console.log('submission: ' + result.data.subid);
-                        }
-                    });
+                    if(token) {
+                        acSubmission.submit($scope.report, token).then(function(result) {
+                            if (result.data) {
+                                console.log('submission: ' + result.data.subid);
+                            }
+                        });
+                    }
                 };
             }
         };
