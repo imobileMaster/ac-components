@@ -113,9 +113,6 @@ gulp.task('example:publish', function () {
         publisher = awspublish.create(aws);
 
         return gulp.src('./example/**/*')
-            .pipe(rename(function (path) {
-                path.dirname = "/quickreport/" + path.dirname;
-            }))
             .pipe(publisher.publish())
             .pipe(awspublish.reporter());
     });
