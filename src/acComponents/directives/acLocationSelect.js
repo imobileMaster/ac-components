@@ -53,6 +53,8 @@ angular.module('acComponents.directives')
                     }
                 });
 
+                map.setView([52.3, -120.74966], 5);
+
                 $scope.$watch('latlng', function (latlng) {
                     if (marker && latlng.length === 0) {
                         map.removeLayer(marker);

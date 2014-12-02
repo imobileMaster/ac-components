@@ -23,58 +23,60 @@
               | ({{ report.latlng[0] }}, {{ report.latlng[1] }})
         .form-group
           label(for="report-files")
-            i.fa.fa-clock-o
-            |  Add photo
+            i.fa.fa-image
+            |  Add photo or video
           input#report-files.form-control(type="file", file-model="report.files", multiple)
           div {{ report.files.length }} photos added
 
-        .panel-group(id="min-collapsible-form", role="tablist")
+        .panel-group
           .panel.panel-default
-            .panel-heading(id="riding-conditions-heading", role="tap")
+            .panel-heading(style="background-color: black; color: white;")
               h4.panel-title
-                a(data-toggle="collapse", data-parent="#riding-conditions", href="#riding-conditions-collapse", aria-expanded="true", aria-controls="riding-conditions-collapse")
-                  | Riding conditions
-            .panel-collapse.collapse.in(id="riding-conditions-collapse", role="tabpanel", aria-labelledby="riding-conditions-collapse" )
-              .panel-body
-                .form-group(ng-repeat="(item, ridingCondition) in report.ridingConditions")
-                  | {{ ridingCondition.prompt }}
-                  .checkbox(ng-if="ridingCondition.type=='multiple'", ng-repeat="(option, enabled) in ridingCondition.options")
-                    label
-                      input(type="checkbox", ng-model="report.ridingConditions[item].options[option]")
-                      | {{option}}
+                | Riding conditions
+            .panel-body
+                .panel-group
+                  .panel.panel-default(ng-repeat="(item, ridingCondition) in report.ridingConditions")
+                    .panel-heading
+                        h4.panel-title
+                            strong {{ ridingCondition.prompt }}
+                    .panel-body
+                        .form-group
+                        .checkbox(ng-if="ridingCondition.type=='multiple'", ng-repeat="(option, enabled) in ridingCondition.options")
+                          label
+                            input(type="checkbox", ng-model="report.ridingConditions[item].options[option]")
+                            | {{option}}
 
-                  .radio(ng-if="ridingCondition.type=='single'", ng-repeat="option in ridingCondition.options")
-                    label
-                      input(type="radio", ng-model="report.ridingConditions[item].selected", ng-value="option")
-                      | {{option}}
+                        .radio(ng-if="ridingCondition.type=='single'", ng-repeat="option in ridingCondition.options")
+                          label
+                            input(type="radio", ng-model="report.ridingConditions[item].selected", ng-value="option")
+                            | {{option}}
+
           .panel.panel-default
-            .panel-heading(id="avalanche-conditions", role="tap")
-              h4.panel-title
-                a(data-toggle="collapse", data-parent="#avalanche-conditions", href="#avalanche-conditions-collapse", aria-expanded="true", aria-controls="avalanche-conditions-collapse")
-                  | Avalanche conditions
-            .panel-collapse.collapse.in(id="avalanche-conditions-collapse", role="tabpanel", aria-labelledby="avalanche-conditions-collapse" )
-              .panel-body
-                .form-group
-                  .checkbox
-                    label
-                      input(type="checkbox", ng-model="report.avalancheConditions.slab")
-                      | Slab avalanches today or yesterday.
-                  .checkbox
-                    label
-                      input(type="checkbox", ng-model="report.avalancheConditions.sound")
-                      | Whumphing or drum-like sounds or shooting cracks.
-                  .checkbox
-                    label
-                      input(type="checkbox", ng-model="report.avalancheConditions.snow")
-                      | 30cm + of new snow, or significant drifitng, or rain in the last 48 hours.
-                  .checkbox
-                    label
-                      input(type="checkbox", ng-model="report.avalancheConditions.temp")
-                      | Rapid temperature rise to near zero degrees or wet surface snow.
+            .panel-heading(style="background-color: black; color: white;")
+                h4.panel-title
+                    strong Avalanche conditions
+            .panel-body
+              .form-group
+                .checkbox
+                  label
+                    input(type="checkbox", ng-model="report.avalancheConditions.slab")
+                    | Slab avalanches today or yesterday.
+                .checkbox
+                  label
+                    input(type="checkbox", ng-model="report.avalancheConditions.sound")
+                    | Whumphing or drum-like sounds or shooting cracks.
+                .checkbox
+                  label
+                    input(type="checkbox", ng-model="report.avalancheConditions.snow")
+                    | 30cm + of new snow, or significant drifitng, or rain in the last 48 hours.
+                .checkbox
+                  label
+                    input(type="checkbox", ng-model="report.avalancheConditions.temp")
+                    | Rapid temperature rise to near zero degrees or wet surface snow.
         .form-group
           label Comments
           textarea.form-control(rows="3", ng-model="report.comment")
-        button.btn.btn-default(type="button", ng-click="submitForm()", ng-disabled="minsubmitting")
+        button.btn.btn-default(type="button", ng-click="submitForm()", ng-disabled="minsubmitting", style="border-radius:0; background-color: rgb(0, 86, 183); color: white;")
             i.fa.fa-fw.fa-lg.fa-spinner.fa-spin(ng-show="minsubmitting")
             span(ng-hide="minsubmitting") SUBMIT REPORT
             span(ng-show="minsubmitting") SUBMITING REPORT
