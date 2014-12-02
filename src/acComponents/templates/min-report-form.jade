@@ -16,7 +16,7 @@
           label(for="report-location")
             i.fa.fa-map-marker
             |  Location
-          div(ac-location-select, latlng="report.latlng", style="height: 300px; width: 100%;")
+          div(ac-location-select, latlng="report.latlng", style="height: 300px; width: 100%; margin: 10px 0;")
           .form-control
             span(ng-if="!report.latlng[0]") Drop pin on map to set location
             span(ng-if="report.latlng[0]")

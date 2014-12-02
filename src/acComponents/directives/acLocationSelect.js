@@ -1,7 +1,6 @@
 angular.module('acComponents.directives')
     .directive('acLocationSelect', function(MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, $timeout) {
         return {
-            template: '<div style="height: 300px; width: 100%;"></div>',
             scope: {
                 latlng: '='
             },
