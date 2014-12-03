@@ -306,103 +306,27 @@ angular.module('acComponents.directives')
                     return offsetLatLng(map.getCenter(), offset);
                 }
 
-                function getMapBounds() {
-                    var latLngBounds = map.getBounds();
-                    var min = map.latLngToLayerPoint(latLngBounds.getNorthWest());
-                    var max = map.latLngToLayerPoint(latLngBounds.getSouthEast());
-                    var padding = getMapPadding();
-
-                    var bounds = L.bounds(min, max.subtract(padding));
-                    var nw = map.layerPointToLatLng(bounds.max);
-                    var se = map.layerPointToLatLng(bounds.min);
-
-                    return L.latLngBounds(nw, se);
-                }
-
-                function getMapCenterBuffer(){
-                    var mapCenter = getMapCenter();
-                    var centerPoint = map.latLngToLayerPoint(mapCenter);
-                    var buffer = L.bounds([centerPoint.x-50, centerPoint.y-50], [centerPoint.x+50, centerPoint.y+50]);
-
-                    var nw = map.layerPointToLatLng(buffer.max);
-                    var se = map.layerPointToLatLng(buffer.min);
-
-                    return  L.latLngBounds(nw, se);
-                }
-
                 function setRegionFocus() {
                     if(map.getZoom() >= 8) {
-                        var region;
-                        var centerBuffer = getMapCenterBuffer();
-                        var regions = layers.regions.getLayers();
+                        var regionLayers = layers.regions.getLayers();
                         var mapCenter = getMapCenter();
-                        var mapBounds = getMapBounds();
 
-                        // intersects map center buffer
-                        // var intersectsCenterBuffer = _.filter(regions, function (r) {
-                        //     return centerBuffer.intersects(r.getBounds());
-                        // });
-
-                        // region fully within map bounds
-                        // var withinMapBounds = _.filter(regions, function (r) {
-                        //     return mapBounds.contains(r.getBounds());
-                        // });
-
-                        // // region contains map center point
-                        region = _.find(regions, function (r) {
+                        var region = _.find(regionLayers, function (r) {
                             return gju.pointInPolygon(latLngToGeoJSON(mapCenter), r.feature.geometry);
                         });
 
                         if(!region){
-                            region = _.min(regions, function (r) {
-                                return r.feature.properties.centroid.distanceTo(mapCenter);
+                            region = _.min(regionLayers, function (r) {
+                                var centroid = L.latLng(r.feature.properties.centroid[1], r.feature.properties.centroid[0]);
+                                return centroid.distanceTo(mapCenter);
                             });
                         }
-
-                        // if(withinMapBounds.length === 1) {
-                        //     region = withinMapBounds[0];
-                        // }
-
-                        // if(withinMapBounds.length > 1) {
-                        //     region = _.min(withinMapBounds, function (r) {
-                        //         return r.feature.properties.centroid.distanceTo(mapCenter);
-                        //     });
-                        // }
-
-                        // if(!region) {
-                        //     region = containsMapCenter;
-                        // }
-
-                        // region centroid is in map bounds
-                        // var centroidInMapBounds = _.filter(regions, function (r) {
-                        //     return mapBounds.contains(r.feature.properties.centroid);
-                        // });
-
-                        // intersects center buffer and is fully within map bounds
-                        // var intersectsCenterBufferAnWithinMapBounds = _.intersection(intersectsCenterBuffer, withinMapBounds);
-
-                        // if(intersectsCenterBufferAnWithinMapBounds.length === 1){
-                        //     region = intersectsCenterBufferAnWithinMapBounds[0];
-                        // } else if(intersectsCenterBufferAnWithinMapBounds.length > 1) {
-                        //     region = _.min(intersectsCenterBufferAnWithinMapBounds, function (r) {
-                        //         return r.feature.properties.centroid.distanceTo(mapCenter);
-                        //     });
-                        // } else if(centroidInMapBounds.length === 1){
-                        //     region = centroidInMapBounds[0];
-                        // } else if(centroidInMapBounds.length > 1){
-                        //     region = _.min(centroidInMapBounds, function (r) {
-                        //         return r.feature.properties.centroid.distanceTo(mapCenter);
-                        //     });
-                        // } else if (containsMapCenter) {
-                        //     region = containsMapCenter;
-                        // }
 
                         $scope.$apply(function () {
                             $scope.region = region;
                         });
                     }
                 }
-
 
 
                 map.on('load', refreshLayers);
