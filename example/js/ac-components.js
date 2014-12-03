@@ -237,21 +237,21 @@ angular.module('acComponents.directives')
 
                             layer.on('click', showRegion);
 
-                            // layer.on('mouseover', function() {
-                            //     if(layer == layers.currentRegion){
-                            //         layer.setStyle(styles.region.selectedhover);
-                            //     } else {
-                            //         layer.setStyle(styles.region.hover);
-                            //     }
-                            // });
+                            layer.on('mouseover', function() {
+                                if(layer == layers.currentRegion){
+                                    layer.setStyle(styles.region.selectedhover);
+                                } else {
+                                    layer.setStyle(styles.region.hover);
+                                }
+                            });
 
-                            // layer.on('mouseout', function() {
-                            //     if(layer == layers.currentRegion){
-                            //         layer.setStyle(styles.region.selected);
-                            //     } else {
-                            //         layer.setStyle(styles.region.default);
-                            //     }
-                            // });
+                            layer.on('mouseout', function() {
+                                if(layer == layers.currentRegion){
+                                    layer.setStyle(styles.region.selected);
+                                } else {
+                                    layer.setStyle(styles.region.default);
+                                }
+                            });
 
                             if(featureData.properties.centroid) {
                                 var centroid = L.latLng(featureData.properties.centroid[1], featureData.properties.centroid[0]);
@@ -462,6 +462,7 @@ angular.module('acComponents.directives')
 
                 $scope.$watch('region', function (newRegion, oldRegion) {
                     if(layers.regions && newRegion && newRegion !== oldRegion) {
+                        layers.currentRegion = newRegion;
                         updateRegionLayer();
                     }
                 });
