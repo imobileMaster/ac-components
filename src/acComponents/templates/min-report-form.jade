@@ -84,7 +84,18 @@
     div(ng-show="report.subid")
         .alert.alert-success(role="alert")
             | Your report was successfully submited.
-        div(ac-social-share)
+        .well
+            H4 Share this report:
+            ul.list-inline
+                li
+                    a(ng-href="https://twitter.com/intent/tweet?status={{report.shareUrl}}")
+                        i.fa.fa-twitter.fa-fw.fa-lg
+                li
+                    a(ng-href="https://www.facebook.com/sharer/sharer.php?u={{report.shareUrl}}")
+                        i.fa.fa-facebook.fa-fw.fa-lg
+                li
+                    a(ng-href="https://plus.google.com/share?url={{report.shareUrl}}")
+                        i.fa.fa-google-plus.fa-fw.fa-lg
     div(ng-show="minerror")
         .alert.alert-danger(role="alert")
             | There was an error submittting you report.

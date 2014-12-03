@@ -55,6 +55,7 @@ angular.module('acComponents.directives')
                             if (result.data && !('error' in result.data)) {
                                 $scope.minsubmitting = false;
                                 $scope.report.subid = result.data.subid;
+                                $scope.report.shareUrl = result.data.obs[0].shareUrl;
                                 console.log('submission: ' + result.data.subid);
                                 return result;
                             } else {
