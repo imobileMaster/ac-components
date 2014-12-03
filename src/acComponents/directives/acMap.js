@@ -110,26 +110,26 @@ angular.module('acComponents.directives')
 
                             layer.on('click', showRegion);
 
-                            layer.on('mouseover', function() {
-                                if(layer == layers.currentRegion){
-                                    layer.setStyle(styles.region.selectedhover);
-                                } else {
-                                    layer.setStyle(styles.region.hover);
-                                }
-                            });
+                            // layer.on('mouseover', function() {
+                            //     if(layer == layers.currentRegion){
+                            //         layer.setStyle(styles.region.selectedhover);
+                            //     } else {
+                            //         layer.setStyle(styles.region.hover);
+                            //     }
+                            // });
 
-                            layer.on('mouseout', function() {
-                                if(layer == layers.currentRegion){
-                                    layer.setStyle(styles.region.selected);
-                                } else {
-                                    layer.setStyle(styles.region.default);
-                                }
-                            });
+                            // layer.on('mouseout', function() {
+                            //     if(layer == layers.currentRegion){
+                            //         layer.setStyle(styles.region.selected);
+                            //     } else {
+                            //         layer.setStyle(styles.region.default);
+                            //     }
+                            // });
 
                             if(featureData.properties.centroid) {
-                                featureData.properties.centroid = L.latLng(featureData.properties.centroid[1], featureData.properties.centroid[0]);
+                                var centroid = L.latLng(featureData.properties.centroid[1], featureData.properties.centroid[0]);
 
-                                var marker = L.marker(featureData.properties.centroid);
+                                var marker = L.marker(centroid);
                                 var icon = getDangerIcon({regionId: featureData.id});
 
                                 marker.setIcon(icon);
@@ -338,39 +338,64 @@ angular.module('acComponents.directives')
                         var mapCenter = getMapCenter();
                         var mapBounds = getMapBounds();
 
-                        var intersectsCenterBuffer = _.filter(regions, function (r) {
-                            return centerBuffer.intersects(r.getBounds());
-                        });
+                        // intersects map center buffer
+                        // var intersectsCenterBuffer = _.filter(regions, function (r) {
+                        //     return centerBuffer.intersects(r.getBounds());
+                        // });
 
-                        var withinMapBounds = _.filter(regions, function (r) {
-                            return mapBounds.contains(r.getBounds());
-                        });
+                        // region fully within map bounds
+                        // var withinMapBounds = _.filter(regions, function (r) {
+                        //     return mapBounds.contains(r.getBounds());
+                        // });
 
-                        var containsMapCenter = _.find(regions, function (r) {
+                        // // region contains map center point
+                        region = _.find(regions, function (r) {
                             return gju.pointInPolygon(latLngToGeoJSON(mapCenter), r.feature.geometry);
                         });
 
-                        var centroidInMapBounds = _.filter(regions, function (r) {
-                            return mapBounds.contains(r.feature.properties.centroid);
-                        });
-
-                        var intersectsCenterBufferAnWithinMapBounds = _.intersection(intersectsCenterBuffer, withinMapBounds);
-
-                        if(intersectsCenterBufferAnWithinMapBounds.length === 1){
-                            region = intersectsCenterBufferAnWithinMapBounds[0];
-                        } else if(intersectsCenterBufferAnWithinMapBounds.length > 1) {
-                            region = _.min(intersectsCenterBufferAnWithinMapBounds, function (r) {
+                        if(!region){
+                            region = _.min(regions, function (r) {
                                 return r.feature.properties.centroid.distanceTo(mapCenter);
                             });
-                        } else if(centroidInMapBounds.length === 1){
-                            region = centroidInMapBounds[0];
-                        } else if(centroidInMapBounds.length > 1){
-                            region = _.min(centroidInMapBounds, function (r) {
-                                return r.feature.properties.centroid.distanceTo(mapCenter);
-                            });
-                        } else if (containsMapCenter) {
-                            region = containsMapCenter;
                         }
+
+                        // if(withinMapBounds.length === 1) {
+                        //     region = withinMapBounds[0];
+                        // }
+
+                        // if(withinMapBounds.length > 1) {
+                        //     region = _.min(withinMapBounds, function (r) {
+                        //         return r.feature.properties.centroid.distanceTo(mapCenter);
+                        //     });
+                        // }
+
+                        // if(!region) {
+                        //     region = containsMapCenter;
+                        // }
+
+                        // region centroid is in map bounds
+                        // var centroidInMapBounds = _.filter(regions, function (r) {
+                        //     return mapBounds.contains(r.feature.properties.centroid);
+                        // });
+
+                        // intersects center buffer and is fully within map bounds
+                        // var intersectsCenterBufferAnWithinMapBounds = _.intersection(intersectsCenterBuffer, withinMapBounds);
+
+                        // if(intersectsCenterBufferAnWithinMapBounds.length === 1){
+                        //     region = intersectsCenterBufferAnWithinMapBounds[0];
+                        // } else if(intersectsCenterBufferAnWithinMapBounds.length > 1) {
+                        //     region = _.min(intersectsCenterBufferAnWithinMapBounds, function (r) {
+                        //         return r.feature.properties.centroid.distanceTo(mapCenter);
+                        //     });
+                        // } else if(centroidInMapBounds.length === 1){
+                        //     region = centroidInMapBounds[0];
+                        // } else if(centroidInMapBounds.length > 1){
+                        //     region = _.min(centroidInMapBounds, function (r) {
+                        //         return r.feature.properties.centroid.distanceTo(mapCenter);
+                        //     });
+                        // } else if (containsMapCenter) {
+                        //     region = containsMapCenter;
+                        // }
 
                         $scope.$apply(function () {
                             $scope.region = region;
