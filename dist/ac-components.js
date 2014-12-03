@@ -126,7 +126,7 @@ angular.module('acComponents.directives')
     }]);
 
 angular.module('acComponents.directives')
-    .directive('acMapboxMap', ["$rootScope", "$window", "$location", "$timeout", "acBreakpoint", "acObservation", "acForecast", "MAPBOX_ACCESS_TOKEN", "MAPBOX_MAP_ID", function ($rootScope, $window, $location, $timeout, acBreakpoint, acObservation, acForecast, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID) {
+    .directive('acMapboxMap', ["$rootScope", "$window", "$location", "$timeout", "acBreakpoint", "acObservation", "acForecast", "MAPBOX_ACCESS_TOKEN", "MAPBOX_MAP_ID", "$templateCache", function ($rootScope, $window, $location, $timeout, acBreakpoint, acObservation, acForecast, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, $templateCache) {
         return {
             template: '<div id="map"></div>',
             replace: true,
@@ -367,11 +367,23 @@ angular.module('acComponents.directives')
 
                             marker.on('click', function () {
                                 acObservation.getOne(ob.obid, 'html').then(function (obHtml) {
-                                    var popup = L.popup({maxWidth: 400});
+                                    if($scope.device.size === 'sm' || $scope.device.size === 'xs') {
+                                        var $modal = $('#mobileMapPopup');
 
-                                    popup.setContent(obHtml);
-                                    marker.bindPopup(popup);
-                                    marker.togglePopup();
+                                        if(!$modal.length){
+                                            var modalTemplate = $templateCache.get('min-report-popup-modal.html');
+                                            var $modal = $(modalTemplate);
+                                            $(document.body).append($modal);
+                                        }
+
+                                        $modal.find('.modal-body').html(obHtml);
+                                        $modal.modal('show');
+                                    } else {
+                                        var popup = L.popup({maxWidth: 400});
+                                        popup.setContent(obHtml);
+                                        marker.bindPopup(popup);
+                                        marker.togglePopup();
+                                    }
                                 });
                             });
 
@@ -867,5 +879,6 @@ $templateCache.put("forecast-mini.html","<div class=\"panel\"><div ng-show=\"for
 $templateCache.put("loading-indicator.html","<div class=\"ac-loading-indicator\"><div class=\"rect1\"></div><div class=\"rect2\"></div><div class=\"rect3\"></div><div class=\"rect4\"></div><div class=\"rect5\"></div></div>");
 $templateCache.put("min-report-form.html","<div class=\"min-form\"><form role=\"form\" ng-show=\"!report.subid &amp;&amp; !minerror\"><div class=\"form-group\"><label for=\"report-title\"><i class=\"fa fa-newspaper-o\"></i> Report title</label><input id=\"report-title\" type=\"text\" ng-model=\"report.title\" class=\"form-control\"/></div><div class=\"form-group\"><label for=\"report-datetime\"><i class=\"fa fa-clock-o\"></i> Date and Time</label><input id=\"report-datetime\" type=\"datetime-local\" ng-model=\"report.datetime\" class=\"form-control\"/></div><div class=\"form-group\"></div><div class=\"form-group\"><label for=\"report-location\"><i class=\"fa fa-map-marker\"></i> Location</label><div ac-location-select=\"ac-location-select\" latlng=\"report.latlng\" style=\"height: 300px; width: 100%; margin: 10px 0;\"></div><div class=\"form-control\"><span ng-if=\"!report.latlng[0]\">Drop pin on map to set location</span><span ng-if=\"report.latlng[0]\">({{ report.latlng[0] }}, {{ report.latlng[1] }})</span></div></div><div class=\"form-group\"><label for=\"report-files\"><i class=\"fa fa-image\"></i> Add photo or video</label><input id=\"report-files\" type=\"file\" file-model=\"report.files\" multiple=\"multiple\" class=\"form-control\"/><div>{{ report.files.length }} photos added</div></div><div class=\"panel-group\"><div class=\"panel panel-default\"><div style=\"background-color: black; color: white;\" class=\"panel-heading\"><h4 class=\"panel-title\">Riding conditions</h4></div><div class=\"panel-body\"><div class=\"panel-group\"><div ng-repeat=\"(item, ridingCondition) in report.ridingConditions\" class=\"panel panel-default\"><div class=\"panel-heading\"><h4 class=\"panel-title\"><strong>{{ ridingCondition.prompt }}</strong></h4></div><div class=\"panel-body\"><div class=\"form-group\"></div><div ng-if=\"ridingCondition.type==\'multiple\'\" ng-repeat=\"(option, enabled) in ridingCondition.options\" class=\"checkbox\"><label><input type=\"checkbox\" ng-model=\"report.ridingConditions[item].options[option]\"/>{{option}}</label></div><div ng-if=\"ridingCondition.type==\'single\'\" ng-repeat=\"option in ridingCondition.options\" class=\"radio\"><label><input type=\"radio\" ng-model=\"report.ridingConditions[item].selected\" ng-value=\"option\"/>{{option}}</label></div></div></div></div></div></div><div class=\"panel panel-default\"><div style=\"background-color: black; color: white;\" class=\"panel-heading\"><h4 class=\"panel-title\"><strong>Avalanche conditions</strong></h4></div><div class=\"panel-body\"><div class=\"form-group\"><div class=\"checkbox\"><label><input type=\"checkbox\" ng-model=\"report.avalancheConditions.slab\"/>Slab avalanches today or yesterday.</label></div><div class=\"checkbox\"><label><input type=\"checkbox\" ng-model=\"report.avalancheConditions.sound\"/>Whumphing or drum-like sounds or shooting cracks.</label></div><div class=\"checkbox\"><label><input type=\"checkbox\" ng-model=\"report.avalancheConditions.snow\"/>30cm + of new snow, or significant drifitng, or rain in the last 48 hours.</label></div><div class=\"checkbox\"><label><input type=\"checkbox\" ng-model=\"report.avalancheConditions.temp\"/>Rapid temperature rise to near zero degrees or wet surface snow.</label></div></div></div></div></div><div class=\"form-group\"><label>Comments</label><textarea rows=\"3\" ng-model=\"report.comment\" class=\"form-control\"></textarea></div><button type=\"button\" ng-click=\"submitForm()\" ng-disabled=\"minsubmitting\" style=\"border-radius:0; background-color: rgb(0, 86, 183); color: white;\" class=\"btn btn-default\"><i ng-show=\"minsubmitting\" class=\"fa fa-fw fa-lg fa-spinner fa-spin\"></i><span ng-hide=\"minsubmitting\">SUBMIT REPORT</span><span ng-show=\"minsubmitting\">SUBMITING REPORT</span></button></form><div ng-show=\"report.subid\"><div role=\"alert\" class=\"alert alert-success\">Your report was successfully submited.</div><div ac-social-share=\"ac-social-share\"></div></div><div ng-show=\"minerror\"><div role=\"alert\" class=\"alert alert-danger\">There was an error submittting you report.</div></div></div>");
 $templateCache.put("min-report-modal.html","<div id=\"minForm\" role=\"dialog\" class=\"modal fade\"><div class=\"modal-dialog\"><div class=\"modal-content\"><div class=\"modal-header\"><button data-dismiss=\"modal\" class=\"close\"><span>close</span></button><h4 class=\"modal-title\">Mountain Information Network Report</h4></div><div class=\"modal-body\"><div ac-min-report-form=\"ac-min-report-form\"></div></div></div></div></div>");
+$templateCache.put("min-report-popup-modal.html","<div id=\"mobileMapPopup\" role=\"dialog\" class=\"modal fade\"><div class=\"modal-dialog\"><div class=\"modal-content\"><div class=\"modal-body\"></div>                <a href=\"#\" data-dismiss=\"modal\" style=\"position: absolute; right: 10px; top: 10px;\" class=\"pull-right\"><i class=\"fa fa-close fa-lg\"></i></a></div></div></div>");
 $templateCache.put("social-share.html","<div class=\"well\"><H4>Share this report:</H4><ul class=\"list-inline\"><li><a href=\"https://twitter.com/intent/tweet?url=http://avalanche.ca\"><i class=\"fa fa-twitter fa-fw fa-lg\"></i></a></li><li><a href=\"https://www.facebook.com/sharer/sharer.php?u=http://avalanche.ca\"><i class=\"fa fa-facebook fa-fw fa-lg\"></i></a></li><li><a href=\"https://plus.google.com/share?url=http://avalanche.ca\"><i class=\"fa fa-google-plus fa-fw fa-lg\"></i></a></li></ul></div>");}]);
 }());
