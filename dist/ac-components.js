@@ -600,7 +600,7 @@ angular.module('acComponents.directives')
             }
         };
     }])
-    .directive('acMinReportForm', ["$timeout", "acQuickReportData", "acSubmission", "MAPBOX_ACCESS_TOKEN", "MAPBOX_MAP_ID", "store", function($timeout, acQuickReportData, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, store) {
+    .directive('acMinReportForm', ["$q", "$timeout", "acQuickReportData", "acSubmission", "MAPBOX_ACCESS_TOKEN", "MAPBOX_MAP_ID", "store", function($q, $timeout, acQuickReportData, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, store) {
         return {
             templateUrl: 'min-report-form.html',
             replace: true,
@@ -635,21 +635,26 @@ angular.module('acComponents.directives')
 
                 $scope.submitForm = function() {
                     var token = store.get('token');
-                    if(token) {
+                    if (token) {
                         $scope.minsubmitting = true;
-                        acSubmission.submit($scope.report, token).then(function(result) {
+                        return acSubmission.submit($scope.report, token).then(function(result) {
                             if (result.data && !('error' in result.data)) {
                                 $scope.minsubmitting = false;
                                 $scope.report.subid = result.data.subid;
                                 console.log('submission: ' + result.data.subid);
+                                return result;
                             } else {
                                 $scope.minsubmitting = false;
                                 $scope.minerror = true;
+                                return $q.reject('error');
                             }
-                        }, function () {
+                        }, function() {
                             $scope.minsubmitting = false;
                             $scope.minerror = true;
+                            return $q.reject('error');
                         });
+                    } else {
+                        return $q.reject('auth-error');
                     }
                 };
             }
