@@ -188,7 +188,7 @@ angular.module('acComponents.directives')
                     }
 
                     if(layers.obs) {
-                        var obsVisible = map.hasLayer(layers.obs);
+                        // var obsVisible = map.hasLayer(layers.obs);
 
                         // if(map.getZoom() < 7 && obsVisible) {
                         //     map.removeLayer(layers.obs);
