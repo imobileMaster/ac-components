@@ -47,7 +47,7 @@ angular.module('acComponentsExampleApp', ['acComponents', 'ngRoute', 'auth0', 'a
         });
 
     })
-    .controller('exampleController', function ($scope, $timeout, regions, obs, ob, acForecast, auth) {
+    .controller('exampleController', function ($scope, $timeout, regions, obs, ob, acForecast, auth, $templateCache) {
         angular.extend($scope, {
             auth: auth,
             current: {
@@ -86,5 +86,18 @@ angular.module('acComponentsExampleApp', ['acComponents', 'ngRoute', 'auth0', 'a
                     $scope.resetForm();
                 });
         };
+
+        $scope.$on('ac.min.obclicked', function (e, obHtml) {
+            var $modal = $('#mobileMapPopup');
+
+            if(!$modal.length){
+                var modalTemplate = $templateCache.get('min-report-popup-modal.html');
+                var $modal = $(modalTemplate);
+                $(document.body).append($modal);
+            }
+
+            $modal.find('.modal-body').html(obHtml);
+            $modal.modal('show');
+        });
 
     });

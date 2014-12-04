@@ -126,7 +126,7 @@ angular.module('acComponents.directives')
     }]);
 
 angular.module('acComponents.directives')
-    .directive('acMapboxMap', ["$rootScope", "$window", "$location", "$timeout", "acBreakpoint", "acObservation", "acForecast", "MAPBOX_ACCESS_TOKEN", "MAPBOX_MAP_ID", "$templateCache", function ($rootScope, $window, $location, $timeout, acBreakpoint, acObservation, acForecast, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, $templateCache) {
+    .directive('acMapboxMap', ["$rootScope", "$window", "$location", "$timeout", "acBreakpoint", "acObservation", "acForecast", "MAPBOX_ACCESS_TOKEN", "MAPBOX_MAP_ID", function ($rootScope, $window, $location, $timeout, acBreakpoint, acObservation, acForecast, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID) {
         return {
             template: '<div id="map"></div>',
             replace: true,
@@ -368,16 +368,7 @@ angular.module('acComponents.directives')
                             marker.on('click', function () {
                                 acObservation.getOne(ob.obid, 'html').then(function (obHtml) {
                                     if($scope.device.size === 'sm' || $scope.device.size === 'xs') {
-                                        var $modal = $('#mobileMapPopup');
-
-                                        if(!$modal.length){
-                                            var modalTemplate = $templateCache.get('min-report-popup-modal.html');
-                                            var $modal = $(modalTemplate);
-                                            $(document.body).append($modal);
-                                        }
-
-                                        $modal.find('.modal-body').html(obHtml);
-                                        $modal.modal('show');
+                                        $scope.$emit('ac.min.obclicked', obHtml);
                                     } else {
                                         var popup = L.popup({maxWidth: 400});
                                         popup.setContent(obHtml);
