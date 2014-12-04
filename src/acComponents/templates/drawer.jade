@@ -3,7 +3,7 @@
         i.fa.fa-close.fa-lg
     .ac-drawer-tools
         ul
-            li(ng-click="drawer.visible = !drawer.visible")
+            li(ng-click="drawer.visible = !drawer.visible", style="margin-bottom: 50px; height: 55px;")
                 i.fa.fa-file-text-o.fa-fw.fa-2x.fa-inverse.ac-middle
             //- li(ng-click="toggleFilter('obsType:incident')", ng-class="{on: filters.obsType.indexOf('incident') !== -1}")
             //-     i.fa.fa-warning.fa-fw.fa-2x.fa-inverse.ac-middle
@@ -19,20 +19,20 @@
             //-     span.ac-icon.ac-icon-avalanche
             //-         i.fa.fa-play.fa-inverse.fa-2x
             //-         i.fa.fa-cloud.fa-inverse.fa-1x
-            //- li(ng-click="toggleFilter('obsPeriod:48-hours')", ng-class="{on: filters.obsType.length > 0 && filters.obsPeriod.indexOf('48-hours') !== -1}")
-            //-     small last 
-            //-     strong 48
-            //-     small hours
-            //- li(ng-click="toggleFilter('obsPeriod:7-days')", ng-class="{on: filters.obsType.length > 0 && filters.obsPeriod.indexOf('7-days') !== -1}")
-            //-     small last 
-            //-     strong 7 
-            //-     small days
-            //- li(ng-click="toggleFilter('obsPeriod:30-days')", ng-class="{on: filters.obsType.length > 0 && filters.obsPeriod.indexOf('30-days') !== -1}")
-            //-     small last 
-            //-     strong 30 
-            //-     small days
-            //- li(data-toggle="modal" data-target="#obs")
-            //-     i.fa.fa-binoculars.fa-fw.fa-2x.fa-inverse.ac-middle
-            //- li(style="height: 300px;")
-                .div.ac-middle(ac-date-filter, style="height: 250px;")
+            li(ng-click="toggleFilter()", ng-class="{on: filters.obsPeriod !== ''}", style="height: 55px;")
+                small hide
+                strong obs
+                small layer
+            li(ng-click="toggleFilter('obsPeriod:48-hours')", ng-class="{on: filters.obsPeriod === '48-hours'}", style="height: 55px;")
+                small last 
+                strong 48
+                small hours
+            li(ng-click="toggleFilter('obsPeriod:7-days')", ng-class="{on: filters.obsPeriod === '7-days'}", style="height: 55px;")
+                small last 
+                strong 7 
+                small days
+            li(ng-click="toggleFilter('obsPeriod:30-days')", ng-class="{on: filters.obsPeriod === '30-days'}", style="height: 55px;")
+                small last 
+                strong 30 
+                small days
     .ac-drawer-body(ng-transclude)

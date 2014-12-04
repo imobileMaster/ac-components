@@ -190,11 +190,13 @@ angular.module('acComponents.directives')
                     if(layers.obs) {
                         var obsVisible = map.hasLayer(layers.obs);
 
-                        if(map.getZoom() < 7 && obsVisible) {
-                            map.removeLayer(layers.obs);
-                        } else if (map.getZoom() >= 7 && !obsVisible){
-                            map.addLayer(layers.obs);
-                        }
+                        // if(map.getZoom() < 7 && obsVisible) {
+                        //     map.removeLayer(layers.obs);
+                        // } else if (map.getZoom() >= 7 && !obsVisible){
+                        //     map.addLayer(layers.obs);
+                        // }
+
+                        map.addLayer(layers.obs);
                     }
 
                     var opacity = 0.2;
@@ -258,6 +260,8 @@ angular.module('acComponents.directives')
 
                         layers.obs = L.featureGroup(markers);
                         layers.obs.bringToFront();
+                    } else {
+                        layers.obs = undefined;
                     }
 
                     refreshLayers();

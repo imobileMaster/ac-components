@@ -47,7 +47,7 @@ angular.module('acComponentsExampleApp', ['acComponents', 'ngRoute', 'auth0', 'a
         });
 
     })
-    .controller('exampleController', function ($scope, $timeout, regions, obs, ob, acForecast, auth, $templateCache) {
+    .controller('exampleController', function ($scope, $timeout, regions, obs, ob, acForecast, acObservation, auth, $templateCache) {
         angular.extend($scope, {
             auth: auth,
             current: {
@@ -59,7 +59,10 @@ angular.module('acComponentsExampleApp', ['acComponents', 'ngRoute', 'auth0', 'a
             imageLoaded: false,
             regions: regions,
             obs: obs,
-            ob: ob
+            ob: ob,
+            filters: {
+                obsPeriod: '48-hours'
+            }
         });
 
         $scope.$watch('current.region', function (newRegion, oldRegion) {
@@ -99,5 +102,24 @@ angular.module('acComponentsExampleApp', ['acComponents', 'ngRoute', 'auth0', 'a
             $modal.find('.modal-body').html(obHtml);
             $modal.modal('show');
         });
+
+        $scope.toggleFilter = function (filter) {
+            if(filter || !$scope.filters.obsPeriod){
+                filter = filter || 'obsPeriod:48-hours';
+                var filterType = filter.split(':')[0];
+                var filterValue = filter.split(':')[1];
+
+                if(filterType === 'obsPeriod') {
+                    $scope.filters[filterType] = filterValue;
+                    var period = filterValue.replace('-', ':');
+                    acObservation.byPeriod(period).then(function (obs) {
+                        $scope.obs = obs;
+                    });
+                }
+            } else {
+                $scope.obs = [];
+                $scope.filters.obsPeriod = '';
+            }
+        };
 
     });
