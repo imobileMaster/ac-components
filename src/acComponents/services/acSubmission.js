@@ -3,40 +3,43 @@ angular.module('acComponents.services')
         var endpointUrl = AC_API_ROOT_URL + '/api/min/submissions';
         var sizeLimit = 25000000;
         var allowedExtentions = ['png', 'jpg', 'jpeg', 'gif'];
+        var fileViolationErrorMsg = 'Invalid file! Files have to be smaller than 25 MB and of type: ' + allowedExtentions.join(', ');
 
         function fileIsValid(file){
             var fileExtention = file.name.split('.').pop()
-
             return file.size < sizeLimit && allowedExtentions.indexOf(fileExtention) !== -1;
+        }
+
+        function fileAreValid(files){
+            return _.reduce(files, function (memo, file) {
+                return memo && fileIsValid(file);
+            }, true);
         }
 
         function prepareData(reportData) {
             var deferred = $q.defer();
-            var formData = new FormData();
 
-            //process files
-            if (reportData.files && reportData.files.length > 0) {
-                angular.forEach(reportData.files, function(file, counter) {
-                    if(fileIsValid(file)) {
-                        formData.append('file' + counter, file, file.name);
-                    } else {
-                        deferred.reject('Invalid file! Files have to be smaller than 25 MB and of type: ' + allowedExtentions.join(', '));
+            if(fileAreValid(reportData.files)){
+                var formData =  _.reduce(reportData, function (data, value, key) {
+                    if(key === 'files') {
+                        _.forEach(value, function(file, counter) {
+                            data.append('file' + counter, file, file.name);
+                        });
+                    } else if(_.isPlainObject(value) || _.isArray(value)) {
+                        data.append(key, JSON.stringify(value));
+                    } else if(key === 'datetime') {
+                        data.append(key, moment(value).format());
+                    } else if(_.isString(value)) {
+                        data.append(key, value);
                     }
-                });
-            }
 
-            //process data
-            angular.forEach(reportData, function(value, key) {
-                if (key !== 'files' && key !== 'latlng' && angular.isObject(value)) {
-                    formData.append(key, JSON.stringify(value));
-                } else if (key === 'latlng') {
-                    formData.append(key, JSON.stringify(value));
-                } else if (key === 'datetime') {
-                    formData.append(key, moment(value).format());
-                } else if (key !== 'files' && !angular.isObject(value)) {
-                    formData.append(key, value);
-                }
-            });
+                    return data;
+                }, new FormData());
+
+                deferred.resolve(formData);
+            } else {
+                deferred.reject(fileViolationErrorMsg);
+            }
 
             return deferred.promise;
         }
