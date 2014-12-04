@@ -63,10 +63,11 @@ angular.module('acComponents.directives')
                                 $scope.minerror = true;
                                 return $q.reject('error');
                             }
-                        }, function() {
+                        }, function(err) {
                             $scope.minsubmitting = false;
                             $scope.minerror = true;
-                            return $q.reject('error');
+                            $scope.minerrormsg = err;
+                            return $q.reject(err);
                         });
                     } else {
                         return $q.reject('auth-error');

@@ -1,16 +1,26 @@
 angular.module('acComponents.services')
     .factory('acSubmission', function ($q, $http, AC_API_ROOT_URL) {
         var endpointUrl = AC_API_ROOT_URL + '/api/min/submissions';
+        var sizeLimit = 25000000;
+        var allowedExtentions = ['png', 'jpg', 'jpeg', 'gif'];
+
+        function fileIsValid(file){
+            var fileExtention = file.name.split('.').pop()
+
+            return file.size < sizeLimit && allowedExtentions.indexOf(fileExtention) !== -1;
+        }
 
         function prepareData(reportData) {
+            var deferred = $q.defer();
             var formData = new FormData();
 
             //process files
             if (reportData.files && reportData.files.length > 0) {
                 angular.forEach(reportData.files, function(file, counter) {
-                    //TODO-JPB check file type image/video for now just image
-                    if (file) {
-                        formData.append('file' + counter, file, 'image-' + counter + '.jpg');
+                    if(fileIsValid(file)) {
+                        formData.append('file' + counter, file, file.name);
+                    } else {
+                        deferred.reject('Invalid file! Files have to be smaller than 25 MB and of type: ' + allowedExtentions.join(', '));
                     }
                 });
             }
@@ -28,7 +38,7 @@ angular.module('acComponents.services')
                 }
             });
 
-            return $q.when(formData);
+            return deferred.promise;
         }
 
         return {
