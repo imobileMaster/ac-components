@@ -85,9 +85,6 @@ angular.module('acComponentsExampleApp', ['acComponents', 'ngRoute', 'auth0', 'a
         $scope.addSubmission = function() {
             $('#minForm')
                 .modal('show')
-                .on('shown.bs.modal', function (e) {
-                    $(this).find('[type="datetime"]').datetimepicker();
-                })
                 .on('hidden.bs.modal', function (e) {
                     $scope.resetForm();
                 });

@@ -9,7 +9,7 @@
           label(for="datetime")
             i.fa.fa-clock-o
             |  Date and Time
-          input.form-control(type="datetime", name="datetime", data-date-format="YYYY-MM-DD hh:mm A", ng-model="report.datetime")
+          input.form-control(type="datetime", name="datetime", ng-model="report.datetime", ac-datetime-picker)
         .form-group(ng-class="{'has-error': !acMinForm.latlng.$valid}")
           label(for="latlng")
             i.fa.fa-map-marker
