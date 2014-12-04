@@ -54,7 +54,8 @@ gulp.task('example:copy', ['build'], function () {
         css: [
             './bower/mapbox.js/mapbox.css',
             './bower/Leaflet.label/dist/leaflet.label.css',
-            './bower/leaflet.locatecontrol/src/L.Control.Locate.css'
+            './bower/leaflet.locatecontrol/src/L.Control.Locate.css',
+            './bower/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css'
         ],
         js: [
             './bower/lodash/dist/lodash.min.js',
@@ -66,7 +67,9 @@ gulp.task('example:copy', ['build'], function () {
             './bower/Leaflet.label/dist/leaflet.label.js',
             './bower/leaflet.locatecontrol/src/L.Control.Locate.js',
             './bower/moment/min/moment.min.js',
-            './bower/leaflet.locatecontrol/src/L.Control.Locate.js'
+            './bower/leaflet.locatecontrol/src/L.Control.Locate.js',
+            './bower/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js'
+
         ],
         map: [
             './bower/jquery/dist/jquery.min.map',

@@ -21,7 +21,7 @@ angular.module('acComponents.directives')
             link: function($scope, el, attrs) {
                 var reportTemplate = {
                     title: 'auto: Quick Report',
-                    datetime: moment().format('YYYY-MM-DDTHH:mm:ss'),
+                    datetime: moment().format('YYYY-MM-DD HH:mm A'),
                     latlng: [],
                     files: [],
                     ridingConditions: angular.copy(acQuickReportData.ridingConditions),
@@ -42,6 +42,8 @@ angular.module('acComponents.directives')
                             }
                         }
                         delete $scope.report.subid;
+                        $scope.minsubmitting = false;
+                        $scope.minerror = false;
                     }, 0);
                 }
 
