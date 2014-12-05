@@ -2,12 +2,11 @@ angular.module('acComponents.services')
     .factory('acSubmission', function ($q, $http, AC_API_ROOT_URL) {
         var endpointUrl = AC_API_ROOT_URL + '/api/min/submissions';
         var sizeLimit = 25000000;
-        var allowedExtentions = ['png', 'jpg', 'jpeg', 'gif'];
-        var fileViolationErrorMsg = 'Invalid file! Files have to be smaller than 25 MB and of type: ' + allowedExtentions.join(', ');
+        var allowedMimeTypes = ['image/png', 'image/jpeg'];
+        var fileViolationErrorMsg = 'Invalid file! Files have to be smaller than 25 MB and of type: ' + allowedMimeTypes.join(', ');
 
         function fileIsValid(file){
-            var fileExtention = file.name.split('.').pop().toLowerCase();
-            return file.size < sizeLimit && allowedExtentions.indexOf(fileExtention) !== -1;
+            return file.size < sizeLimit && allowedMimeTypes.indexOf(file.type) !== -1;
         }
 
         function fileAreValid(files){
