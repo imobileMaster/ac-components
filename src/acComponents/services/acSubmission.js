@@ -6,7 +6,7 @@ angular.module('acComponents.services')
         var fileViolationErrorMsg = 'Invalid file! Files have to be smaller than 25 MB and of type: ' + allowedExtentions.join(', ');
 
         function fileIsValid(file){
-            var fileExtention = file.name.split('.').pop()
+            var fileExtention = file.name.split('.').pop().toLowerCase();
             return file.size < sizeLimit && allowedExtentions.indexOf(fileExtention) !== -1;
         }
 
