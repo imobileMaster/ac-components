@@ -19,8 +19,9 @@
         .form-group
           label(for="uploads")
             i.fa.fa-image
-            |  Add photo or video
-          input.form-control(type="file", name="uploads", file-model="report.files", multiple)
+            |  Add photo
+            small(style="font-weight: normal;")  .jpg or .png
+          input.form-control(type="file", name="uploads", file-model="report.files", accept=".png,.jpg,.jpeg", multiple)
           div {{ report.files.length }} photos added
 
         .panel-group
