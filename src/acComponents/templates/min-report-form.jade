@@ -1,0 +1,99 @@
+.min-form
+    form(name="acMinForm", ng-submit="submitForm()", ng-show="!report.subid && !minerror", role="form", )
+        .form-group(ng-class="{'has-error': !acMinForm.title.$valid}")
+          label(for="title")
+            i.fa.fa-newspaper-o
+            |  Report title
+          input.form-control(type="text", name="title", ng-model="report.title", required)
+        .form-group(ng-class="{'has-error': !acMinForm.datetime.$valid}")
+          label(for="datetime")
+            i.fa.fa-clock-o
+            |  Date and Time
+          input.form-control(type="datetime", name="datetime", ng-model="report.datetime", ac-datetime-picker)
+        .form-group(ng-class="{'has-error': !acMinForm.latlng.$valid}")
+          label(for="latlng")
+            i.fa.fa-map-marker
+            |  Location
+          div(ac-location-select, latlng="report.latlng", style="height: 300px; width: 100%; margin: 10px 0;")
+          input.form-control(type="text", name="latlng", ng-model="report.latlng", placeholder="Drop pin on map to set location", required)
+        .form-group
+          label(for="uploads")
+            i.fa.fa-image
+            |  Add photo or video
+          input.form-control(type="file", name="uploads", file-model="report.files", multiple)
+          div {{ report.files.length }} photos added
+
+        .panel-group
+          .panel.panel-default
+            .panel-heading(style="background-color: black; color: white;")
+              h4.panel-title
+                | Riding conditions
+            .panel-body
+                .panel-group
+                  .panel.panel-default(ng-repeat="(item, ridingCondition) in report.ridingConditions")
+                    .panel-heading
+                        h4.panel-title
+                            strong {{ ridingCondition.prompt }}
+                    .panel-body
+                        .form-group
+                        .checkbox(ng-if="ridingCondition.type=='multiple'", ng-repeat="(option, enabled) in ridingCondition.options")
+                          label
+                            input(type="checkbox", ng-model="report.ridingConditions[item].options[option]")
+                            | {{option}}
+
+                        .radio(ng-if="ridingCondition.type=='single'", ng-repeat="option in ridingCondition.options")
+                          label
+                            input(type="radio", ng-model="report.ridingConditions[item].selected", ng-value="option")
+                            | {{option}}
+
+          .panel.panel-default
+            .panel-heading(style="background-color: black; color: white;")
+                h4.panel-title
+                    strong Avalanche conditions
+            .panel-body
+              .form-group
+                .checkbox
+                  label
+                    input(type="checkbox", ng-model="report.avalancheConditions.slab")
+                    | Slab avalanches today or yesterday.
+                .checkbox
+                  label
+                    input(type="checkbox", ng-model="report.avalancheConditions.sound")
+                    | Whumphing or drum-like sounds or shooting cracks.
+                .checkbox
+                  label
+                    input(type="checkbox", ng-model="report.avalancheConditions.snow")
+                    | 30cm + of new snow, or significant drifitng, or rain in the last 48 hours.
+                .checkbox
+                  label
+                    input(type="checkbox", ng-model="report.avalancheConditions.temp")
+                    | Rapid temperature rise to near zero degrees or wet surface snow.
+        .form-group
+          label Comments
+          textarea.form-control(rows="3", ng-model="report.comment")
+        input(type="submit", id="submit", value="Submit")
+        //- button.btn.btn-default(type="button", ng-click="submitForm()", ng-disabled="minsubmitting", style="border-radius:0; background-color: rgb(0, 86, 183); color: white;")
+        //-     i.fa.fa-fw.fa-lg.fa-spinner.fa-spin(ng-show="minsubmitting")
+        //-     span(ng-hide="minsubmitting") SUBMIT REPORT
+        //-     span(ng-show="minsubmitting") SUBMITING REPORT
+
+    div(ng-show="report.subid")
+        .alert.alert-success(role="alert")
+            | Your report was successfully submited.
+        .well
+            H4 Share this report:
+            ul.list-inline
+                li
+                    a(ng-href="https://twitter.com/intent/tweet?status={{report.shareUrl}}")
+                        i.fa.fa-twitter.fa-fw.fa-lg
+                li
+                    a(ng-href="https://www.facebook.com/sharer/sharer.php?u={{report.shareUrl}}")
+                        i.fa.fa-facebook.fa-fw.fa-lg
+                li
+                    a(ng-href="https://plus.google.com/share?url={{report.shareUrl}}")
+                        i.fa.fa-google-plus.fa-fw.fa-lg
+    div(ng-show="minerror")
+        .alert.alert-danger(role="alert")
+            p There was an error submittting you report.
+            p {{minerrormsg}}
+
