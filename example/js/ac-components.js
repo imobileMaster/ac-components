@@ -550,7 +550,7 @@ angular.module('acComponents.directives')
             link: function($scope, el, attrs) {
                 var reportTemplate = {
                     title: 'auto: Quick Report',
-                    datetime: moment().format('YYYY-MM-DD HH:mm A'),
+                    datetime: moment().format('YYYY-MM-DD hh:mm A'),
                     latlng: [],
                     files: [],
                     ridingConditions: angular.copy(acQuickReportData.ridingConditions),
