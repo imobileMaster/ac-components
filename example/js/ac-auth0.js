@@ -45,7 +45,7 @@ angular.module('acComponentsExampleApp')
                         auth.authenticate(store.get('profile'), token);
                     } else {
                       // Either show Login page or use the refresh token to get a new idToken
-                      $location.path('/');
+                      // $location.path('/');
                     }
                 }
             }

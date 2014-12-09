@@ -369,7 +369,7 @@ angular.module('acComponents.directives')
                                 })
                             });
 
-                            marker.bindPopup(obHtml, {maxWidth: 400});
+                            marker.bindPopup(obHtml, {maxHeight: 768, maxWidth: 400, autoPanPaddingTopLeft: [0, 30]});
                             marker.on('popupclose', function () {
                                 map.removeLayer(marker);
                                 $timeout(function () {
