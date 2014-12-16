@@ -271,9 +271,22 @@ angular.module('acComponents.directives')
                                 var icon = getDangerIcon({regionId: featureData.id});
 
                                 marker.setIcon(icon);
-                                marker.setZIndexOffset(200);
-                                marker.on('click', showRegion);
-                                marker.bindLabel(featureData.properties.name, {pane: 'popupPane'});
+                                var zindex = 200;
+                                marker.setZIndexOffset(zindex);
+
+                                marker.on('mouseover', function () {
+                                    if(zindex === 200) {
+                                        zindex = 1;
+                                        marker.setZIndexOffset(zindex);
+                                    }
+                                });
+
+                                marker.on('click', function () {
+                                    if(zindex === 1) {
+                                        zindex = 200;
+                                        marker.setZIndexOffset(zindex);
+                                    }
+                                });
 
                                 layers.dangerIcons.addLayer(marker);
                             }
