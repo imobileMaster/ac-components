@@ -136,18 +136,9 @@ angular.module('acComponents.directives')
                                 var zindex = 200;
                                 marker.setZIndexOffset(zindex);
 
-                                marker.on('mouseover', function () {
-                                    if(zindex === 200) {
-                                        zindex = 1;
-                                        marker.setZIndexOffset(zindex);
-                                    }
-                                });
-
                                 marker.on('click', function () {
-                                    if(zindex === 1) {
-                                        zindex = 200;
-                                        marker.setZIndexOffset(zindex);
-                                    }
+                                    zindex = zindex === 1 ? 200 : 1;
+                                    marker.setZIndexOffset(zindex);
                                 });
 
                                 layers.dangerIcons.addLayer(marker);
