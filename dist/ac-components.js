@@ -383,7 +383,8 @@ angular.module('acComponents.directives')
                                     if($scope.device.size === 'sm' || $scope.device.size === 'xs') {
                                         $scope.$emit('ac.min.obclicked', obHtml);
                                     } else {
-                                        var popup = L.popup({maxHeight: 768, maxWidth: 400, autoPanPaddingTopLeft: [0, 30]});
+                                        var maxHeight = map.getSize().y - 100;
+                                        var popup = L.popup({maxHeight: maxHeight, maxWidth: 400, autoPanPaddingTopLeft: [0, 30]});
                                         popup.setContent(obHtml);
                                         marker.bindPopup(popup);
                                         marker.togglePopup();
