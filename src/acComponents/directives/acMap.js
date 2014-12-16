@@ -245,11 +245,16 @@ angular.module('acComponents.directives')
                                     if($scope.device.size === 'sm' || $scope.device.size === 'xs') {
                                         $scope.$emit('ac.min.obclicked', obHtml);
                                     } else {
-                                        var maxHeight = map.getSize().y - 100;
-                                        var popup = L.popup({maxHeight: maxHeight, maxWidth: 400, autoPanPaddingTopLeft: [0, 30]});
-                                        popup.setContent(obHtml);
-                                        marker.bindPopup(popup);
-                                        marker.togglePopup();
+                                        var popup = marker.getPopup();
+
+                                        if(!popup) {
+                                            var maxHeight = map.getSize().y - 100;
+                                            popup = L.popup({maxHeight: maxHeight, maxWidth: 400, autoPanPaddingTopLeft: [0, 30]});
+                                            popup.setContent(obHtml);
+                                            marker.bindPopup(popup);
+                                        }
+                                        
+                                        marker.openPopup();
                                     }
                                 });
                             });
@@ -369,8 +374,9 @@ angular.module('acComponents.directives')
                                     'marker-color': '#09c'
                                 })
                             });
+                            var maxHeight = map.getSize().y - 100;
 
-                            marker.bindPopup(obHtml, {maxHeight: 768, maxWidth: 400, autoPanPaddingTopLeft: [0, 30]});
+                            marker.bindPopup(obHtml, {maxHeight: maxHeight, maxWidth: 400, autoPanPaddingTopLeft: [0, 30]});
                             marker.on('popupclose', function () {
                                 map.removeLayer(marker);
                                 $timeout(function () {
