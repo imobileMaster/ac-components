@@ -54,7 +54,8 @@ angular.module('acComponentsExampleApp', ['acComponents', 'ngRoute', 'auth0', 'a
                 region: null
             },
             drawer: {
-                visible: false
+                visible: false,
+                enabled: true
             },
             imageLoaded: false,
             regions: regions,
