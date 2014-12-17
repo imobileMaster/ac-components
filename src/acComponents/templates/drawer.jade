@@ -3,8 +3,8 @@
         i.fa.fa-close.fa-lg
     .ac-drawer-tools
         ul
-            li(ng-click="drawer.visible = !drawer.visible", style="height: 55px;")
-                i.fa.fa-file-text-o.fa-fw.fa-2x.fa-inverse.ac-middle
+            li(ng-click="drawer.enabled = !drawer.enabled; regionsVisible = !regionsVisible;", ng-class="{on: drawer.visible && drawer.enabled}")
+                div(ac-danger-icon, style="height: 50px; width:50px;")
             //- li(ng-click="toggleFilter('obsType:incident')", ng-class="{on: filters.obsType.indexOf('incident') !== -1}")
             //-     i.fa.fa-warning.fa-fw.fa-2x.fa-inverse.ac-middle
             //- li(ng-click="toggleFilter('obsType:snowpack')", ng-class="{on: filters.obsType.indexOf('snowpack') !== -1}")
@@ -19,9 +19,8 @@
             //-     span.ac-icon.ac-icon-avalanche
             //-         i.fa.fa-play.fa-inverse.fa-2x
             //-         i.fa.fa-cloud.fa-inverse.fa-1x
-            li(ng-click="toggleFilter()", ng-class="{on: filters.obsPeriod !== ''}", style="color: white; height: 55px; padding-top: 5px; padding-left: 15px;")
-                i.fa.fa-map-marker.fa-inverse.fa-2x(style="display: block;")
-                span {{ filters.obsPeriod !== '' ? 'on' : 'off' }}
+            li(ng-click="toggleFilter()", ng-class="{on: filters.obsPeriod !== ''}", style="padding-top: 11px; padding-left: 15px;")
+                i.fa.fa-map-marker.fa-inverse.fa-2x
             //- li(ng-click="toggleFilter('obsPeriod:48-hours')", ng-class="{on: filters.obsPeriod === '48-hours'}", style="height: 55px;")
             //-     small last 
             //-     strong 48
