@@ -5284,7 +5284,7 @@ tbody.collapse.in {
   .breadcrumb > li {
     display: inline-block; }
     .breadcrumb > li + li:before {
-      content: "/ ";
+      content: "/ ";
       padding: 0 5px;
       color: #ccc; }
   .breadcrumb > .active {
@@ -10109,6 +10109,7 @@ aside {
   .ac-forecast-base dl, #forecast dl, .ac-forecast-mini dl {
     margin-bottom: 0px; }
   .ac-forecast-base .ac-forecast-mini-body, #forecast .ac-forecast-mini-body, .ac-forecast-mini .ac-forecast-mini-body {
+    margin-bottom: 75px;
     padding: 0 15px; }
   .ac-forecast-base .small, #forecast .small, .ac-forecast-mini .small {
     font-size: 75%; }
@@ -10129,6 +10130,12 @@ aside {
     padding: 0;
     overflow: hidden;
     height: 150px; }
+    @media (min-width: 600px) {
+      .ac-forecast-base .ac-forecast-nowcast, #forecast .ac-forecast-nowcast, .ac-forecast-mini .ac-forecast-nowcast {
+        height: 120px; } }
+    @media (min-width: 1025px) {
+      .ac-forecast-base .ac-forecast-nowcast, #forecast .ac-forecast-nowcast, .ac-forecast-mini .ac-forecast-nowcast {
+        height: 150px; } }
     .ac-forecast-base .ac-forecast-nowcast .ac-nowcast, #forecast .ac-forecast-nowcast .ac-nowcast, .ac-forecast-mini .ac-forecast-nowcast .ac-nowcast {
       height: 100px;
       z-index: 1; }
@@ -11261,6 +11268,7 @@ aside {
   .ac-forecast-base dl, #forecast dl, .ac-forecast-mini dl {
     margin-bottom: 0px; }
   .ac-forecast-base .ac-forecast-mini-body, #forecast .ac-forecast-mini-body, .ac-forecast-mini .ac-forecast-mini-body {
+    margin-bottom: 75px;
     padding: 0 15px; }
   .ac-forecast-base .small, #forecast .small, .ac-forecast-mini .small {
     font-size: 75%; }
@@ -11281,6 +11289,12 @@ aside {
     padding: 0;
     overflow: hidden;
     height: 150px; }
+    @media (min-width: 600px) {
+      .ac-forecast-base .ac-forecast-nowcast, #forecast .ac-forecast-nowcast, .ac-forecast-mini .ac-forecast-nowcast {
+        height: 120px; } }
+    @media (min-width: 1025px) {
+      .ac-forecast-base .ac-forecast-nowcast, #forecast .ac-forecast-nowcast, .ac-forecast-mini .ac-forecast-nowcast {
+        height: 150px; } }
     .ac-forecast-base .ac-forecast-nowcast .ac-nowcast, #forecast .ac-forecast-nowcast .ac-nowcast, .ac-forecast-mini .ac-forecast-nowcast .ac-nowcast {
       height: 100px;
       z-index: 1; }
@@ -12861,6 +12875,10 @@ html, body {
         color: rgba(255, 255, 255, 0.2); }
       .ac-drawer .ac-drawer-tools li.on i {
         color: #0056b7; }
+      .ac-drawer .ac-drawer-tools li .danger-icon polygon {
+        fill: rgba(255, 255, 255, 0.2); }
+      .ac-drawer .ac-drawer-tools li.on .danger-icon polygon {
+        fill: #0056b7; }
 
 .ac-veg-zone--alp {
   background-color: #ddeefa; }

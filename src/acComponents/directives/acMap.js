@@ -6,11 +6,13 @@ angular.module('acComponents.directives')
             scope: {
                 region: '=acRegion',
                 regions: '=acRegions',
+                showRegions: '=acShowRegions',
                 obs: '=acObs',
                 ob: '=acOb'
             },
             link: function ($scope, el, attrs) {
                 $scope.device = {};
+                $scope.showRegions = $scope.showRegions || true;
                 var layers = {
                     dangerIcons: L.featureGroup()
                 };
@@ -161,7 +163,7 @@ angular.module('acComponents.directives')
                 function refreshLayers(){
                     var zoom = map.getZoom();
 
-                    if(layers.regions) {
+                    if(layers.regions && $scope.showRegions) {
                         var regionsVisible = map.hasLayer(layers.regions);
 
                         if(zoom < 6 && regionsVisible) {
@@ -204,7 +206,7 @@ angular.module('acComponents.directives')
                     }
 
                     var opacity = 0.2;
-                    if(layers.currentRegion) {
+                    if(layers.currentRegion && $scope.showRegions) {
                         if(zoom <= 9) {
                             styles.region.selected.fillOpacity = opacity;
                             layers.currentRegion.setStyle(styles.region.selected);
@@ -360,6 +362,20 @@ angular.module('acComponents.directives')
                 $scope.$watch('regions', function (newRegions, oldRegions) {
                     if(newRegions && newRegions.features) {
                         initRegionsLayer();
+                    }
+                });
+
+                $scope.$watch('showRegions', function (newShowRegions, oldShowRegions) {
+                    if(newShowRegions !== oldShowRegions) {
+                        if(!newShowRegions && map.hasLayer(layers.regions)) {
+                            if(layers.currentRegion) {
+                                layers.currentRegion.setStyle(styles.region.default);
+                                layers.currentRegion = null;
+                            }
+                            map.removeLayer(layers.regions);
+                        } else if (newShowRegions && !map.hasLayer(layers.regions)) {
+                            map.addLayer(layers.regions);
+                        }
                     }
                 });
 

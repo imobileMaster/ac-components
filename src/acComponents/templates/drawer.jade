@@ -3,8 +3,8 @@
         i.fa.fa-close.fa-lg
     .ac-drawer-tools
         ul
-            li(ng-click="drawer.enabled = !drawer.enabled", ng-class="{on: drawer.visible && drawer.enabled}")
-                i.fa.fa-file-text-o.fa-fw.fa-2x.fa-inverse.ac-middle
+            li(ng-click="drawer.enabled = !drawer.enabled; regionsVisible = !regionsVisible;", ng-class="{on: drawer.visible && drawer.enabled}")
+                div(ac-danger-icon, style="height: 50px; width:50px;")
             //- li(ng-click="toggleFilter('obsType:incident')", ng-class="{on: filters.obsType.indexOf('incident') !== -1}")
             //-     i.fa.fa-warning.fa-fw.fa-2x.fa-inverse.ac-middle
             //- li(ng-click="toggleFilter('obsType:snowpack')", ng-class="{on: filters.obsType.indexOf('snowpack') !== -1}")

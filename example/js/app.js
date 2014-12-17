@@ -63,7 +63,8 @@ angular.module('acComponentsExampleApp', ['acComponents', 'ngRoute', 'auth0', 'a
             ob: ob,
             filters: {
                 obsPeriod: '48-hours'
-            }
+            },
+            regionsVisible: true
         });
 
         $scope.$watch('current.region', function (newRegion, oldRegion) {
