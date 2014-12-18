@@ -1,13 +1,13 @@
 'use strict';
 
 angular.module('acComponents')
-    .constant('AC_API_ROOT_URL', 'http://localhost:9000')
+    .constant('AC_API_ROOT_URL', 'http://avalanche-canada-dev.elasticbeanstalk.com')
 
 angular.module('acComponentsExampleApp', ['acComponents', 'ngRoute', 'auth0', 'angular-storage', 'angular-jwt'])
 
 .constant('MAPBOX_ACCESS_TOKEN', 'pk.eyJ1IjoiYXZhbGFuY2hlY2FuYWRhIiwiYSI6Im52VjFlWW8ifQ.-jbec6Q_pA7uRgvVDkXxsA')
     .constant('MAPBOX_MAP_ID', 'tesera.jbnoj7kp')
-    .constant('AC_API_ROOT_URL', 'http://localhost:9000')
+    .constant('AC_API_ROOT_URL', 'http://avalanche-canada-dev.elasticbeanstalk.com')
     .config(function($routeProvider, $locationProvider) {
 
         // enables html5 push state
@@ -21,7 +21,7 @@ angular.module('acComponentsExampleApp', ['acComponents', 'ngRoute', 'auth0', 'a
                     return acForecast.fetch();
                 },
                 obs: function (acObservation) {
-                    return acObservation.byPeriod('2:days');
+                    return acObservation.byPeriod('7-days');
                 },
                 ob: function () {
                     return [];
@@ -54,15 +54,17 @@ angular.module('acComponentsExampleApp', ['acComponents', 'ngRoute', 'auth0', 'a
                 region: null
             },
             drawer: {
-                visible: false
+                visible: false,
+                enabled: true
             },
             imageLoaded: false,
             regions: regions,
             obs: obs,
             ob: ob,
             filters: {
-                obsPeriod: '48-hours'
-            }
+                obsPeriod: '7-days'
+            },
+            regionsVisible: true
         });
 
         $scope.$watch('current.region', function (newRegion, oldRegion) {
@@ -103,22 +105,35 @@ angular.module('acComponentsExampleApp', ['acComponents', 'ngRoute', 'auth0', 'a
             $modal.modal('show');
         });
 
+        $scope.dateFilters = ['7-days', '14-days', '30-days'];
         $scope.toggleFilter = function (filter) {
-            if(filter || !$scope.filters.obsPeriod){
-                filter = filter || 'obsPeriod:48-hours';
+            if(filter){
                 var filterType = filter.split(':')[0];
                 var filterValue = filter.split(':')[1];
 
-                if(filterType === 'obsPeriod') {
+                if(filterType === 'obsPeriod' && $scope.filters[filterType] !== filterValue) {
                     $scope.filters[filterType] = filterValue;
                     var period = filterValue.replace('-', ':');
+
                     acObservation.byPeriod(period).then(function (obs) {
                         $scope.obs = obs;
                     });
+
+                    $timeout(function () {
+                        var i = $scope.dateFilters.indexOf(filterValue);
+                        $scope.dateFilters.splice(i, 1);
+                        $scope.dateFilters.unshift(filterValue);
+                        $scope.expanded = false;
+                    }, 0);
                 }
+
             } else {
-                $scope.obs = [];
-                $scope.filters.obsPeriod = '';
+                if($scope.filters.obsPeriod === '') {
+                    $scope.toggleFilter('obsPeriod:' + $scope.dateFilters[0]);
+                } else {
+                    $scope.obs = [];
+                    $scope.filters.obsPeriod = '';
+                }
             }
         };
 

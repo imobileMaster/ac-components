@@ -6,11 +6,13 @@ angular.module('acComponents.directives')
             scope: {
                 region: '=acRegion',
                 regions: '=acRegions',
+                showRegions: '=acShowRegions',
                 obs: '=acObs',
                 ob: '=acOb'
             },
             link: function ($scope, el, attrs) {
                 $scope.device = {};
+                $scope.showRegions = $scope.showRegions || true;
                 var layers = {
                     dangerIcons: L.featureGroup()
                 };
@@ -133,9 +135,14 @@ angular.module('acComponents.directives')
                                 var icon = getDangerIcon({regionId: featureData.id});
 
                                 marker.setIcon(icon);
-                                marker.setZIndexOffset(200);
-                                marker.on('click', showRegion);
-                                marker.bindLabel(featureData.properties.name, {pane: 'popupPane'});
+                                var zindex = 200;
+                                marker.setZIndexOffset(zindex);
+
+                                marker.on('click', function () {
+                                    zindex = zindex === 1 ? 200 : 1;
+                                    marker.setZIndexOffset(zindex);
+                                    showRegion();
+                                });
 
                                 layers.dangerIcons.addLayer(marker);
                             }
@@ -157,7 +164,7 @@ angular.module('acComponents.directives')
                 function refreshLayers(){
                     var zoom = map.getZoom();
 
-                    if(layers.regions) {
+                    if(layers.regions && $scope.showRegions) {
                         var regionsVisible = map.hasLayer(layers.regions);
 
                         if(zoom < 6 && regionsVisible) {
@@ -200,7 +207,7 @@ angular.module('acComponents.directives')
                     }
 
                     var opacity = 0.2;
-                    if(layers.currentRegion) {
+                    if(layers.currentRegion && $scope.showRegions) {
                         if(zoom <= 9) {
                             styles.region.selected.fillOpacity = opacity;
                             layers.currentRegion.setStyle(styles.region.selected);
@@ -245,10 +252,16 @@ angular.module('acComponents.directives')
                                     if($scope.device.size === 'sm' || $scope.device.size === 'xs') {
                                         $scope.$emit('ac.min.obclicked', obHtml);
                                     } else {
-                                        var popup = L.popup({maxHeight: 768, maxWidth: 400, autoPanPaddingTopLeft: [0, 30]});
-                                        popup.setContent(obHtml);
-                                        marker.bindPopup(popup);
-                                        marker.togglePopup();
+                                        var popup = marker.getPopup();
+
+                                        if(!popup) {
+                                            var maxHeight = map.getSize().y - 100;
+                                            popup = L.popup({maxHeight: maxHeight, maxWidth: 400, autoPanPaddingTopLeft: [0, 30]});
+                                            popup.setContent(obHtml);
+                                            marker.bindPopup(popup);
+                                        }
+                                        
+                                        marker.openPopup();
                                     }
                                 });
                             });
@@ -265,16 +278,6 @@ angular.module('acComponents.directives')
                     }
 
                     refreshLayers();
-                }
-
-                function updateRegionLayer(){
-                    layers.regions.eachLayer(function (layer) {
-                        if(layer === $scope.region){
-                            layer.setStyle(styles.region.selected);
-                        } else {
-                            layer.setStyle(styles.region.default);
-                        }
-                    });
                 }
 
                 function latLngToGeoJSON(latlng){
@@ -313,8 +316,9 @@ angular.module('acComponents.directives')
                     return offsetLatLng(map.getCenter(), offset);
                 }
 
+
                 function setRegionFocus() {
-                    if(map.getZoom() >= 8) {
+                    if($scope.showRegions){
                         var regionLayers = layers.regions.getLayers();
                         var mapCenter = getMapCenter();
 
@@ -329,10 +333,25 @@ angular.module('acComponents.directives')
                             });
                         }
 
-                        $scope.$apply(function () {
-                            $scope.region = region;
-                        });
+                        if(region) setRegion(region);
                     }
+                }
+
+                function setRegion(region) {
+                    layers.currentRegion = region;
+                    if($scope.region !== region) {
+                        $timeout(function () {
+                            $scope.region = region;
+                        }, 10);
+                    }
+
+                    layers.regions.eachLayer(function (layer) {
+                        if(layer === region){
+                            layer.setStyle(styles.region.selected);
+                        } else {
+                            layer.setStyle(styles.region.default);
+                        }
+                    });
                 }
 
 
@@ -342,14 +361,28 @@ angular.module('acComponents.directives')
 
                 $scope.$watch('region', function (newRegion, oldRegion) {
                     if(layers.regions && newRegion && newRegion !== oldRegion) {
-                        layers.currentRegion = newRegion;
-                        updateRegionLayer();
+                        setRegion(newRegion);
                     }
                 });
 
                 $scope.$watch('regions', function (newRegions, oldRegions) {
                     if(newRegions && newRegions.features) {
                         initRegionsLayer();
+                    }
+                });
+
+                $scope.$watch('showRegions', function (newShowRegions, oldShowRegions) {
+                    if(newShowRegions !== oldShowRegions) {
+                        if(!newShowRegions && map.hasLayer(layers.regions)) {
+                            if(layers.currentRegion) {
+                                $scope.region = null;
+                                layers.currentRegion.setStyle(styles.region.default);
+                            }
+                            map.removeLayer(layers.regions);
+                        } else if (newShowRegions && !map.hasLayer(layers.regions)) {
+                            map.addLayer(layers.regions);
+                            setRegionFocus();
+                        }
                     }
                 });
 
@@ -368,8 +401,9 @@ angular.module('acComponents.directives')
                                     'marker-color': '#09c'
                                 })
                             });
+                            var maxHeight = map.getSize().y - 100;
 
-                            marker.bindPopup(obHtml, {maxHeight: 768, maxWidth: 400, autoPanPaddingTopLeft: [0, 30]});
+                            marker.bindPopup(obHtml, {maxHeight: maxHeight, maxWidth: 400, autoPanPaddingTopLeft: [0, 30]});
                             marker.on('popupclose', function () {
                                 map.removeLayer(marker);
                                 $timeout(function () {

@@ -1,37 +1,52 @@
 .ac-drawer
+    style.
+        .ac-drawer-tools {
+            z-index: -200;
+        }
+
+        .ac-date-filters {
+            background-color: transparent;
+        }
+
+        .ac-date-filters ul {
+            position: relative;
+            width: 150px;
+        }
+
+        .ac-date-filters ul.expanded {
+            right: 100px;
+        }
+
+        .ac-date-filters ul li {
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        .ac-date-filters ul li.on {
+            color: rgb(0, 86, 183);
+        }
+
+        .ac-date-filters ul li i {
+            padding-top: 5px; 
+            margin-left: 8px;
+        }
+
+        .ac-date-filters ul li span {
+            display: block;
+            font-size: 0.7em;
+            padding-left: 4px;
+        }
+
     a.ac-drawer-close.visible-xs(ng-click="drawer.visible = false")
         i.fa.fa-close.fa-lg
     .ac-drawer-tools
         ul
-            li(ng-click="drawer.visible = !drawer.visible", style="height: 55px;")
-                i.fa.fa-file-text-o.fa-fw.fa-2x.fa-inverse.ac-middle
-            //- li(ng-click="toggleFilter('obsType:incident')", ng-class="{on: filters.obsType.indexOf('incident') !== -1}")
-            //-     i.fa.fa-warning.fa-fw.fa-2x.fa-inverse.ac-middle
-            //- li(ng-click="toggleFilter('obsType:snowpack')", ng-class="{on: filters.obsType.indexOf('snowpack') !== -1}")
-            //-     i.fa.fa-bar-chart.fa-fw.fa-2x.fa-inverse.ac-middle.ac-icon.ac-icon-avalanche
-            //- li(ng-click="toggleFilter('obsType:simple')", ng-class="{on: filters.obsType.indexOf('simple') !== -1}")
-            //-     i.fa.fa-camera.fa-fw.fa-2x.fa-inverse.ac-middle
-            //- li(ng-click="toggleFilter('obsType:weather')", ng-class="{on: filters.obsType.indexOf('weather') !== -1}")
-            //-     span.ac-icon.ac-icon-weather
-            //-         i.fa.fa-sun-o.fa-inverse.fa-2x.ac-middle
-            //-         i.fa.fa-cloud.fa-inverse.fa-2x.ac-middle
-            //- li(ng-click="toggleFilter('obsType:avalanche')", ng-class="{on: filters.obsType.indexOf('avalanche') !== -1}")
-            //-     span.ac-icon.ac-icon-avalanche
-            //-         i.fa.fa-play.fa-inverse.fa-2x
-            //-         i.fa.fa-cloud.fa-inverse.fa-1x
-            li(ng-click="toggleFilter()", ng-class="{on: filters.obsPeriod !== ''}", style="color: white; height: 55px; padding-top: 5px; padding-left: 15px;")
-                i.fa.fa-map-marker.fa-inverse.fa-2x(style="display: block;")
-                span {{ filters.obsPeriod !== '' ? 'on' : 'off' }}
-            //- li(ng-click="toggleFilter('obsPeriod:48-hours')", ng-class="{on: filters.obsPeriod === '48-hours'}", style="height: 55px;")
-            //-     small last 
-            //-     strong 48
-            //-     small hours
-            //- li(ng-click="toggleFilter('obsPeriod:7-days')", ng-class="{on: filters.obsPeriod === '7-days'}", style="height: 55px;")
-            //-     small last 
-            //-     strong 7 
-            //-     small days
-            //- li(ng-click="toggleFilter('obsPeriod:30-days')", ng-class="{on: filters.obsPeriod === '30-days'}", style="height: 55px;")
-            //-     small last 
-            //-     strong 30 
-            //-     small days
+            li(ng-click="drawer.enabled = !drawer.enabled; regionsVisible = !regionsVisible;", ng-class="{on: drawer.visible && drawer.enabled}", style="margin-bottom: 50px;")
+                div(ac-danger-icon, style="height: 50px; width:50px;")
+            li(ng-click="toggleFilter()", ng-class="{on: filters.obsPeriod !== ''}", style="padding-top: 11px; padding-left: 15px;")
+                i.fa.fa-map-marker.fa-inverse.fa-2x
+            li.ac-date-filters(ng-click="expanded = true", style="background-color: transparent;")
+                ul.list-inline(ng-class="{expanded: expanded}", ng-init="expanded = false")
+                    li(ng-repeat="dateFilter in dateFilters", ng-click="toggleFilter('obsPeriod:'+dateFilter)", ng-class="{on: filters.obsPeriod === dateFilter}")
+                        i.fa.fa-calendar.fa-inverse.fa-2x
+                        span {{ dateFilter }}
     .ac-drawer-body(ng-transclude)
