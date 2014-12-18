@@ -375,6 +375,7 @@ angular.module('acComponents.directives')
                     if(newShowRegions !== oldShowRegions) {
                         if(!newShowRegions && map.hasLayer(layers.regions)) {
                             if(layers.currentRegion) {
+                                $scope.region = null;
                                 layers.currentRegion.setStyle(styles.region.default);
                             }
                             map.removeLayer(layers.regions);
