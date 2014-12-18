@@ -428,16 +428,6 @@ angular.module('acComponents.directives')
                     refreshLayers();
                 }
 
-                function updateRegionLayer(){
-                    layers.regions.eachLayer(function (layer) {
-                        if(layer === $scope.region){
-                            layer.setStyle(styles.region.selected);
-                        } else {
-                            layer.setStyle(styles.region.default);
-                        }
-                    });
-                }
-
                 function latLngToGeoJSON(latlng){
                     return {
                         type: 'Point',
@@ -474,8 +464,9 @@ angular.module('acComponents.directives')
                     return offsetLatLng(map.getCenter(), offset);
                 }
 
+
                 function setRegionFocus() {
-                    if(map.getZoom() >= 8) {
+                    if($scope.showRegions){
                         var regionLayers = layers.regions.getLayers();
                         var mapCenter = getMapCenter();
 
@@ -490,10 +481,25 @@ angular.module('acComponents.directives')
                             });
                         }
 
+                        if(region) setRegion(region);
+                    }
+                }
+
+                function setRegion(region) {
+                    layers.currentRegion = region;
+                    if($scope.region !== region) {
                         $timeout(function () {
                             $scope.region = region;
-                        }, 0);
+                        }, 10);
                     }
+
+                    layers.regions.eachLayer(function (layer) {
+                        if(layer === region){
+                            layer.setStyle(styles.region.selected);
+                        } else {
+                            layer.setStyle(styles.region.default);
+                        }
+                    });
                 }
 
 
@@ -503,8 +509,7 @@ angular.module('acComponents.directives')
 
                 $scope.$watch('region', function (newRegion, oldRegion) {
                     if(layers.regions && newRegion && newRegion !== oldRegion) {
-                        layers.currentRegion = newRegion;
-                        updateRegionLayer();
+                        setRegion(newRegion);
                     }
                 });
 
@@ -518,7 +523,7 @@ angular.module('acComponents.directives')
                     if(newShowRegions !== oldShowRegions) {
                         if(!newShowRegions && map.hasLayer(layers.regions)) {
                             if(layers.currentRegion) {
-                                $scope.region = null;
+                                layers.currentRegion.setStyle(styles.region.default);
                             }
                             map.removeLayer(layers.regions);
                         } else if (newShowRegions && !map.hasLayer(layers.regions)) {
