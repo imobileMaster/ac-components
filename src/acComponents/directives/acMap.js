@@ -141,6 +141,7 @@ angular.module('acComponents.directives')
                                 marker.on('click', function () {
                                     zindex = zindex === 1 ? 200 : 1;
                                     marker.setZIndexOffset(zindex);
+                                    showRegion();
                                 });
 
                                 layers.dangerIcons.addLayer(marker);
@@ -341,9 +342,9 @@ angular.module('acComponents.directives')
                             });
                         }
 
-                        $scope.$apply(function () {
+                        $timeout(function () {
                             $scope.region = region;
-                        });
+                        }, 0);
                     }
                 }
 
@@ -369,12 +370,12 @@ angular.module('acComponents.directives')
                     if(newShowRegions !== oldShowRegions) {
                         if(!newShowRegions && map.hasLayer(layers.regions)) {
                             if(layers.currentRegion) {
-                                layers.currentRegion.setStyle(styles.region.default);
-                                layers.currentRegion = null;
+                                $scope.region = null;
                             }
                             map.removeLayer(layers.regions);
                         } else if (newShowRegions && !map.hasLayer(layers.regions)) {
                             map.addLayer(layers.regions);
+                            setRegionFocus();
                         }
                     }
                 });
