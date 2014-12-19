@@ -905,7 +905,7 @@ angular.module('acComponents.services')
                     } else if(_.isPlainObject(value) || _.isArray(value)) {
                         data.append(key, JSON.stringify(value));
                     } else if(key === 'datetime') {
-                        data.append(key, moment(value).format());
+                        data.append(key, moment(value, 'YYYY-MM-DD hh:mm A').format());
                     } else if(_.isString(value)) {
                         data.append(key, value);
                     }
