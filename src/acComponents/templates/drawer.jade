@@ -40,7 +40,7 @@
         i.fa.fa-close.fa-lg
     .ac-drawer-tools
         ul
-            li(ng-click="drawer.enabled = !drawer.enabled; regionsVisible = !regionsVisible;", ng-class="{on: drawer.visible && drawer.enabled}", style="margin-bottom: 50px;")
+            li(ng-click="drawer.enabled = !drawer.enabled", ng-class="{on: current.region && drawer.enabled}", style="margin-bottom: 50px;")
                 div(ac-danger-icon, style="height: 50px; width:50px;")
             li(ng-click="toggleFilter()", ng-class="{on: filters.obsPeriod !== ''}", style="padding-top: 11px; padding-left: 15px;")
                 i.fa.fa-map-marker.fa-inverse.fa-2x
