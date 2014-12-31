@@ -1,5 +1,5 @@
 .panel
-    .panel-body(ng-show="forecast.externalUrl || forecast.parksUrl", style="min-height: 500px;")
+    .panel-body(ng-show="forecast.externalUrl", style="min-height: 500px;")
         .row
             .col-xs-12
                 h3.ac-forecast-region {{ forecast.name }}
@@ -8,6 +8,18 @@
                 p
                     | Avalanche information for this region is not available in standard format.
                 a(ng-href="{{forecast.externalUrl}}", target="_blank")
+                    i.fa.fa-external-link
+                    | Click here for more information.
+
+    .panel-body(ng-show="forecast.parksUrl", style="min-height: 500px;")
+        .row
+            .col-xs-12
+                h3.ac-forecast-region {{ forecast.name }}
+        .row
+            .col-xs-12
+                p
+                    | Avalanche information for this region is not available in standard format.
+                a(ng-href="{{forecast.parksUrl}}", target="_blank")
                     i.fa.fa-external-link
                     | Click here for more information.
 
