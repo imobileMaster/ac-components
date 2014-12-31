@@ -1,5 +1,5 @@
 .panel
-    .panel-body(ng-show="forecast.externalUrl")
+    .panel-body(ng-show="forecast.externalUrl || forecast.parksUrl", style="min-height: 500px;")
         .row
             .col-xs-12
                 h3.ac-forecast-region {{ forecast.name }}
@@ -11,7 +11,7 @@
                     i.fa.fa-external-link
                     | Click here for more information.
 
-    .panel-body.ac-forecast-mini-body(ng-hide="forecast.externalUrl")
+    .panel-body.ac-forecast-mini-body(ng-hide="forecast.externalUrl || forecast.parksUrl")
         .row
             .col-xs-12
                 h4.ac-forecast-region {{ forecast.bulletinTitle | acNormalizeForecastTitle }}
