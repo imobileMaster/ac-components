@@ -17,11 +17,9 @@
         .row
             .col-xs-12
                 p
-                    | Avalanche information for this region is not available in standard format.
-                a(ng-href="{{forecast.parksUrl}}", target="_blank")
-                    i.fa.fa-external-link
-                    | Click here for more information.
-
+                    | Avalanche information for this region is available &nbsp;
+                    a(ng-href="{{forecast.parksUrl}}", target="_blank")
+                      i.fa.fa-external-link here.
     .panel-body.ac-forecast-mini-body(ng-hide="forecast.externalUrl || forecast.parksUrl")
         .row
             .col-xs-12
