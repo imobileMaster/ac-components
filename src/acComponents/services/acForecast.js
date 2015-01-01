@@ -20,7 +20,6 @@ angular.module('acComponents.services')
                 } else {
                     $http.get(apiUrl + '/api/forecasts').then(function (res) {
                         forecasts = res.data;
-                        cacheDangerIcons();
                         deferred.resolve(forecasts);
                     });
                 }
