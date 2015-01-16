@@ -3,7 +3,9 @@ angular.module('acComponents.directives')
         return {
             templateUrl: 'forecast-mini.html',
             scope: {
-                forecast: '=acForecast'
+                forecast: '=acForecast',
+                dangerRating: '=dangerRating',
+                disclaimer: '=disclaimer'
             },
             link: function ($scope, el, attrs) {
                 el.addClass('ac-forecast-mini');

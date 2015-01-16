@@ -52,6 +52,8 @@
                     a(href="", role='tab', data-target="#details", data-toggle='tab') Details
                   li
                     a(href="/forecasts/{{forecast.region}}", role='tab',  data-toggle='tab') Full Page
+                  li
+                    a(href="/weather", role='tab',  data-toggle='tab') Weather Forecast
 
                 .tab-content
                     #forecast.tab-pane.active
@@ -96,6 +98,22 @@
                                                     strong Confidence:
                                                 td(colspan="2")
                                                     span.ac-text-default {{ forecast.confidence }}
+                                       footer#forecast-bulletin.col-xs-12
+                                    .panel-group
+
+                                        .panel.panel-default.first
+                                            h4.panel-title
+                                                a.collapsed(href='' data-target='#collapseTwo', data-parent='#accordion', data-toggle='collapse')
+                                                    | {{dangerRating.getText('generic.title')}}
+                                            #collapseTwo.collapse
+                                                .panel-body(ng-bind-html="dangerRating.getStructuredText('generic.body').asHtml(ctx)")
+
+                                        .panel.panel-default.last
+                                            h4.panel-title
+                                                a.collapsed(href='', data-target="#collapseOne" data-parent='#accordion', data-toggle='collapse')
+                                                    | {{disclaimer.getText('generic.title')}}
+                                            #collapseOne.collapse
+                                                .panel-body(ng-bind-html="disclaimer.getStructuredText('generic.body').asHtml(ctx)")
 
                     #problems.tab-pane
                         #problemsAccordion.panel-group
