@@ -22,8 +22,14 @@
                       i.fa.fa-external-link here.
     .panel-body.ac-forecast-mini-body(ng-hide="forecast.externalUrl || forecast.parksUrl")
         .row
-            .col-xs-12
+            .col-xs-6
                 h4.ac-forecast-region {{ forecast.bulletinTitle | acNormalizeForecastTitle }}
+            .col-xs-6(ng-if='forecast.region == "kananaskis"')
+                a.pull-right(target='_blank', href='')
+                    img(style='width:75px;' src='http://www.avalanche.ca/assets/images/kananaskis.jpg')
+            .col-xs-6(ng-if='!(forecast.region == "kananaskis")')
+                a.pull-right(target='_blank', href='{{sponsor.getText("sponsor.url")}}')
+                    img(src='{{sponsor.getText("sponsor.image-229")}}')
         .row.ac-forecast-dates
             .col-md-6
                 dl

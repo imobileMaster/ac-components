@@ -5,7 +5,8 @@ angular.module('acComponents.directives')
             scope: {
                 forecast: '=acForecast',
                 dangerRating: '=dangerRating',
-                disclaimer: '=disclaimer'
+                disclaimer: '=disclaimer',
+                sponsor: '=sponsor'
             },
             link: function ($scope, el, attrs) {
                 el.addClass('ac-forecast-mini');
