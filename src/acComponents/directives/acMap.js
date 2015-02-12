@@ -71,7 +71,7 @@ angular.module('acComponents.directives')
                 if(attrs.topOffset) {
                     var offset = Number(attrs.topOffset);
                     var invalidateSize = getInvalidateSize(offset);
-                    
+
                     angular.element(document).ready(invalidateSize);
                     angular.element($window).bind('resize', invalidateSize);
                 }
@@ -135,12 +135,12 @@ angular.module('acComponents.directives')
                                 var icon = getDangerIcon({regionId: featureData.id});
 
                                 marker.setIcon(icon);
-                                var zindex = 200;
+                                var zindex = 1;
                                 marker.setZIndexOffset(zindex);
 
                                 marker.on('click', function () {
-                                    zindex = zindex === 1 ? 200 : 1;
-                                    marker.setZIndexOffset(zindex);
+                                    //zindex = zindex === 1 ? 200 : 1;
+                                    //marker.setZIndexOffset(zindex);
                                     showRegion();
                                 });
 
@@ -190,7 +190,7 @@ angular.module('acComponents.directives')
                             var dangerIconSize = dangerIcon.options.icon.options.iconSize[0];
                             if ((zoom > 6 && dangerIconSize === 60) || (zoom <= 6 && dangerIconSize === 80)) {
                                 refreshDangerIconsLayer();
-                            } 
+                            }
                         }
                     }
 
@@ -260,7 +260,7 @@ angular.module('acComponents.directives')
                                             popup.setContent(obHtml);
                                             marker.bindPopup(popup);
                                         }
-                                        
+
                                         marker.openPopup();
                                     }
                                 });
@@ -356,7 +356,7 @@ angular.module('acComponents.directives')
 
 
                 map.on('load', refreshLayers);
-                map.on('dragend', setRegionFocus);
+                //map.on('dragend', setRegionFocus);
                 map.on('zoomend', refreshLayers);
 
                 $scope.$watch('region', function (newRegion, oldRegion) {
