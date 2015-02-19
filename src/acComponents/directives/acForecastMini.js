@@ -8,6 +8,10 @@ angular.module('acComponents.directives')
             link: function ($scope, el, attrs) {
                 el.addClass('ac-forecast-mini');
                 $scope.apiUrl = AC_API_ROOT_URL;
+
+                $scope.externalLinkClicked = function(url){
+                  $scope.$emit('ac.acForecastMini.linkClicked', url);
+                };
             }
         };
     });
