@@ -249,6 +249,8 @@ angular.module('acComponents.directives')
 
                             marker.on('click', function () {
                                 acObservation.getOne(ob.obid, 'html').then(function (obHtml) {
+                                    $scope.$emit('ac.min.obclicked', obHtml);
+                                    /*
                                     if($scope.device.size === 'sm' || $scope.device.size === 'xs') {
                                         $scope.$emit('ac.min.obclicked', obHtml);
                                     } else {
@@ -262,7 +264,7 @@ angular.module('acComponents.directives')
                                         }
 
                                         marker.openPopup();
-                                    }
+                                    }*/
                                 });
                             });
 
