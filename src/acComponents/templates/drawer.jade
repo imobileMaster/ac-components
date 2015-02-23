@@ -40,11 +40,11 @@
         i.fa.fa-close.fa-lg
     .ac-drawer-tools
         ul
-            li(ng-click="toggleFilter()", ng-class="{on: filters.obsPeriod !== ''}", style="padding-top: 11px; padding-left: 15px;")
+            li(ng-click="toggleObs()", ng-class="{on: filters.obsPeriod !== ''}", style="padding-top: 11px; padding-left: 15px;")
                 i.fa.fa-map-marker.fa-inverse.fa-2x
-            li.ac-date-filters(ng-click="expanded = true", style="background-color: transparent;")
-                ul.list-inline(ng-class="{expanded: expanded}", ng-init="expanded = false")
-                    li(ng-repeat="dateFilter in dateFilters", ng-click="toggleFilter('obsPeriod:'+dateFilter)", ng-class="{on: filters.obsPeriod === dateFilter}")
+            li.ac-date-filters(style="background-color: transparent;")
+                ul.list-inline(ng-class="{expanded: expanded}")
+                    li(ng-repeat="dateFilter in dateFilters", ng-click="toggleDate('obsPeriod:' + dateFilter)", ng-class="{on: filters.obsPeriod === dateFilter}")
                         i.fa.fa-calendar.fa-inverse.fa-2x
                         span {{ dateFilter }}
     .ac-drawer-body(ng-transclude)
