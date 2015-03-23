@@ -575,6 +575,12 @@ angular.module('acComponents.directives')
 
                             marker.togglePopup();
                         });
+                        acObservation.getOne(newObs.obid, 'json').then(function (ob) {
+                            // add opengraph tags
+                            $rootScope.ogTitle = ob.title;
+                            $rootScope.ogImage = ob.thumbs[0];
+                            $rootScope.ogDescription = ob.comment;
+                        });
                     }
                 });
 
