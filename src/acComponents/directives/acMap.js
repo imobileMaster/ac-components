@@ -264,6 +264,12 @@ angular.module('acComponents.directives')
                                         marker.openPopup();
                                     }
                                 });
+                                acObservation.getOne(ob.obid, 'json').then(function (ob) {
+                                    // add opengraph tags
+                                    $rootScope.ogTitle = ob.title;
+                                    $rootScope.ogImage = ob.thumbs[0];
+                                    $rootScope.ogDescription = ob.comment;
+                                });
                             });
 
                             //! set obs to z index 100. Forecast icons are at 1

@@ -19,6 +19,7 @@ angular.module('acComponents.directives')
             templateUrl: 'min-report-form.html',
             replace: true,
             link: function($scope, el, attrs) {
+
                 var reportTemplate = {
                     title: 'auto: Quick Report',
                     datetime: moment().format('YYYY-MM-DD hh:mm A'),

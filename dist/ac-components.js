@@ -287,12 +287,12 @@ angular.module('acComponents.directives')
                                 var icon = getDangerIcon({regionId: featureData.id});
 
                                 marker.setIcon(icon);
-                                var zindex = 200;
+                                var zindex = 1;
                                 marker.setZIndexOffset(zindex);
 
                                 marker.on('click', function () {
-                                    zindex = zindex === 1 ? 200 : 1;
-                                    marker.setZIndexOffset(zindex);
+                                    //zindex = zindex === 1 ? 200 : 1;
+                                    //smarker.setZIndexOffset(zindex);
                                     showRegion();
                                 });
 
@@ -416,8 +416,15 @@ angular.module('acComponents.directives')
                                         marker.openPopup();
                                     }
                                 });
+                                acObservation.getOne(ob.obid, 'json').then(function (ob) {
+                                    // add opengraph tags
+                                    $rootScope.ogTitle = ob.title;
+                                    $rootScope.ogImage = ob.thumbs[0];
+                                    $rootScope.ogDescription = ob.comment;
+                                });
                             });
 
+                            //! set obs to z index 100. Forecast icons are at 1
                             marker.setZIndexOffset(100);
 
                             return marker;
@@ -596,6 +603,7 @@ angular.module('acComponents.directives')
             templateUrl: 'min-report-form.html',
             replace: true,
             link: function($scope, el, attrs) {
+
                 var reportTemplate = {
                     title: 'auto: Quick Report',
                     datetime: moment().format('YYYY-MM-DD hh:mm A'),
