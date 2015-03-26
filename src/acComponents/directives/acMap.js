@@ -266,9 +266,9 @@ angular.module('acComponents.directives')
                                 });
                                 acObservation.getOne(ob.obid, 'json').then(function (ob) {
                                     // add opengraph tags
-                                    $rootScope.ogTitle = ob.title;
-                                    $rootScope.ogImage = ob.thumbs[0];
-                                    $rootScope.ogDescription = ob.comment;
+                                    $rootScope.ogTags  = [ {type: 'title', value: ob.title},
+                                                 {type: 'image', value: ob.thumbs[0]},
+                                                 {type: 'description', value: ob.comment}];
                                 });
                             });
 
@@ -425,9 +425,9 @@ angular.module('acComponents.directives')
                         });
                         acObservation.getOne(newObs.obid, 'json').then(function (ob) {
                             // add opengraph tags
-                            $rootScope.ogTitle = ob.title;
-                            $rootScope.ogImage = ob.thumbs[0];
-                            $rootScope.ogDescription = ob.comment;
+                             $rootScope.ogTags  = [ {type: 'title', value: ob.title},
+                                                     {type: 'image', value: ob.thumbs[0]},
+                                                     {type: 'description', value: ob.comment}];
                         });
                     }
                 });
