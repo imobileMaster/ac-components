@@ -50,9 +50,18 @@
                                 .panel.panel-primary
                                     .panel-heading
                                         | {{ forecast.dangerRatings[0].date | dateUtc:'dddd' }}
-                                    .panel-body.ac-forecast-nowcast
+
+                                    .panel-body.ac-forecast-nowcast(ng-hide="forecast.dangerMode=='Spring situation'")
                                         //- div(ac-loading-indicator, ng-hide="imageLoaded")
                                         img.ac-nowcast(ng-show="forecast.region", ng-src="{{forecast.region && apiUrl+'/api/forecasts/' + forecast.region  + '/nowcast.svg' || ''}}")
+                                    .panel-body.ac-forecast-nowcast(ng-show="forecast.dangerMode=='Spring situation'")
+                                        //- div(ac-loading-indicator, ng-hide="imageLoaded")
+                                        img.col-md-4( ng-src="http://www.avalanche.ca/assets/images/no_rating_icon_only.svg")
+                                        p.col-md-8
+                                          | The avalanche danger is variable and can range from Low to High. Travelling early in the day is recommended, as conditions can change rapidly in short periods of time due to daytime warming. Pay careful attention to the integrity of surface crusts formed overnight and rising air temperatures during the day. Dry slab avalanche danger may also exist during spring snow storms.
+                                        a(ng-click="externalLinkClicked(forecast.externalUrl)")
+                                          | More Spring Conditions details.
+
                                     table.table.table-condensed.ac-forecast-days
                                         thead.ac-thead-dark
                                             tr
