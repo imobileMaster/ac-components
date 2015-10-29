@@ -8,7 +8,7 @@
     }
   ],
   "main": [
-    "dist/ac-components-empty.js"
+    "dist/ac-components.js"
   ],
   "ignore": [
     "src",
