@@ -7,7 +7,8 @@ angular.module('acComponents.config', [])
     .value('acComponents.config', {
         debug: true
     })
-    .constant('AC_API_ROOT_URL', 'http://avalanche-canada-dev.elasticbeanstalk.com');
+    //.constant('AC_API_ROOT_URL', 'http://avalanche-canada-dev.elasticbeanstalk.com');
+    .constant('AC_API_ROOT_URL', 'http://localhost:9000');
 
 // Modules
 angular.module('acComponents.directives', []);
