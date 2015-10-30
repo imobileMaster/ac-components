@@ -1,40 +1,39 @@
 angular.module('acComponents.services')
   .service('acSnowpackReportData', function() {
 
-    this.snowpackObservation = {
+    this.snowpackData = {
 
-      obsType: {
+      snowpackObsType: {
         prompt: 'Is this a point observation or a summary of your day?',
         type: 'single',
         options: ['Point Observation', 'Summary'],
         selected: null
       },
 
-      obsComment: {
+      snowpackObsComment: {
         prompt: 'Snowpack Observation Comment',
         type: 'textarea',
         value: ''
       },
 
-      siteElevation: {
+      snowpackSiteElevation: {
         type: 'number',
         prompt: 'Snowpack Site Elevation (metres above sea level)',
         options: {
           min: 0,
           max: 4000,
-          default:0,
           step: 100
         }
       },
 
-      siteElevationBand: {
+      snowpackSiteElevationBand: {
         prompt: 'Snowpack Site Elevation Band',
         type: 'single',
         options: ['Alpine', 'Treeline', 'Below Treeline'],
         selected: null
       },
 
-      siteAspect: {
+      snowpackSiteAspect: {
         type: 'multiple',
         prompt: 'Snowpack Site Aspect',
         options: {
@@ -49,19 +48,18 @@ angular.module('acComponents.services')
         }
       },
 
-      depth: {
+      snowpackDepth: {
         type: 'number',
         prompt: 'Snowpack Depth (centimetres)',
         options: {
           min: 0,
           max: 10000,
-          default:0,
           step: 100
         },
         helpText:'Total height of snow in centimetres. Averaged if this is a summary.'
       },
 
-      whumpfingObserved:{
+      snowpackWhumpfingObserved:{
         prompt: 'Did you observe whumpfing?',
         type: 'single',
         options: ['Yes', 'No'],
@@ -69,7 +67,7 @@ angular.module('acComponents.services')
         helpText: 'A whumpf is a rapid settlement of the snowpack caused by the collapse of a weak layer. It is accompanied by an audiable noise.'
       },
 
-      crackingObserved:{
+      snowpackCrackingObserved:{
         prompt: 'Did you observe cracking?',
         type: 'single',
         options: ['Yes', 'No'],
@@ -77,7 +75,7 @@ angular.module('acComponents.services')
         helpText: 'Cracking is shooting cracks radiating more than a couple of metres from your sled or skis. '
       },
 
-      surfaceCondition: {
+      snowpackSurfaceCondition: {
         type: 'multiple',
         prompt: 'Surface condition',
         options: {
@@ -90,43 +88,40 @@ angular.module('acComponents.services')
         }
       },
 
-      footPenetration: {
+      snowpackFootPenetration: {
         type: 'number',
         prompt: 'Foot Penetration (centimetres)',
         options: {
           min: 0,
           max: 200,
-          default:0,
           step: 50
         },
         helpText:'How far  you sink into the snow when standing on one fully-weighted foot.'
       },
 
-      skiPenetration: {
+      snowpackSkiPenetration: {
         type: 'number',
         prompt: 'Ski Penetration (centimetres)',
         options: {
           min: 0,
           max: 200,
-          default:0,
           step: 50
         },
         helpText:'How far  you sink into the snow when standing on one fully-weighted ski.'
       },
 
-      sledPenetration: {
+      snowpackSledPenetration: {
         type: 'number',
         prompt: 'Sled Penetration (centimetres)',
         options: {
           min: 0,
           max: 200,
-          default:0,
           step: 50
         },
         helpText:'The depth a sled sinks into the snow after stopping slowly on level terrain.'
       },
 
-      testInitiation: {
+      snowpackTestInitiation: {
         type: 'multiple',
         prompt: 'Snowpack Test Result',
         options: {
@@ -139,7 +134,7 @@ angular.module('acComponents.services')
         helpText: 'Average if you did a number of tests.'
       },
 
-      testFracture: {
+      snowpackTestFracture: {
         type: 'multiple',
         prompt: 'Snowpack Test Fracture Character',
         options: {
@@ -150,13 +145,12 @@ angular.module('acComponents.services')
         helpText: 'Average if you did a number of tests. Describe further in comments if variable results.'
       },
 
-      testFailure: {
+      snowpackTestFailure: {
         type: 'number',
         prompt: 'Snowpack Test Failure Depth',
         options: {
           min: 0,
           max: 200,
-          default:0,
           step: 50
         },
         helpText:'Depth below the surface that failure occurred.'
