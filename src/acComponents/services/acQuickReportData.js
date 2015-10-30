@@ -4,7 +4,7 @@ angular.module('acComponents.services')
             'slab': false,
             'sound': false,
             'snow': false,
-            'temp': false,
+            'temp': false
         };
 
         this.ridingConditions = {
