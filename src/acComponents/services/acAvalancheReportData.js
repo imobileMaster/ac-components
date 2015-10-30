@@ -35,12 +35,19 @@ angular.module('acComponents.services')
         selected: null
       },
 
+
       avalancheSize: {
         prompt: 'Avalanche Size',
-        type: 'single',
-        options: ['1', '1.5', '2', '2.5', '3', '3.5', '4', '4.5', '5'],
-        selected: null,
-        helpText: 'Use Canadian size classification. Size 1 is relatively harmless to people. Size 2 can bury, injure or kill a person. Size 3 can bury and destroy a car. Size 4 can destroy a railway car. Size 5 can destroy 40 hectartes of forest.'
+        type: 'number',
+        options: {
+          min: 1,
+          max: 5,
+          step:.5
+        },
+        helpText: 'Use Canadian size classification. Size 1 is relatively harmless to people. Size 2 can bury, injure or kill a person. Size 3 can bury and destroy a car. Size 4 can destroy a railway car. Size 5 can destroy 40 hectares of forest.',
+        validation: function(n){
+          return n%.5 === 0 || n%.5 === .5;
+        }
       },
 
       slabThinckness: {
