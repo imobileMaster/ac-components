@@ -1,72 +1,93 @@
 angular.module('acComponents.services')
-  .service('acAvalancheReportData', function() {
-
-    this.avalancheData = {
+  .factory('acAvalancheReportData', function() {
+    var avalancheData = {
 
       avalancheObsComment: {
         prompt: 'Avalanche Observation Comment',
         type: 'textarea',
         value: '',
-        helpText: 'Please add additional information, for example terrain, aspect, elevation etc. especially if describing many avalanches together.'
+        helpText: 'Please add additional information, for example terrain, aspect, elevation etc. especially if describing many avalanches together.',
+        getDTO: function (){
+          return this.value;
+        }
       },
 
       avalancheOccurrenceDate: {
         prompt: 'Avalanche Observation Date',
         type: 'date',
-        selected: null
+        value: null
       },
 
       avalancheOccurrenceTime: {
         prompt: 'Avalanche Observation Time',
         type: 'time',
-        selected: null
+        value: null
       },
 
       avalancheOccurrenceEpoch: {
         prompt: 'Avalanche Observation Datetime',
         type: 'datetime',
-        selected: null
+        value: new Date(),
+        getDTO: function (){
+          return this.value;
+        }
       },
 
       avalancheNumber: {
         prompt: 'Number of avalanches in this report',
-        type: 'single',
+        type: 'radio',
+        inline: true,
         options: ['1', '2-5', '6-10', '11-50', '51-100'],
-        selected: null
+        value: null,
+        getDTO: function (){
+          return this.value;
+        }
       },
 
 
       avalancheSize: {
         prompt: 'Avalanche Size',
-        type: 'number',
-        options: {
-          min: 1,
-          max: 5,
-          step:.5
-        },
+        type: 'radio',
+        inline: true,
+        value: null,
+        options: ['1', '1.5', '2', '2.5', '3', '3.5', '4', '4.5', '5'],
         helpText: 'Use Canadian size classification. Size 1 is relatively harmless to people. Size 2 can bury, injure or kill a person. Size 3 can bury and destroy a car. Size 4 can destroy a railway car. Size 5 can destroy 40 hectares of forest.',
-        validation: function(n){
-          return n%.5 === 0 || n%.5 === .5;
+        getDTO: function (){
+          return this.value;
         }
       },
 
-      slabThinckness: {
+      slabThickness: {
         type: 'number',
         prompt: 'Slab Thickness (centimetres)',
+        value: null,
         options: {
           min: 10,
           max: 500,
           step: 10
+        },
+        validation: function(n){
+          return parseInt(n) >= this.options.min && parseInt(n) <= this.options.max;
+        },
+        getDTO: function (){
+          return this.value;
         }
       },
 
       slabWidth: {
         type: 'number',
         prompt: 'Slab Width (meters)',
+        value: null,
         options: {
           min: 1,
           max: 3000,
           step: 100
+        },
+        validation: function(n){
+          return parseInt(n) >= this.options.min && parseInt(n) <= this.options.max;
+        },
+        getDTO: function (){
+          return this.value;
         }
       },
 
@@ -78,12 +99,20 @@ angular.module('acComponents.services')
           max: 10000,
           step: 100
         },
-        helpText: 'Length from crown to toe of debris.'
+        value: null,
+        helpText: 'Length from crown to toe of debris.',
+        validation: function(n){
+          return parseInt(n) >= this.options.min && parseInt(n) <= this.options.max;
+        },
+        getDTO: function (){
+          return this.value;
+        }
       },
 
       avalancheCharacter: {
-        type: 'multiple',
+        type: 'checkbox',
         prompt: 'Avalanche Character',
+        limit: 3,
         options: {
           'Loose wet': false,
           'Loose dry': false,
@@ -93,31 +122,40 @@ angular.module('acComponents.services')
           'Wet slab': false,
           'Cornice only': false,
           'Cornice with slab': false
+        },
+        validation: function(){
+          var noOfSelected = _.reduce(this.options, function(total, option){
+            if (option){
+              total++;
+            }
+            return total;
+          }, 0);
+
+          return noOfSelected<= this.limit;
+        },
+        getDTO: function (){
+          return this.options;
         }
       },
 
       triggerType: {
-        type: 'multiple',
+        type: 'dropdown',
         prompt: 'Trigger Type',
-        options: {
-          'Natural': false,
-          'Skier': false,
-          'Snowmobile': false,
-          'Other vehicle': false,
-          'Helicopter': false,
-          'Explosives': false
+        value: null,
+        getDTO: function (){
+          return this.value;
         }
       },
 
       triggerSubtype: {
-        type: 'multiple',
+        type: 'dropdown',
         prompt: 'Trigger Subtype',
-        options: {
-          'Accidental': false,
-          'Intentional': false,
-          'Remote': false
-        },
-        helpText: 'A remote trigger is when the avalanche starts some distance away from where the trigger was  applied.'
+        value: null,
+        options: ['Accidental', 'Intentional', 'Remote'],
+        helpText: 'A remote trigger is when the avalanche starts some distance away from where the trigger was  applied.',
+        getDTO: function (){
+          return this.value;
+        }
       },
 
       triggerDistance: {
@@ -128,29 +166,36 @@ angular.module('acComponents.services')
           max: 2000,
           step: 50
         },
-        helpText: 'If a remote trigger, enter how far from the trigger point is the nearest part of the crown.'
+        helpText: 'If a remote trigger, enter how far from the trigger point is the nearest part of the crown.',
+        value: null,
+        validation: function(n){
+          return parseInt(n) >= this.options.min && parseInt(n) <= this.options.max;
+        },
+        getDTO: function (){
+          return this.value;
+        }
       },
 
       startZoneAspect: {
-        type: 'multiple',
+        type: 'radio',
+        inline: true,
         prompt: 'Start Zone Aspect',
-        options: {
-          'N': false,
-          'NE': false,
-          'E': false,
-          'SE': false,
-          'S': false,
-          'SW': false,
-          'W': false,
-          'NW': false
+        options: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'],
+        value: null,
+        getDTO: function (){
+          return this.value;
         }
       },
 
       startZoneElevationBand: {
         prompt: 'Start Zone Elevation Band',
-        type: 'single',
+        type: 'radio',
+        inline: true,
         options: ['Alpine', 'Treeline', 'Below Treeline'],
-        selected: null
+        value: null,
+        getDTO: function (){
+          return this.value;
+        }
       },
 
 
@@ -161,6 +206,13 @@ angular.module('acComponents.services')
           min: 0,
           max: 5000,
           step: 50
+        },
+        value: null,
+        validation: function(n){
+          return parseInt(n) >= this.options.min && parseInt(n) <= this.options.max;
+        },
+        getDTO: function (){
+          return this.value;
         }
       },
 
@@ -171,6 +223,13 @@ angular.module('acComponents.services')
           min: 0,
           max: 90,
           step: 5
+        },
+        value: null,
+        validation: function(n){
+          return parseInt(n) >= this.options.min && parseInt(n) <= this.options.max;
+        },
+        getDTO: function (){
+          return this.value;
         }
       },
 
@@ -182,38 +241,67 @@ angular.module('acComponents.services')
           max: 5000,
           step: 50
         },
-        helpText: 'The lowest point of the debris.'
+        helpText: 'The lowest point of the debris.',
+        value: null,
+        validation: function(n){
+          return parseInt(n) >= this.options.min && parseInt(n) <= this.options.max;
+        },
+        getDTO: function (){
+          return this.value;
+        }
       },
 
       weakLayerBurialDate: {
         prompt: 'Weak Layer Burial Date',
-        type: 'date',
-        selected: null,
-        helpText:'Date the weak layer was buried.'
+        type: 'datetime',
+        helpText:'Date the weak layer was buried.',
+        value: null,
+        getDTO: function (){
+          return this.value;
+        }
       },
 
       weakLayerCrystalType: {
-        type: 'multiple',
+        type: 'checkbox',
         prompt: 'Weak Layer Crystal Type',
+        limit: 2,
         options: {
           'Surface hoar': false,
           'Facets': false,
           'Surface hoar and facets': false,
           'Depth hoar': false,
           'Storm snow': false
+        },
+        validation: function(){
+          var noOfSelected = _.reduce(this.options, function(total, option){
+            if (option){
+              total++;
+            }
+            return total;
+          }, 0);
+
+          return noOfSelected<= this.limit;
+        },
+        getDTO: function (){
+          return this.options;
         }
       },
 
       crustNearWeakLayer:{
         prompt: 'Crust Near Weak Layer',
-        type: 'single',
+        type: 'radio',
+        inline: true,
         options: ['Yes', 'No'],
-        selected: null
+        value: null,
+        getDTO: function (){
+          return this.value;
+        }
       },
 
       windExposure: {
-        type: 'multiple',
+        type: 'checkbox',
         prompt: 'Wind Exposure',
+        limit: 1,
         options: {
           'Lee slope': false,
           'Windward slope': false,
@@ -221,18 +309,73 @@ angular.module('acComponents.services')
           'Cross-loaded slope': false,
           'Reverse-loaded slope': false,
           'No wind exposure': false
+        },
+        validation: function(){
+          var noOfSelected = _.reduce(this.options, function(total, option){
+            if (option){
+              total++;
+            }
+            return total;
+          }, 0);
+
+          return noOfSelected<= this.limit;
+        },
+        getDTO: function (){
+          return this.options;
         }
       },
 
       vegetationCover: {
-        type: 'multiple',
+        type: 'dropdown',
         prompt: 'Vegetation cover',
-        options: {
-          'Open slope': false,
-          'Sparse trees or gladed slope': false,
-          'Dense trees': false
+        value: null,
+        options: ['Open slope', 'Sparse trees or gladed slope', 'Dense trees'],
+        getDTO: function (){
+          return this.value;
         }
       }
 
     };
+
+    var inputCheckbox = {
+      getDTO: function (){
+        return this.options;
+      }
+    };
+
+    var inputOther = {
+      getDTO: function (){
+        return this.value;
+      }
+    };
+
+
+    (function (){
+      _.forEach(avalancheData, function (field){
+        if (angular.isDefined(field.options)){
+          _.assign(field, inputCheckbox);
+        } else {
+          _.assign(field, inputOther);
+        }
+      });
+    })();
+
+    return {
+      fields: avalancheData,
+      validate: validate,
+      getDTO: getDTO
+    };
+
+    function validate(){
+      _.forEach(avalancheData, function (field){
+        field.validation();
+      });
+    }
+
+    function getDTO(){
+      _.forEach(avalancheData, function (field){
+        field.getDTO();
+      });
+    }
+
   });
