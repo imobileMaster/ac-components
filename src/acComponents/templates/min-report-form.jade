@@ -1,5 +1,5 @@
 .min-form
-    form(name="acMinForm", ng-submit="submitForm()", ng-show="!report.subid && !minerror", role="form", )
+    form(name="acMinForm", ng-submit="submitForm()", ng-show="!report.subid", role="form", )
         .form-group(ng-class="{'has-error': !acMinForm.title.$valid}")
           label(for="title")
             i.fa.fa-newspaper-o
@@ -24,54 +24,92 @@
           input.form-control(type="file", name="uploads", file-model="report.files", accept=".png,.jpg,.jpeg", multiple)
           div {{ report.files.length }} photos added
 
+        //
+          Quick report
         .panel-group
           .panel.panel-default
             .panel-heading(style="background-color: black; color: white;")
               h4.panel-title
-                | Riding conditions
+                | Riding conditions:
             .panel-body
-                .panel-group
-                  .panel.panel-default(ng-repeat="(item, ridingCondition) in report.ridingConditions")
-                    .panel-heading
-                        h4.panel-title
-                            strong {{ ridingCondition.prompt }}
-                    .panel-body
-                        .form-group
-                        .checkbox(ng-if="ridingCondition.type=='multiple'", ng-repeat="(option, enabled) in ridingCondition.options")
-                          label
-                            input(type="checkbox", ng-model="report.ridingConditions[item].options[option]")
-                            | {{option}}
+              .panel-group
+                .panel.panel-default(ng-repeat="(item, ridingCondition) in report.obs.quickReport.ridingConditions")
+                  .panel-heading
+                    h4.panel-title
+                      strong {{ ridingCondition.prompt }}
+                  .panel-body
+                    .form-group
+                    .checkbox(ng-if="ridingCondition.type=='multiple'", ng-repeat="(option, enabled) in ridingCondition.options")
+                      label
+                        input(type="checkbox", ng-model="ridingCondition.options[option]")
+                        | {{option}}
 
-                        .radio(ng-if="ridingCondition.type=='single'", ng-repeat="option in ridingCondition.options")
-                          label
-                            input(type="radio", ng-model="report.ridingConditions[item].selected", ng-value="option")
-                            | {{option}}
+                    .radio(ng-if="ridingCondition.type=='single'", ng-repeat="option in ridingCondition.options")
+                      label
+                        input(type="radio", ng-model="ridingCondition.selected", ng-value="option")
+                        | {{option}}
 
           .panel.panel-default
             .panel-heading(style="background-color: black; color: white;")
-                h4.panel-title
-                    strong Avalanche conditions
+              h4.panel-title
+                strong Avalanche conditions
             .panel-body
               .form-group
                 .checkbox
                   label
-                    input(type="checkbox", ng-model="report.avalancheConditions.slab")
+                    input(type="checkbox", ng-model="report.obs.quickReport.avalancheConditions.slab")
                     | Slab avalanches today or yesterday.
                 .checkbox
                   label
-                    input(type="checkbox", ng-model="report.avalancheConditions.sound")
+                    input(type="checkbox", ng-model="report.obs.quickReport.avalancheConditions.sound")
                     | Whumphing or drum-like sounds or shooting cracks.
                 .checkbox
                   label
-                    input(type="checkbox", ng-model="report.avalancheConditions.snow")
+                    input(type="checkbox", ng-model="report.obs.quickReport.avalancheConditions.snow")
                     | 30cm + of new snow, or significant drifitng, or rain in the last 48 hours.
                 .checkbox
                   label
-                    input(type="checkbox", ng-model="report.avalancheConditions.temp")
+                    input(type="checkbox", ng-model="report.obs.quickReport.avalancheConditions.temp")
                     | Rapid temperature rise to near zero degrees or wet surface snow.
         .form-group
           label Comments
-          textarea.form-control(rows="3", ng-model="report.comment")
+          textarea.form-control(rows="3", ng-model="report.obs.quickReport.comment")
+
+        //
+          Avalanche report
+        .panel-group
+          .panel.panel-default
+            .panel-heading(style="background-color: black; color: white;")
+              h4.panel-title
+                | Avalanche report
+            .panel-body
+              .panel-group
+                .panel.panel-default(ng-repeat="(item, av) in report.obs.avalancheReport.fields")
+                  .panel-heading
+                    h4.panel-title
+                      strong {{ av.prompt }}
+                  .panel-body
+                    .form-group
+                    .checkbox(ng-if="av.type=='checkbox'", ng-repeat="(option, enabled) in av.options")
+                      label
+                        input(type="checkbox", ng-model="av.options[option]")
+                        | {{option}}
+
+                    .radio(ng-if="av.type=='radio'", ng-repeat="option in av.options")
+                      label
+                        input(type="radio", ng-model="av.value", value="{{option}}")
+                        | {{option}}
+                    .number(ng-if="av.type=='number'")
+                      label
+                        input(type="number", max="{{av.options.max}}", min="{{av.options.min}}", ng-model="av.value")
+                    .select(ng-if="av.type=='dropdown'")
+                      select(ng-options="option for option in av.options", ng-model="av.value")
+                    .textarea(ng-if="av.type=='textarea'")
+                      textarea.form-control(rows="3", ng-model="av.value")
+                    .datetime-input(ng-if="av.type=='datetime'")
+                      label(for="datetime")
+                      input.form-control(type="datetime", name="datetime-avalanche", ng-model="av.value", ac-datetime-picker, placeholder="Click to select date")
+
         input.btn.btn-default(type="submit", id="submit", value="Submit", ng-disabled="minsubmitting", style="border-radius:0; background-color: rgb(0, 86, 183); color: white;")
         i.fa.fa-fw.fa-lg.fa-spinner.fa-spin(ng-show="minsubmitting")
 
@@ -93,5 +131,8 @@
     div(ng-show="minerror")
         .alert.alert-danger(role="alert")
             p There was an error submittting you report.
-            p {{minerrormsg}}
+            p(ng-if="minerrormsg") {{minerrormsg}}
+            div(ng-if="validationErrors") Please checkout the following fields:
+              p(ng-repeat="(tab, fields) in validationErrors")
+                span.firstCapital {{tab}} - {{fields}}
 

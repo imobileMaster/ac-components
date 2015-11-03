@@ -14,7 +14,7 @@ angular.module('acComponents.directives')
             }
         };
     })
-    .directive('acMinReportForm', function($q, $timeout, acQuickReportData, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, store) {
+    .directive('acMinReportForm', function($q, $timeout, acQuickReportData, acAvalancheReportData, acFormUtils, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, store) {
         return {
             templateUrl: 'min-report-form.html',
             replace: true,
@@ -25,9 +25,14 @@ angular.module('acComponents.directives')
                     datetime: moment().format('YYYY-MM-DD hh:mm A'),
                     latlng: [],
                     files: [],
-                    ridingConditions: angular.copy(acQuickReportData.ridingConditions),
-                    avalancheConditions: angular.copy(acQuickReportData.avalancheConditions),
-                    comment: null
+                    obs: {
+                      quickReport: {
+                        ridingConditions: angular.copy(acQuickReportData.ridingConditions),
+                        avalancheConditions: angular.copy(acQuickReportData.avalancheConditions),
+                        comment: null
+                      },
+                      avalancheReport: acAvalancheReportData
+                    }
                 };
                 $scope.report = angular.copy(reportTemplate);
 
@@ -51,6 +56,35 @@ angular.module('acComponents.directives')
                 $scope.resetForm = resetForm;
 
                 $scope.submitForm = function() {
+
+                    var reqObj = angular.copy($scope.report);
+
+                    $scope.validationErrors = _.reduce($scope.report.obs, function(errors, item, key){
+                      console.log(item);
+                      if (key !== 'quickReport'){
+                        var tab = key.replace('Report', ' Report');
+                        errors[tab] = acFormUtils.validateFields(item.fields).join(', ');
+                      }
+                      return errors;
+                    }, {});
+
+                    if ($scope.validationErrors){
+                      $scope.minerror = true;
+                      return;
+                    }
+
+                    reqObj.obs = _.reduce($scope.report.obs, function(total, item, key){
+                        console.log(item);
+                        if (key === 'quickReport'){
+                          total.quickReport = angular.copy(item);
+                        } else {
+                          total[key] = acFormUtils.getDTOForFileds(item.fields);
+                        }
+                        return total;
+                    }, {});
+
+                    console.log('to be sent: ', reqObj.obs);
+                    return;
                     var token = store.get('token');
                     if (token) {
                         $scope.minsubmitting = true;
