@@ -5,7 +5,7 @@ angular.module('acComponents.services')
       avalancheObsComment: {
         prompt: 'Avalanche Observation Comment',
         type: 'textarea',
-        value: '',
+        value: null,
         helpText: 'Please add additional information, for example terrain, aspect, elevation etc. especially if describing many avalanches together.'
       },
 

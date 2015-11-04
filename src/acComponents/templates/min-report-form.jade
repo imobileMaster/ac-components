@@ -90,6 +90,7 @@
                       strong {{ av.prompt }}
                   .panel-body
                     .form-group
+                    p {{av.helpText}}
                     .checkbox(ng-if="av.type=='checkbox'", ng-repeat="(option, enabled) in av.options")
                       label
                         input(type="checkbox", ng-model="av.options[option]")

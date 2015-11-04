@@ -65,7 +65,7 @@ angular.module('acComponents.services')
             getOne: function(obid, format) {
                 var format = '.'+format || '';
                 var obUrl = endpointUrl + obid + format;
-                
+
                 return $http.get(endpointUrl).then(function (res) {
                     return res.data;
                 });

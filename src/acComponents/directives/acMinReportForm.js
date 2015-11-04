@@ -34,7 +34,7 @@ angular.module('acComponents.directives')
                       avalancheReport: acAvalancheReportData
                     }
                 };
-                $scope.report = angular.copy(reportTemplate);
+                $scope.report = _.cloneDeep(reportTemplate);
 
                 function resetForm() {
                     $timeout(function () {
@@ -57,24 +57,10 @@ angular.module('acComponents.directives')
 
                 $scope.submitForm = function() {
 
-                    var reqObj = angular.copy($scope.report);
+                    var reqObj = _.cloneDeep($scope.report);
 
-                    $scope.validationErrors = _.reduce($scope.report.obs, function(errors, item, key){
-                      console.log(item);
-                      if (key !== 'quickReport'){
-                        var tab = key.replace('Report', ' Report');
-                        errors[tab] = acFormUtils.validateFields(item.fields).join(', ');
-                      }
-                      return errors;
-                    }, {});
-
-                    if ($scope.validationErrors){
-                      $scope.minerror = true;
-                      return;
-                    }
 
                     reqObj.obs = _.reduce($scope.report.obs, function(total, item, key){
-                        console.log(item);
                         if (key === 'quickReport'){
                           total.quickReport = angular.copy(item);
                         } else {
@@ -84,11 +70,11 @@ angular.module('acComponents.directives')
                     }, {});
 
                     console.log('to be sent: ', reqObj.obs);
-                    return;
+
                     var token = store.get('token');
                     if (token) {
                         $scope.minsubmitting = true;
-                        return acSubmission.submit($scope.report, token).then(function(result) {
+                        return acSubmission.submit(reqObj, token).then(function(result) {
                             if (result.data && !('error' in result.data)) {
                                 $scope.minsubmitting = false;
                                 $scope.report.subid = result.data.subid;
