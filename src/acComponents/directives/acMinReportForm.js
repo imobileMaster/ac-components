@@ -14,7 +14,7 @@ angular.module('acComponents.directives')
             }
         };
     })
-    .directive('acMinReportForm', function($q, $timeout, acQuickReportData, acAvalancheReportData, acFormUtils, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, store) {
+    .directive('acMinReportForm', function($q, $timeout, acQuickReportData, acAvalancheReportData, acIncidentReportData, acSnowpackReportData, acWeatherReportData, acFormUtils, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, store) {
         return {
             templateUrl: 'min-report-form.html',
             replace: true,
@@ -31,7 +31,10 @@ angular.module('acComponents.directives')
                         avalancheConditions: angular.copy(acQuickReportData.avalancheConditions),
                         comment: null
                       },
-                      avalancheReport: acAvalancheReportData
+                      avalancheReport: acAvalancheReportData,
+                      incidentReport: acIncidentReportData,
+                      snowpackReport: acSnowpackReportData,
+                      weatherReport: acWeatherReportData,
                     }
                 };
                 $scope.report = _.cloneDeep(reportTemplate);
@@ -64,7 +67,7 @@ angular.module('acComponents.directives')
                         if (key === 'quickReport'){
                           total.quickReport = angular.copy(item);
                         } else {
-                          total[key] = acFormUtils.getDTOForFileds(item.fields);
+                          total[key] = acFormUtils.getDTOForFields(item.fields);
                         }
                         return total;
                     }, {});
