@@ -32,6 +32,13 @@ angular.module('acComponents.directives')
                             fillColor: '#489BDF',
                             color: '#B43A7E'
                         }
+                    },
+                    reportType:{
+                      incident: '#489BDF',
+                      quick: '#B43A71',
+                      avalanche: '#489BDF',
+                      snowpack: '#B23A7E',
+                      weather: '#A43A71'
                     }
                 };
 
@@ -39,11 +46,11 @@ angular.module('acComponents.directives')
                 var map = L.mapbox.map(el[0].id, MAPBOX_MAP_ID, {attributionControl: false});
                 map.setView([52.3, -120.74966],6);
 
-                /*var provinces = L.mapbox.geocoder('mapbox.places-province-v1');
-                provinces.query('British-Columbia', function (err, results) {
-                    var bcBounds = L.latLngBounds([results.bounds[1], results.bounds[0]], [results.bounds[3], results.bounds[2]]);
-                    map.fitBounds(bcBounds);
-                });*/
+              /*var provinces = L.mapbox.geocoder('mapbox.places-province-v1');
+              provinces.query('British-Columbia', function (err, results) {
+                  var bcBounds = L.latLngBounds([results.bounds[1], results.bounds[0]], [results.bounds[3], results.bounds[2]]);
+                  map.fitBounds(bcBounds);
+              });*/
 
                 L.control.locate({
                     locateOptions: {
@@ -203,7 +210,7 @@ angular.module('acComponents.directives')
                         //     map.addLayer(layers.obs);
                         // }
 
-                        map.addLayer(layers.obs);
+                        //map.addLayer(layers.obs);
                     }
 
                     var opacity = 0.2;
@@ -232,22 +239,29 @@ angular.module('acComponents.directives')
                     }
                 }
 
+                function getMarkerColor(type){
+                  return styles.reportType[type];
+                }
+
                 function refreshObsLayer() {
                     if (map.hasLayer(layers.obs)){
                         map.removeLayer(layers.obs);
                     }
 
                     if($scope.obs.length > 0 ) {
-                        var markers = $scope.obs.map(function (ob) {
+                      var markers = new L.MarkerClusterGroup();
 
-                            var marker = L.marker(ob.latlng, {
-                                icon: L.mapbox.marker.icon({
-                                    'marker-size': 'small',
-                                    'marker-color': '#09c'
-                                })
-                            });
+                      var markersList = $scope.obs.map(function (ob) {
 
-                            marker.on('click', function () {
+                        var marker = L.marker(ob.latlng, {
+                            icon: L.mapbox.marker.icon({
+                                'marker-size': 'small',
+                                'marker-color': getMarkerColor(ob.obtype)
+                            })
+                        });
+
+
+                        marker.on('click', function () {
                                 acObservation.getOne(ob.obid, 'html').then(function (obHtml) {
                                     if($scope.device.size === 'sm' || $scope.device.size === 'xs') {
                                         $scope.$emit('ac.min.obclicked', obHtml);
@@ -272,14 +286,11 @@ angular.module('acComponents.directives')
                                 });
                             });
 
-                            //! set obs to z index 100. Forecast icons are at 1
-                            marker.setZIndexOffset(100);
+                        return marker;
+                      });
 
-                            return marker;
-                        });
-
-                        layers.obs = L.featureGroup(markers);
-                        layers.obs.bringToFront();
+                        markers.addLayers(markersList);
+                        map.addLayer(markers);
                     } else {
                         layers.obs = undefined;
                     }

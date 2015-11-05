@@ -185,6 +185,13 @@ angular.module('acComponents.directives')
                             fillColor: '#489BDF',
                             color: '#B43A7E'
                         }
+                    },
+                    reportType:{
+                      incident: '#489BDF',
+                      quick: '#B43A71',
+                      avalanche: '#489BDF',
+                      snowpack: '#B23A7E',
+                      weather: '#A43A71'
                     }
                 };
 
@@ -192,11 +199,11 @@ angular.module('acComponents.directives')
                 var map = L.mapbox.map(el[0].id, MAPBOX_MAP_ID, {attributionControl: false});
                 map.setView([52.3, -120.74966],6);
 
-                /*var provinces = L.mapbox.geocoder('mapbox.places-province-v1');
-                provinces.query('British-Columbia', function (err, results) {
-                    var bcBounds = L.latLngBounds([results.bounds[1], results.bounds[0]], [results.bounds[3], results.bounds[2]]);
-                    map.fitBounds(bcBounds);
-                });*/
+              /*var provinces = L.mapbox.geocoder('mapbox.places-province-v1');
+              provinces.query('British-Columbia', function (err, results) {
+                  var bcBounds = L.latLngBounds([results.bounds[1], results.bounds[0]], [results.bounds[3], results.bounds[2]]);
+                  map.fitBounds(bcBounds);
+              });*/
 
                 L.control.locate({
                     locateOptions: {
@@ -356,7 +363,7 @@ angular.module('acComponents.directives')
                         //     map.addLayer(layers.obs);
                         // }
 
-                        map.addLayer(layers.obs);
+                        //map.addLayer(layers.obs);
                     }
 
                     var opacity = 0.2;
@@ -385,22 +392,29 @@ angular.module('acComponents.directives')
                     }
                 }
 
+                function getMarkerColor(type){
+                  return styles.reportType[type];
+                }
+
                 function refreshObsLayer() {
                     if (map.hasLayer(layers.obs)){
                         map.removeLayer(layers.obs);
                     }
 
                     if($scope.obs.length > 0 ) {
-                        var markers = $scope.obs.map(function (ob) {
+                      var markers = new L.MarkerClusterGroup();
 
-                            var marker = L.marker(ob.latlng, {
-                                icon: L.mapbox.marker.icon({
-                                    'marker-size': 'small',
-                                    'marker-color': '#09c'
-                                })
-                            });
+                      var markersList = $scope.obs.map(function (ob) {
 
-                            marker.on('click', function () {
+                        var marker = L.marker(ob.latlng, {
+                            icon: L.mapbox.marker.icon({
+                                'marker-size': 'small',
+                                'marker-color': getMarkerColor(ob.obtype)
+                            })
+                        });
+
+
+                        marker.on('click', function () {
                                 acObservation.getOne(ob.obid, 'html').then(function (obHtml) {
                                     if($scope.device.size === 'sm' || $scope.device.size === 'xs') {
                                         $scope.$emit('ac.min.obclicked', obHtml);
@@ -425,14 +439,11 @@ angular.module('acComponents.directives')
                                 });
                             });
 
-                            //! set obs to z index 100. Forecast icons are at 1
-                            marker.setZIndexOffset(100);
+                        return marker;
+                      });
 
-                            return marker;
-                        });
-
-                        layers.obs = L.featureGroup(markers);
-                        layers.obs.bringToFront();
+                        markers.addLayers(markersList);
+                        map.addLayer(markers);
                     } else {
                         layers.obs = undefined;
                     }
@@ -605,7 +616,7 @@ angular.module('acComponents.directives')
             }
         };
     }])
-    .directive('acMinReportForm', ["$q", "$timeout", "acQuickReportData", "acAvalancheReportData", "acFormUtils", "acSubmission", "MAPBOX_ACCESS_TOKEN", "MAPBOX_MAP_ID", "store", function($q, $timeout, acQuickReportData, acAvalancheReportData, acFormUtils, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, store) {
+    .directive('acMinReportForm', ["$q", "$timeout", "acQuickReportData", "acAvalancheReportData", "acIncidentReportData", "acSnowpackReportData", "acWeatherReportData", "acFormUtils", "acSubmission", "MAPBOX_ACCESS_TOKEN", "MAPBOX_MAP_ID", "store", function($q, $timeout, acQuickReportData, acAvalancheReportData, acIncidentReportData, acSnowpackReportData, acWeatherReportData, acFormUtils, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, store) {
         return {
             templateUrl: 'min-report-form.html',
             replace: true,
@@ -622,7 +633,10 @@ angular.module('acComponents.directives')
                         avalancheConditions: angular.copy(acQuickReportData.avalancheConditions),
                         comment: null
                       },
-                      avalancheReport: acAvalancheReportData
+                      avalancheReport: acAvalancheReportData,
+                      incidentReport: acIncidentReportData,
+                      snowpackReport: acSnowpackReportData,
+                      weatherReport: acWeatherReportData,
                     }
                 };
                 $scope.report = _.cloneDeep(reportTemplate);
@@ -655,7 +669,7 @@ angular.module('acComponents.directives')
                         if (key === 'quickReport'){
                           total.quickReport = angular.copy(item);
                         } else {
-                          total[key] = acFormUtils.getDTOForFileds(item.fields);
+                          total[key] = acFormUtils.getDTOForFields(item.fields);
                         }
                         return total;
                     }, {});
@@ -1036,7 +1050,6 @@ angular.module('acComponents.services')
 angular.module('acComponents.services')
   .factory('acFormUtils', function() {
 
-
     var inputDefault = {
       getDTO: function (){
         return this.value;
@@ -1131,24 +1144,24 @@ angular.module('acComponents.services')
         };
     }]);
 angular.module('acComponents.services')
-  .service('acIncidentReportData', function() {
-    this.incidentData = {
+  .factory('acIncidentReportData', function() {
+    var incidentData = {
       incidentDescription: {
-        prompt: 'Incident Description. No names and no judging please:',
+        prompt: 'Incident Description. No names and no judging please.',
         type: 'textarea',
-        value: ''
+        value: null
       },
 
       groupActivity: {
-        type: 'multiple',
-        prompt: 'Activity:',
+        type: 'checkbox',
+        prompt: 'Activity',
         options: {
           'Snowmobiling': false,
           'Skiing': false,
           'Climbing/Mountaineering': false,
           'Hiking/Scrambling': false,
           'Snowshoeing': false,
-          'Toboganning': false,
+          'Tobogganing': false,
           'Other': false
         },
         helpText: 'If other, please describe in Incident Description.'
@@ -1156,103 +1169,85 @@ angular.module('acComponents.services')
 
       groupSize: {
         type: 'number',
-        prompt: 'Number of people in the group:',
+        prompt: 'Number of people in the group',
         options: {
           'min': 0,
-          'max': 100,
-          'default': 0,
-          'step': 1
+          'max': 100
         },
-        value: 0
+        value: null
       },
 
       numberFullyBuried: {
         type: 'number',
-        prompt: 'Number of people fully buried:',
+        prompt: 'Number of people fully buried',
         options: {
           'min': 0,
-          'max': 100,
-          'default': 0,
-          'step': 1
+          'max': 100
         },
-        value: 0
+        value: null
       },
 
       numberPartlyBuriedImpairedBreathing: {
         type: 'number',
-        prompt: 'Number of people partly buried, breathing impaired:',
+        prompt: 'Number of people partly buried, breathing impaired',
         options: {
           'min': 0,
-          'max': 100,
-          'default': 0,
-          'step': 1
+          'max': 100
         },
-        value: 0
+        value: null
       },
 
       numberPartlyBuriedAbleBreathing: {
         type: 'number',
-        prompt: 'Number of people partly buried, able to breathe normally:',
+        prompt: 'Number of people partly buried, able to breathe normally',
         options: {
           'min': 0,
-          'max': 100,
-          'default': 0,
-          'step': 1
+          'max': 100
         },
-        value: 0
+        value: null
       },
 
       numberCaughtOnly: {
         type: 'number',
-        prompt: 'Number of people caught and not buried:',
+        prompt: 'Number of people caught and not buried',
         options: {
           'min': 0,
-          'max': 100,
-          'default': 0,
-          'step': 1
+          'max': 100
         },
-        value: 0
+        value: null
       },
 
       numberPeopleInjured: {
         type: 'number',
-        prompt: 'Number of people caught only and not fully or partly buried:',
+        prompt: 'Number of people caught only and not fully or partly buried',
         options: {
           'min': 0,
-          'max': 400,
-          'default': 0,
-          'step': 1
+          'max': 400
         },
-        value: 0
+        value: null
       },
 
       terrainShapeTriggerPoint: {
-        type: 'multiple',
-        prompt: 'Terrain shape at Trigger Point:',
-        options: {
-          'Convex': false,
-          'Planar': false,
-          'Concave': false,
-          'Unsupported': false
-        },
+        type: 'radio',
+        inline: true,
+        prompt: 'Terrain shape at Trigger Point',
+        options: ['Convex', 'Planar', 'Concave', 'Unsupported'],
+        value: null,
         helpText: 'Convex: a roll. Concave: bowl-shaped. Planar: smooth with no significant convexities or concavities. Unsupported: a slope that drops off abruptly at the bottom.'
       },
 
       snowDepthTriggerPoint: {
-        type: 'multiple',
-        prompt: 'Snow depth at Trigger Point:',
-        options: {
-          'Shallow': false,
-          'Deep': false,
-          'Average': false,
-          'Variable': false
-        },
-        helpText: 'The depth of the snowpack compared to the average conditions in the area. Shallow: shallower than average. Deep: deeper than average. Average: about the same as everywhere else. Variable: depth varies significantly in the place where the avalanche started.'
+        type: 'radio',
+        inline: true,
+        prompt: 'Snow depth at Trigger Point',
+        options: ['Shallow', 'Deep', 'Average', 'Variable'],
+        helpText: 'The depth of the snowpack compared to the average conditions in the area. Shallow: shallower than average. Deep: deeper than average. Average: about the same as everywhere else. Variable: depth varies significantly in the place where the avalanche started.',
+        value: null
       },
 
       terrainTrap: {
-        type: 'multiple',
-        prompt: 'Terrain Trap:',
+        type: 'checkbox',
+        prompt: 'Terrain Trap',
         options: {
           'No obvious terrain trap': false,
           'Gully or depression': false,
@@ -1261,13 +1256,11 @@ angular.module('acComponents.services')
           'Cliff': false
         },
         helpText: 'Terrain traps are features that increase the consequences of an avalanche.'
-      },
-
-      numberInvolved: {
-        type: 'calculated',
-        fields: ['groupSize', 'numberFullyBuried', 'numberPartlyBuriedImpairedBreathing', 'numberPartlyBuriedAbleBreathing'],
-        value: 0
       }
+    };
+
+    return {
+      fields: incidentData
     };
   });
 
@@ -1370,21 +1363,22 @@ angular.module('acComponents.services')
     });
 
 angular.module('acComponents.services')
-  .service('acSnowpackReportData', function() {
+  .factory('acSnowpackReportData', function() {
 
-    this.snowpackData = {
+    var snowpackData = {
 
       snowpackObsType: {
+        type: 'radio',
         prompt: 'Is this a point observation or a summary of your day?',
-        type: 'single',
         options: ['Point Observation', 'Summary'],
-        selected: null
+        value: null,
+        helpText: 'Please add additional information about the snowpack, especially notes about weak layer, how the snow varied by aspect/elevation, and details of any slope testing performed.'
       },
 
       snowpackObsComment: {
-        prompt: 'Snowpack Observation Comment',
         type: 'textarea',
-        value: ''
+        prompt: 'Snowpack Observation Comment',
+        value: null
       },
 
       snowpackSiteElevation: {
@@ -1392,20 +1386,20 @@ angular.module('acComponents.services')
         prompt: 'Snowpack Site Elevation (metres above sea level)',
         options: {
           min: 0,
-          max: 4000,
-          step: 100
-        }
+          max: 4000
+        },
+        value: null
       },
 
       snowpackSiteElevationBand: {
+        type: 'radio',
         prompt: 'Snowpack Site Elevation Band',
-        type: 'single',
         options: ['Alpine', 'Treeline', 'Below Treeline'],
-        selected: null
+        value: null
       },
 
       snowpackSiteAspect: {
-        type: 'multiple',
+        type: 'radio',
         prompt: 'Snowpack Site Aspect',
         options: {
           'N': false,
@@ -1424,30 +1418,29 @@ angular.module('acComponents.services')
         prompt: 'Snowpack Depth (centimetres)',
         options: {
           min: 0,
-          max: 10000,
-          step: 100
+          max: 10000
         },
         helpText:'Total height of snow in centimetres. Averaged if this is a summary.'
       },
 
       snowpackWhumpfingObserved:{
+        type: 'radio',
         prompt: 'Did you observe whumpfing?',
-        type: 'single',
         options: ['Yes', 'No'],
         selected: null,
-        helpText: 'A whumpf is a rapid settlement of the snowpack caused by the collapse of a weak layer. It is accompanied by an audiable noise.'
+        helpText: 'A whumpf is a rapid settlement of the snowpack caused by the collapse of a weak layer. It is accompanied by an audible noise.'
       },
 
       snowpackCrackingObserved:{
+        type: 'radio',
         prompt: 'Did you observe cracking?',
-        type: 'single',
         options: ['Yes', 'No'],
         selected: null,
         helpText: 'Cracking is shooting cracks radiating more than a couple of metres from your sled or skis. '
       },
 
       snowpackSurfaceCondition: {
-        type: 'multiple',
+        type: 'checkbox',
         prompt: 'Surface condition',
         options: {
           'New Snow': false,
@@ -1461,58 +1454,45 @@ angular.module('acComponents.services')
 
       snowpackFootPenetration: {
         type: 'number',
-        prompt: 'Foot Penetration (centimetres)',
+        prompt: 'Foot Penetration (centimeters)',
         options: {
           min: 0,
-          max: 200,
-          step: 50
+          max: 200
         },
-        helpText:'How far  you sink into the snow when standing on one fully-weighted foot.'
+        helpText:'How far you sink into the snow when standing on one fully-weighted foot.'
       },
 
       snowpackSkiPenetration: {
         type: 'number',
-        prompt: 'Ski Penetration (centimetres)',
+        prompt: 'Ski Penetration (centimeters)',
         options: {
           min: 0,
-          max: 200,
-          step: 50
+          max: 200
         },
         helpText:'How far  you sink into the snow when standing on one fully-weighted ski.'
       },
 
       snowpackSledPenetration: {
         type: 'number',
-        prompt: 'Sled Penetration (centimetres)',
+        prompt: 'Sled Penetration (centimeters)',
         options: {
           min: 0,
-          max: 200,
-          step: 50
+          max: 200
         },
         helpText:'The depth a sled sinks into the snow after stopping slowly on level terrain.'
       },
 
       snowpackTestInitiation: {
-        type: 'multiple',
+        type: 'radio',
         prompt: 'Snowpack Test Result',
-        options: {
-          'None': false,
-          'Very Easy': false,
-          'Easy': false,
-          'Moderate': false,
-          'Hard': false
-        },
+        options: ['None', 'Very Easy', 'Easy', 'Moderate', 'Hard'],
         helpText: 'Average if you did a number of tests.'
       },
 
       snowpackTestFracture: {
         type: 'multiple',
         prompt: 'Snowpack Test Fracture Character',
-        options: {
-          'Sudden ("Pop" or "Drop")': false,
-          'Resistant': false,
-          'Uneven break': false
-        },
+        options: ['Sudden ("Pop" or "Drop")', 'Resistant', 'Uneven break'],
         helpText: 'Average if you did a number of tests. Describe further in comments if variable results.'
       },
 
@@ -1521,12 +1501,15 @@ angular.module('acComponents.services')
         prompt: 'Snowpack Test Failure Depth',
         options: {
           min: 0,
-          max: 200,
-          step: 50
+          max: 200
         },
         helpText:'Depth below the surface that failure occurred.'
       }
     };
+
+    return {
+      fields: snowpackData
+    }
   });
 
 angular.module('acComponents.services')
