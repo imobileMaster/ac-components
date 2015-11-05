@@ -34,17 +34,22 @@ angular.module('acComponents.directives')
                         }
                     },
                     reportType:{
-                      incident: '#489BDF',
-                      quick: '#B43A71',
-                      avalanche: '#489BDF',
-                      snowpack: '#B23A7E',
-                      weather: '#A43A71'
+                      incident: '#FF5252',
+                      quick: '#FFAB40',
+                      avalanche: '#83B8D3',
+                      snowpack: '#3E8C8D',
+                      weather: '#85C974'
                     }
                 };
 
                 L.mapbox.accessToken = MAPBOX_ACCESS_TOKEN;
-                var map = L.mapbox.map(el[0].id, MAPBOX_MAP_ID, {attributionControl: false});
-                map.setView([52.3, -120.74966],6);
+                var map = L.mapbox.map(el[0].id, MAPBOX_MAP_ID, {
+                  attributionControl: false,
+                  center:[52.3, -120.74966],
+                  maxZoom: 10,
+                  minZoom: 4,
+                  zoom: 6
+                });
 
               /*var provinces = L.mapbox.geocoder('mapbox.places-province-v1');
               provinces.query('British-Columbia', function (err, results) {
@@ -61,7 +66,7 @@ angular.module('acComponents.directives')
                 acBreakpoint.setBreakpoints({
                     xs: 480,
                     sm: 600,
-                    md: 1025,
+                    md: 1025
                 });
 
                 $rootScope.$on('breakpoint', function (e, breakpoint) {
@@ -202,15 +207,7 @@ angular.module('acComponents.directives')
                     }
 
                     if(layers.obs) {
-                        // var obsVisible = map.hasLayer(layers.obs);
-
-                        // if(map.getZoom() < 7 && obsVisible) {
-                        //     map.removeLayer(layers.obs);
-                        // } else if (map.getZoom() >= 7 && !obsVisible){
-                        //     map.addLayer(layers.obs);
-                        // }
-
-                        //map.addLayer(layers.obs);
+                        map.addLayer(layers.obs);
                     }
 
                     var opacity = 0.2;
@@ -249,17 +246,17 @@ angular.module('acComponents.directives')
                     }
 
                     if($scope.obs.length > 0 ) {
-                      var markers = new L.MarkerClusterGroup();
+                      var markers = new L.markerClusterGroup();
 
                       var markersList = $scope.obs.map(function (ob) {
 
-                        var marker = L.marker(ob.latlng, {
+                        var marker = L.marker(L.latLng(ob.latlng[0],ob.latlng[1]), {
                             icon: L.mapbox.marker.icon({
                                 'marker-size': 'small',
                                 'marker-color': getMarkerColor(ob.obtype)
-                            })
+                            }),
+                            zIndexOffset: 1000
                         });
-
 
                         marker.on('click', function () {
                                 acObservation.getOne(ob.obid, 'html').then(function (obHtml) {
@@ -290,7 +287,7 @@ angular.module('acComponents.directives')
                       });
 
                         markers.addLayers(markersList);
-                        map.addLayer(markers);
+                        layers.obs = markers;
                     } else {
                         layers.obs = undefined;
                     }

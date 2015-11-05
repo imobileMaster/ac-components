@@ -197,7 +197,7 @@ angular.module('acComponents.directives')
 
                 L.mapbox.accessToken = MAPBOX_ACCESS_TOKEN;
                 var map = L.mapbox.map(el[0].id, MAPBOX_MAP_ID, {attributionControl: false});
-                map.setView([52.3, -120.74966],6);
+                map.setView(L.latLng(52.3, -120.74966),6);
 
               /*var provinces = L.mapbox.geocoder('mapbox.places-province-v1');
               provinces.query('British-Columbia', function (err, results) {
@@ -402,11 +402,13 @@ angular.module('acComponents.directives')
                     }
 
                     if($scope.obs.length > 0 ) {
-                      var markers = new L.MarkerClusterGroup();
+                      var markers = new L.markerClusterGroup({
+                        maxClusterRadius: 120
+                      });
 
                       var markersList = $scope.obs.map(function (ob) {
 
-                        var marker = L.marker(ob.latlng, {
+                        var marker = L.marker(L.latLng(ob.latlng[0],ob.latlng[1]), {
                             icon: L.mapbox.marker.icon({
                                 'marker-size': 'small',
                                 'marker-color': getMarkerColor(ob.obtype)
