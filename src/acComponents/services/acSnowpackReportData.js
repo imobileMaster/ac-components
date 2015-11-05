@@ -37,16 +37,9 @@ angular.module('acComponents.services')
       snowpackSiteAspect: {
         type: 'radio',
         prompt: 'Snowpack Site Aspect',
-        options: {
-          'N': false,
-          'NE': false,
-          'E': false,
-          'SE': false,
-          'S': false,
-          'SW': false,
-          'W': false,
-          'NW': false
-        }
+        options: [
+          'N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'
+        ]
       },
 
       snowpackDepth: {
@@ -126,7 +119,7 @@ angular.module('acComponents.services')
       },
 
       snowpackTestFracture: {
-        type: 'multiple',
+        type: 'radio',
         prompt: 'Snowpack Test Fracture Character',
         options: ['Sudden ("Pop" or "Drop")', 'Resistant', 'Uneven break'],
         helpText: 'Average if you did a number of tests. Describe further in comments if variable results.'

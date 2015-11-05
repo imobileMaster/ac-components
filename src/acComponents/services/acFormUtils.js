@@ -41,7 +41,7 @@ angular.module('acComponents.services')
     };
 
     return{
-      getDTOForFileds: getDTO,
+      getDTOForFields: getDTO,
       validateFields: validate
     };
 

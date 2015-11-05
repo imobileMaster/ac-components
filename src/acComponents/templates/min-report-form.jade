@@ -111,6 +111,115 @@
                       label(for="datetime")
                       input.form-control(type="datetime", name="datetime-avalanche", ng-model="av.value", ac-datetime-picker, placeholder="Click to select date")
 
+        //
+          Weather report
+        .panel-group
+          .panel.panel-default
+            .panel-heading(style="background-color: black; color: white;")
+              h4.panel-title
+                | Weather report
+            .panel-body
+              .panel-group
+                .panel.panel-default(ng-repeat="(item, av) in report.obs.weatherReport.fields")
+                  .panel-heading
+                    h4.panel-title
+                      strong {{ av.prompt }}
+                  .panel-body
+                    .form-group
+                    p {{av.helpText}}
+                    .checkbox(ng-if="av.type=='checkbox'", ng-repeat="(option, enabled) in av.options")
+                      label
+                        input(type="checkbox", ng-model="av.options[option]")
+                        | {{option}}
+
+                    .radio(ng-if="av.type=='radio'", ng-repeat="option in av.options")
+                      label
+                        input(type="radio", ng-model="av.value", value="{{option}}")
+                        | {{option}}
+                    .number(ng-if="av.type=='number'")
+                      label
+                        input(type="number", max="{{av.options.max}}", min="{{av.options.min}}", ng-model="av.value")
+                    .select(ng-if="av.type=='dropdown'")
+                      select(ng-options="option for option in av.options", ng-model="av.value")
+                    .textarea(ng-if="av.type=='textarea'")
+                      textarea.form-control(rows="3", ng-model="av.value")
+                    .datetime-input(ng-if="av.type=='datetime'")
+                      label(for="datetime")
+                      input.form-control(type="datetime", name="datetime-avalanche", ng-model="av.value", ac-datetime-picker, placeholder="Click to select date")
+
+
+        //
+          snowpack report
+        .panel-group
+          .panel.panel-default
+            .panel-heading(style="background-color: black; color: white;")
+              h4.panel-title
+                | Snowpack report
+            .panel-body
+              .panel-group
+                .panel.panel-default(ng-repeat="(item, av) in report.obs.snowpackReport.fields")
+                  .panel-heading
+                    h4.panel-title
+                      strong {{ av.prompt }}
+                  .panel-body
+                    .form-group
+                    p {{av.helpText}}
+                    .checkbox(ng-if="av.type=='checkbox'", ng-repeat="(option, enabled) in av.options")
+                      label
+                        input(type="checkbox", ng-model="av.options[option]")
+                        | {{option}}
+
+                    .radio(ng-if="av.type=='radio'", ng-repeat="option in av.options")
+                      label
+                        input(type="radio", ng-model="av.value", value="{{option}}")
+                        | {{option}}
+                    .number(ng-if="av.type=='number'")
+                      label
+                        input(type="number", max="{{av.options.max}}", min="{{av.options.min}}", ng-model="av.value")
+                    .select(ng-if="av.type=='dropdown'")
+                      select(ng-options="option for option in av.options", ng-model="av.value")
+                    .textarea(ng-if="av.type=='textarea'")
+                      textarea.form-control(rows="3", ng-model="av.value")
+                    .datetime-input(ng-if="av.type=='datetime'")
+                      label(for="datetime")
+                      input.form-control(type="datetime", name="datetime-avalanche", ng-model="av.value", ac-datetime-picker, placeholder="Click to select date")
+
+        //
+          incident report
+        .panel-group
+          .panel.panel-default
+            .panel-heading(style="background-color: black; color: white;")
+              h4.panel-title
+                | Incident report
+            .panel-body
+              .panel-group
+                .panel.panel-default(ng-repeat="(item, av) in report.obs.incidentReport.fields")
+                  .panel-heading
+                    h4.panel-title
+                      strong {{ av.prompt }}
+                  .panel-body
+                    .form-group
+                    p {{av.helpText}}
+                    .checkbox(ng-if="av.type=='checkbox'", ng-repeat="(option, enabled) in av.options")
+                      label
+                        input(type="checkbox", ng-model="av.options[option]")
+                        | {{option}}
+
+                    .radio(ng-if="av.type=='radio'", ng-repeat="option in av.options")
+                      label
+                        input(type="radio", ng-model="av.value", value="{{option}}")
+                        | {{option}}
+                    .number(ng-if="av.type=='number'")
+                      label
+                        input(type="number", max="{{av.options.max}}", min="{{av.options.min}}", ng-model="av.value")
+                    .select(ng-if="av.type=='dropdown'")
+                      select(ng-options="option for option in av.options", ng-model="av.value")
+                    .textarea(ng-if="av.type=='textarea'")
+                      textarea.form-control(rows="3", ng-model="av.value")
+                    .datetime-input(ng-if="av.type=='datetime'")
+                      label(for="datetime")
+                      input.form-control(type="datetime", name="datetime-avalanche", ng-model="av.value", ac-datetime-picker, placeholder="Click to select date")
+
         input.btn.btn-default(type="submit", id="submit", value="Submit", ng-disabled="minsubmitting", style="border-radius:0; background-color: rgb(0, 86, 183); color: white;")
         i.fa.fa-fw.fa-lg.fa-spinner.fa-spin(ng-show="minsubmitting")
 

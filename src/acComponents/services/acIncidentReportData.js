@@ -1,11 +1,12 @@
 angular.module('acComponents.services')
-  .factory('acIncidentReportData', function() {
-    var incidentData = {
+  .service('acIncidentReportData', function() {
+
+    var fields = {
       incidentDescription: {
         prompt: 'Incident Description. No names and no judging please.',
         type: 'textarea',
         value: null
-      },
+    },
 
       groupActivity: {
         type: 'checkbox',
@@ -114,7 +115,54 @@ angular.module('acComponents.services')
       }
     };
 
-    return {
-      fields: incidentData
+    function getDTO () {
+      return _.reduce(fields, function (dtos, field, key) {
+        dtos[key] = field.getDTO();
+        return dtos;
+      }, {});
+    }
+
+    function validate () {
+      return _.reduce(fields, function (errors, field, key) {
+        var err = field.validate();
+        if (err) {
+          errors[key].push(err);
+        }
+
+        return errors;
+      });
+    }
+
+    var utils = {
+      getDTO: function () {
+        if (angular.isDefined(this.value)) {
+          return this.value;
+        } else {
+          return this.options;
+        }
+      },
+      validate: function () {
+        if (angular.isDefined(this.value)) {
+          return this.value == null;
+        } else {
+          var selected = _.reduce(this.options, function (total, option) {
+            return value ? total+1 : total;
+          },0);
+
+          return selected > this.limit;
+        }
+      }
     };
+
+    (function () {
+      _.forEach(fields, function (field) {
+        _.assign(field, utils);
+      });
+    })();
+
+    return {
+      fields: fields,
+      getDTO: getDTO,
+      validate: validate
+    }
   });

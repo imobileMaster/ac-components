@@ -34,10 +34,12 @@ angular.module('acComponents.directives')
                       avalancheReport: acAvalancheReportData,
                       incidentReport: acIncidentReportData,
                       snowpackReport: acSnowpackReportData,
-                      weatherReport: acWeatherReportData,
+                      weatherReport: acWeatherReportData
                     }
                 };
-                $scope.report = _.cloneDeep(reportTemplate);
+                //$scope.report = _.cloneDeep(reportTemplate);
+
+                $scope.report = reportTemplate;
 
                 function resetForm() {
                     $timeout(function () {
@@ -64,8 +66,10 @@ angular.module('acComponents.directives')
 
 
                     reqObj.obs = _.reduce($scope.report.obs, function(total, item, key){
-                        if (key === 'quickReport'){
+                        if (key === 'quickReport') {
                           total.quickReport = angular.copy(item);
+                        } else if (key === 'incidentReport') {
+                          total.incidentReport = item.getDTO();
                         } else {
                           total[key] = acFormUtils.getDTOForFields(item.fields);
                         }
