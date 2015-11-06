@@ -1,6 +1,6 @@
 angular.module('acComponents.services')
-  .factory('acAvalancheReportData', function() {
-    var avalancheData = {
+  .factory('acAvalancheReportData', function(acFormUtils) {
+    var fields = {
 
       avalancheObsComment: {
         prompt: 'Avalanche Observation Comment',
@@ -8,18 +8,6 @@ angular.module('acComponents.services')
         value: null,
         helpText: 'Please add additional information, for example terrain, aspect, elevation etc. especially if describing many avalanches together.'
       },
-
-      //avalancheOccurrenceDate: {
-      //  prompt: 'Avalanche Observation Date',
-      //  type: 'date',
-      //  value: null
-      //},
-      //
-      //avalancheOccurrenceTime: {
-      //  prompt: 'Avalanche Observation Time',
-      //  type: 'time',
-      //  value: null
-      //},
 
       avalancheOccurrenceEpoch: {
         prompt: 'Avalanche Observation Datetime',
@@ -34,7 +22,6 @@ angular.module('acComponents.services')
         options: ['1', '2-5', '6-10', '11-50', '51-100'],
         value: null
       },
-
 
       avalancheSize: {
         prompt: 'Avalanche Size',
@@ -138,7 +125,6 @@ angular.module('acComponents.services')
         value: null
       },
 
-
       startZoneElevation: {
         type: 'number',
         prompt: 'Start Zone Elevation (metres above sea level)',
@@ -216,10 +202,35 @@ angular.module('acComponents.services')
 
     };
 
-    return {
-      fields: avalancheData
-    };
+    function getDTO () {
+      return _.reduce(fields, function (dtos, field, key) {
+        dtos[key] = field.getDTO();
+        return dtos;
+      }, {});
+    }
 
+    function validate () {
+      return _.reduce(fields, function (errors, field, key) {
+        var err = field.validate();
+        if (err) {
+          errors[key].push(err);
+        }
+
+        return errors;
+      });
+    }
+
+    (function () {
+      _.forEach(fields, function (field) {
+        _.assign(field, acFormUtils.assignUtils(field));
+      });
+    })();
+
+    return {
+      fields: fields,
+      getDTO: getDTO,
+      validate: validate
+    }
 
 
   });

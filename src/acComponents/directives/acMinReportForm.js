@@ -68,16 +68,14 @@ angular.module('acComponents.directives')
                     reqObj.obs = _.reduce($scope.report.obs, function(total, item, key){
                         if (key === 'quickReport') {
                           total.quickReport = angular.copy(item);
-                        } else if (key === 'incidentReport') {
-                          total.incidentReport = item.getDTO();
                         } else {
-                          total[key] = acFormUtils.getDTOForFields(item.fields);
+                          total[key] = item.getDTO();
                         }
                         return total;
                     }, {});
 
                     console.log('to be sent: ', reqObj.obs);
-
+//return;
                     var token = store.get('token');
                     if (token) {
                         $scope.minsubmitting = true;

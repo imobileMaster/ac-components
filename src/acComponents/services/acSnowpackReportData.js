@@ -1,7 +1,7 @@
 angular.module('acComponents.services')
-  .factory('acSnowpackReportData', function() {
+  .factory('acSnowpackReportData', function(acFormUtils) {
 
-    var snowpackData = {
+    var fields = {
 
       snowpackObsType: {
         type: 'radio',
@@ -136,7 +136,33 @@ angular.module('acComponents.services')
       }
     };
 
+    function getDTO () {
+      return _.reduce(fields, function (dtos, field, key) {
+        dtos[key] = field.getDTO();
+        return dtos;
+      }, {});
+    }
+
+    function validate () {
+      return _.reduce(fields, function (errors, field, key) {
+        var err = field.validate();
+        if (err) {
+          errors[key].push(err);
+        }
+
+        return errors;
+      });
+    }
+
+    (function () {
+      _.forEach(fields, function (field) {
+        _.assign(field, acFormUtils.assignUtils(field));
+      });
+    })();
+
     return {
-      fields: snowpackData
+      fields: fields,
+      getDTO: getDTO,
+      validate: validate
     }
   });

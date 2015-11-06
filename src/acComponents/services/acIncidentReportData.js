@@ -1,5 +1,5 @@
 angular.module('acComponents.services')
-  .service('acIncidentReportData', function() {
+  .service('acIncidentReportData', function(acFormUtils) {
 
     var fields = {
       incidentDescription: {
@@ -133,30 +133,9 @@ angular.module('acComponents.services')
       });
     }
 
-    var utils = {
-      getDTO: function () {
-        if (angular.isDefined(this.value)) {
-          return this.value;
-        } else {
-          return this.options;
-        }
-      },
-      validate: function () {
-        if (angular.isDefined(this.value)) {
-          return this.value == null;
-        } else {
-          var selected = _.reduce(this.options, function (total, option) {
-            return value ? total+1 : total;
-          },0);
-
-          return selected > this.limit;
-        }
-      }
-    };
-
     (function () {
       _.forEach(fields, function (field) {
-        _.assign(field, utils);
+        _.assign(field, acFormUtils.assignUtils(field));
       });
     })();
 

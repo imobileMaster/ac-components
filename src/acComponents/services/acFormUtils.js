@@ -40,46 +40,12 @@ angular.module('acComponents.services')
       datetime: inputDefault
     };
 
-    return{
-      getDTOForFields: getDTO,
-      validateFields: validate
+    return {
+      assignUtils: assignUtils
     };
 
-
-    function assignDTO(fields){
-      _.forEach(fields, function (field){
-        if (angular.isDefined(field.type)){
-          field.getDTO = inputTypes[field.type].getDTO.bind(field);
-        }
-      });
+    function assignUtils(field) {
+      return inputTypes[field.type];
     }
-
-    function getDTO (fields) {
-      assignDTO(fields);
-      return _.reduce(fields, function (dtos, field, key) {
-        dtos[key] = field.getDTO();
-        return dtos;
-      }, {});
-    }
-
-    function assignValidation(fields){
-      _.forEach(fields, function (field){
-        if (angular.isDefined(field.type)){
-          field.validate = inputTypes[field.type].validate.bind(field);
-        }
-      });
-    }
-
-    function validate(fields){
-      assignValidation(fields);
-
-      return _.reduce(fields, function (errors, field, key) {
-        if (!field.validate()){
-          errors.push(field.prompt);
-        }
-        return errors;
-      }, []);
-    }
-
 
   });
