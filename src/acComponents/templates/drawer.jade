@@ -36,14 +36,21 @@
             padding-left: 4px;
         }
 
+
     a.ac-drawer-close.visible-xs(ng-click="drawer.visible = false")
         i.fa.fa-close.fa-lg
     .ac-drawer-tools
         ul
             li(ng-click="drawer.enabled = !drawer.enabled; regionsVisible = !regionsVisible;", ng-class="{on: drawer.visible && drawer.enabled}", style="margin-bottom: 50px;")
                 div(ac-danger-icon, style="height: 50px; width:50px;")
-            li(ng-click="toggleFilter()", ng-class="{on: filters.obsPeriod !== ''}", style="padding-top: 11px; padding-left: 15px;")
-                i.fa.fa-map-marker.fa-inverse.fa-2x
+            li.ac-date-filters(style="background-color: transparent;")
+              ul.list-inline(ng-init="expandedMin = false", ng-class="{expanded: expandedMin}")
+                li.on(ng-click="expandedMin = !expandedMin")
+                  i.fa.fa-map-marker.fa-inverse.fa-2x
+                  span  Filters
+                li(ng-repeat="minFilter in minFilters", ng-click="toggleFilter('minFilter:'+ minFilter)", ng-class="{on: getMinFilters(minFilter)}")
+                  i.fa.fa-map-marker.fa-inverse.fa-2x
+                  span {{ minFilter }}
             li.ac-date-filters(ng-click="expanded = true", style="background-color: transparent;")
                 ul.list-inline(ng-class="{expanded: expanded}", ng-init="expanded = false")
                     li(ng-repeat="dateFilter in dateFilters", ng-click="toggleFilter('obsPeriod:'+dateFilter)", ng-class="{on: filters.obsPeriod === dateFilter}")

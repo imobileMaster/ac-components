@@ -8,7 +8,8 @@ angular.module('acComponents.directives')
                 regions: '=acRegions',
                 showRegions: '=acShowRegions',
                 obs: '=acObs',
-                ob: '=acOb'
+                ob: '=acOb',
+                minFilters:'=acMinFilters'
             },
             link: function ($scope, el, attrs) {
                 $scope.device = {};
@@ -39,7 +40,8 @@ angular.module('acComponents.directives')
                       avalanche: '#83B8D3',
                       snowpack: '#3E8C8D',
                       weather: '#85C974'
-                    }
+                    },
+                    clusterColor: '#4B6D6F'
                 };
 
                 L.mapbox.accessToken = MAPBOX_ACCESS_TOKEN;
@@ -50,6 +52,7 @@ angular.module('acComponents.directives')
                   minZoom: 4,
                   zoom: 6
                 });
+                var clusterOverlays = L.layerGroup().addTo(map);
 
               /*var provinces = L.mapbox.geocoder('mapbox.places-province-v1');
               provinces.query('British-Columbia', function (err, results) {
@@ -57,7 +60,7 @@ angular.module('acComponents.directives')
                   map.fitBounds(bcBounds);
               });*/
 
-                L.control.locate({
+              L.control.locate({
                     locateOptions: {
                         maxZoom: 14
                     }
@@ -207,7 +210,7 @@ angular.module('acComponents.directives')
                     }
 
                     if(layers.obs) {
-                        map.addLayer(layers.obs);
+                        //map.addLayer(layers.obs);
                     }
 
                     var opacity = 0.2;
@@ -234,62 +237,59 @@ angular.module('acComponents.directives')
                             layers.currentRegion.setStyle(styles.region.default);
                         }
                     }
+
+                    getFilters();
                 }
 
                 function getMarkerColor(type){
                   return styles.reportType[type];
                 }
 
+                function getFilters(){
+
+                }
+
                 function refreshObsLayer() {
-                    if (map.hasLayer(layers.obs)){
-                        map.removeLayer(layers.obs);
-                    }
+                    clusterOverlays.clearLayers();
 
                     if($scope.obs.length > 0 ) {
-                      var markers = new L.markerClusterGroup();
+                      var markers = new L.markerClusterGroup().addTo(clusterOverlays);
 
-                      var markersList = $scope.obs.map(function (ob) {
+                       $scope.obs.map(function (ob) {
 
-                        var marker = L.marker(L.latLng(ob.latlng[0],ob.latlng[1]), {
-                            icon: L.mapbox.marker.icon({
-                                'marker-size': 'small',
-                                'marker-color': getMarkerColor(ob.obtype)
-                            }),
+                        var marker = L.mapbox.featureLayer({
+                          type: 'Feature',
+                          geometry: {
+                            type: 'Point',
+                            coordinates: [ob.latlng[1],ob.latlng[0]]
+                          },
+                          properties: {
+                            'marker-size': 'small',
+                            'marker-color': getMarkerColor(ob.obtype),
                             zIndexOffset: 1000
+                          }
+                        })
+                          .setFilter(function() {
+                            if(_.indexOf($scope.minFilters, ob.obtype) !== -1){
+                              return true;
+                            } else {
+                              return false;
+                            }
+                          });
+
+                         marker.on('click', function (e){
+
+                         });
+
+                        marker.eachLayer(function (layer){
+                          markers.addLayer(layer);
                         });
 
-                        marker.on('click', function () {
-                                acObservation.getOne(ob.obid, 'html').then(function (obHtml) {
-                                    if($scope.device.size === 'sm' || $scope.device.size === 'xs') {
-                                        $scope.$emit('ac.min.obclicked', obHtml);
-                                    } else {
-                                        var popup = marker.getPopup();
-
-                                        if(!popup) {
-                                            var maxHeight = map.getSize().y - 100;
-                                            popup = L.popup({maxHeight: maxHeight, maxWidth: 400, autoPanPaddingTopLeft: [0, 30]});
-                                            popup.setContent(obHtml);
-                                            marker.bindPopup(popup);
-                                        }
-
-                                        marker.openPopup();
-                                    }
-                                });
-                                acObservation.getOne(ob.obid, 'json').then(function (ob) {
-                                    // add opengraph tags
-                                    $rootScope.ogTags  = [ {type: 'title', value: ob.title},
-                                                 {type: 'image', value: ob.thumbs[0]},
-                                                 {type: 'description', value: ob.comment}];
-                                });
-                            });
-
-                        return marker;
                       });
 
-                        markers.addLayers(markersList);
-                        layers.obs = markers;
-                    } else {
-                        layers.obs = undefined;
+                    } else{
+
+                      clusterOverlays.clearLayers();
                     }
 
                     refreshLayers();
@@ -406,6 +406,12 @@ angular.module('acComponents.directives')
                         refreshObsLayer();
                     }
                 });
+
+                $scope.$watch('minFilters', function (newObs, oldObs) {
+                  if(newObs) {
+                    refreshObsLayer();
+                  }
+                },true);
 
                 $scope.$watch('ob', function (newObs, oldObs) {
                     if(newObs && newObs.latlng) {
