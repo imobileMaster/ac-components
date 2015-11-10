@@ -72,4 +72,9 @@ angular.module('acComponents.services')
                 }
             }
         };
-    });
+
+        this.isCompleted = function () {
+          return true;
+        }
+  }
+    );

@@ -5,8 +5,10 @@ angular.module('acComponents.services')
       incidentDescription: {
         prompt: 'Incident Description. No names and no judging please.',
         type: 'textarea',
-        value: null
-    },
+        value: null,
+        guidelines: 'http://www.avalanche.ca/fxresources/Submissions+Guidelines.pdf',
+        order: 1
+      },
 
       groupActivity: {
         type: 'checkbox',
@@ -20,7 +22,8 @@ angular.module('acComponents.services')
           'Tobogganing': false,
           'Other': false
         },
-        helpText: 'If other, please describe in Incident Description.'
+        helpText: 'If other, please describe in Incident Description.',
+        order: 2
       },
 
       groupSize: {
@@ -30,7 +33,8 @@ angular.module('acComponents.services')
           'min': 0,
           'max': 100
         },
-        value: null
+        value: null,
+        order: 3
       },
 
       numberFullyBuried: {
@@ -40,7 +44,8 @@ angular.module('acComponents.services')
           'min': 0,
           'max': 100
         },
-        value: null
+        value: null,
+        order: 4
       },
 
       numberPartlyBuriedImpairedBreathing: {
@@ -50,7 +55,8 @@ angular.module('acComponents.services')
           'min': 0,
           'max': 100
         },
-        value: null
+        value: null,
+        order: 5
       },
 
       numberPartlyBuriedAbleBreathing: {
@@ -60,7 +66,8 @@ angular.module('acComponents.services')
           'min': 0,
           'max': 100
         },
-        value: null
+        value: null,
+        order: 6
       },
 
       numberCaughtOnly: {
@@ -70,7 +77,8 @@ angular.module('acComponents.services')
           'min': 0,
           'max': 100
         },
-        value: null
+        value: null,
+        order: 7
       },
 
       numberPeopleInjured: {
@@ -80,7 +88,8 @@ angular.module('acComponents.services')
           'min': 0,
           'max': 400
         },
-        value: null
+        value: null,
+        order: 8
       },
 
       terrainShapeTriggerPoint: {
@@ -89,7 +98,8 @@ angular.module('acComponents.services')
         prompt: 'Terrain shape at Trigger Point',
         options: ['Convex', 'Planar', 'Concave', 'Unsupported'],
         value: null,
-        helpText: 'Convex: a roll. Concave: bowl-shaped. Planar: smooth with no significant convexities or concavities. Unsupported: a slope that drops off abruptly at the bottom.'
+        helpText: 'Convex: a roll. Concave: bowl-shaped. Planar: smooth with no significant convexities or concavities. Unsupported: a slope that drops off abruptly at the bottom.',
+        order: 9
       },
 
       snowDepthTriggerPoint: {
@@ -98,7 +108,8 @@ angular.module('acComponents.services')
         prompt: 'Snow depth at Trigger Point',
         options: ['Shallow', 'Deep', 'Average', 'Variable'],
         helpText: 'The depth of the snowpack compared to the average conditions in the area. Shallow: shallower than average. Deep: deeper than average. Average: about the same as everywhere else. Variable: depth varies significantly in the place where the avalanche started.',
-        value: null
+        value: null,
+        order: 10
       },
 
       terrainTrap: {
@@ -111,37 +122,10 @@ angular.module('acComponents.services')
           'Trees': false,
           'Cliff': false
         },
-        helpText: 'Terrain traps are features that increase the consequences of an avalanche.'
+        helpText: 'Terrain traps are features that increase the consequences of an avalanche.',
+        order: 11
       }
     };
 
-    function getDTO () {
-      return _.reduce(fields, function (dtos, field, key) {
-        dtos[key] = field.getDTO();
-        return dtos;
-      }, {});
-    }
-
-    function validate () {
-      return _.reduce(fields, function (errors, field, key) {
-        var err = field.validate();
-        if (err) {
-          errors[key].push(err);
-        }
-
-        return errors;
-      });
-    }
-
-    (function () {
-      _.forEach(fields, function (field) {
-        _.assign(field, acFormUtils.assignUtils(field));
-      });
-    })();
-
-    return {
-      fields: fields,
-      getDTO: getDTO,
-      validate: validate
-    }
+    return acFormUtils.buildReport(fields);
   });

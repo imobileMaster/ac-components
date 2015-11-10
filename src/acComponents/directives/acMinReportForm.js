@@ -20,7 +20,43 @@ angular.module('acComponents.directives')
             replace: true,
             link: function($scope, el, attrs) {
 
-                var reportTemplate = {
+                initReport();
+
+                $scope.additionalFields = {
+                  avalancheReport : {
+                    name: 'Avalanche',
+                    text: 'Add Avalanche information, then build a comprehensive report by filling out details on other observation tabs: Snow, Weather and Incident.'
+                  },
+                  snowpackReport : {
+                    name: 'Snow',
+                    text: 'Add Snow information, then build a comprehensive report by filling out details on other observation tabs: Avalanche, Weather and Incident.'
+                  },
+                  weatherReport : {
+                    name: 'Weather',
+                    text: 'Add Weather information, then build a comprehensive report by filling out details on other observation tabs: Snow, Weather and Incident.'
+                  },
+                  incidentReport : {
+                    name: 'Incident',
+                    text: 'Add Incident information, then build a comprehensive report by filling out details on other observation tabs: Avalanche, Snow and Weather.'
+                  }
+                };
+
+                $scope.getTabExtraClasses = function (tab) {
+                  return {
+                    completed: tabCompleted(tab)
+                  }
+                };
+
+                function tabCompleted (tab) {
+                  if (tab === 'quickReport') {
+                    return acQuickReportData.isCompleted();
+                  } else {
+                    return $scope.report.obs[tab].isCompleted();
+                  }
+                }
+
+                function initReport() {
+                  $scope.report = {
                     title: 'auto: Quick Report',
                     datetime: moment().format('YYYY-MM-DD hh:mm A'),
                     latlng: [],
@@ -36,26 +72,23 @@ angular.module('acComponents.directives')
                       snowpackReport: acSnowpackReportData,
                       weatherReport: acWeatherReportData
                     }
-                };
-                //$scope.report = _.cloneDeep(reportTemplate);
-
-                $scope.report = reportTemplate;
+                  };
+                }
 
                 function resetForm() {
                     $timeout(function () {
-                        for (var field in $scope.report) {
-                            if(field in reportTemplate) {
-                                if(field === 'ridingConditions' || field === 'avalancheConditions'){
-                                    $scope.report[field] = angular.copy(reportTemplate[field]);
-                                } else {
-                                    $scope.report[field] = reportTemplate[field];
-                                }
-                            }
-                        }
-                        delete $scope.report.subid;
+                        resetFields();
+                        initReport();
                         $scope.minsubmitting = false;
                         $scope.minerror = false;
                     }, 0);
+                }
+
+                function resetFields() {
+                  acAvalancheReportData.reset();
+                  acIncidentReportData.reset();
+                  acSnowpackReportData.reset();
+                  acWeatherReportData.reset();
                 }
 
                 $scope.resetForm = resetForm;
@@ -68,7 +101,7 @@ angular.module('acComponents.directives')
                     reqObj.obs = _.reduce($scope.report.obs, function(total, item, key){
                         if (key === 'quickReport') {
                           total.quickReport = angular.copy(item);
-                        } else {
+                        } else if (item.isCompleted()){
                           total[key] = item.getDTO();
                         }
                         return total;

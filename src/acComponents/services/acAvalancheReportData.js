@@ -6,13 +6,15 @@ angular.module('acComponents.services')
         prompt: 'Avalanche Observation Comment',
         type: 'textarea',
         value: null,
-        helpText: 'Please add additional information, for example terrain, aspect, elevation etc. especially if describing many avalanches together.'
+        helpText: 'Please add additional information, for example terrain, aspect, elevation etc. especially if describing many avalanches together.',
+        order: 1
       },
 
       avalancheOccurrenceEpoch: {
         prompt: 'Avalanche Observation Datetime',
         type: 'datetime',
-        value: null
+        value: null,
+        order: 2
       },
 
       avalancheNumber: {
@@ -20,7 +22,8 @@ angular.module('acComponents.services')
         type: 'radio',
         inline: true,
         options: ['1', '2-5', '6-10', '11-50', '51-100'],
-        value: null
+        value: null,
+        order: 3
       },
 
       avalancheSize: {
@@ -29,7 +32,8 @@ angular.module('acComponents.services')
         inline: true,
         value: null,
         options: ['1', '1.5', '2', '2.5', '3', '3.5', '4', '4.5', '5'],
-        helpText: 'Use Canadian size classification. Size 1 is relatively harmless to people. Size 2 can bury, injure or kill a person. Size 3 can bury and destroy a car. Size 4 can destroy a railway car. Size 5 can destroy 40 hectares of forest.'
+        helpText: 'Use Canadian size classification. Size 1 is relatively harmless to people. Size 2 can bury, injure or kill a person. Size 3 can bury and destroy a car. Size 4 can destroy a railway car. Size 5 can destroy 40 hectares of forest.',
+        order: 4
       },
 
       slabThickness: {
@@ -40,7 +44,8 @@ angular.module('acComponents.services')
           min: 10,
           max: 500,
           step: 10
-        }
+        },
+        order: 5
       },
 
       slabWidth: {
@@ -51,7 +56,8 @@ angular.module('acComponents.services')
           min: 1,
           max: 3000,
           step: 100
-        }
+        },
+        order: 6
       },
 
       runLength: {
@@ -63,7 +69,8 @@ angular.module('acComponents.services')
           step: 100
         },
         value: null,
-        helpText: 'Length from crown to toe of debris.'
+        helpText: 'Length from crown to toe of debris.',
+        order: 7
       },
 
       avalancheCharacter: {
@@ -79,14 +86,16 @@ angular.module('acComponents.services')
           'Wet slab': false,
           'Cornice only': false,
           'Cornice with slab': false
-        }
+        },
+        order: 8
       },
 
       triggerType: {
         type: 'dropdown',
         prompt: 'Trigger Type',
         options:['Natural', 'Skier', 'Snowmobile', 'Other Vehicle', 'Helicopter', 'Explosives'],
-        value: null
+        value: null,
+        order: 9
       },
 
       triggerSubtype: {
@@ -94,7 +103,8 @@ angular.module('acComponents.services')
         prompt: 'Trigger Subtype',
         value: null,
         options: ['Accidental', 'Intentional', 'Remote'],
-        helpText: 'A remote trigger is when the avalanche starts some distance away from where the trigger was  applied.'
+        helpText: 'A remote trigger is when the avalanche starts some distance away from where the trigger was  applied.',
+        order: 10
       },
 
       triggerDistance: {
@@ -106,7 +116,8 @@ angular.module('acComponents.services')
           step: 50
         },
         helpText: 'If a remote trigger, enter how far from the trigger point is the nearest part of the crown.',
-        value: null
+        value: null,
+        order: 11
       },
 
       startZoneAspect: {
@@ -114,7 +125,8 @@ angular.module('acComponents.services')
         inline: true,
         prompt: 'Start Zone Aspect',
         options: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'],
-        value: null
+        value: null,
+        order: 12
       },
 
       startZoneElevationBand: {
@@ -122,7 +134,8 @@ angular.module('acComponents.services')
         type: 'radio',
         inline: true,
         options: ['Alpine', 'Treeline', 'Below Treeline'],
-        value: null
+        value: null,
+        order: 13
       },
 
       startZoneElevation: {
@@ -133,7 +146,8 @@ angular.module('acComponents.services')
           max: 5000,
           step: 50
         },
-        value: null
+        value: null,
+        order: 14
       },
 
       startZoneIncline: {
@@ -144,7 +158,8 @@ angular.module('acComponents.services')
           max: 90,
           step: 5
         },
-        value: null
+        value: null,
+        order: 15
       },
 
       runoutZoneElevation: {
@@ -156,13 +171,16 @@ angular.module('acComponents.services')
           step: 50
         },
         helpText: 'The lowest point of the debris.',
-        value: null
+        value: null,
+        order: 16
+
       },
 
       weakLayerBurialDate: {
         prompt: 'Weak Layer Burial Date',
         type: 'datetime',
-        helpText:'Date the weak layer was buried.'
+        helpText:'Date the weak layer was buried.',
+        order: 17
       },
 
       weakLayerCrystalType: {
@@ -175,7 +193,8 @@ angular.module('acComponents.services')
           'Surface hoar and facets': false,
           'Depth hoar': false,
           'Storm snow': false
-        }
+        },
+        order: 18
       },
 
       crustNearWeakLayer:{
@@ -183,54 +202,28 @@ angular.module('acComponents.services')
         type: 'radio',
         inline: true,
         options: ['Yes', 'No'],
-        value: null
+        value: null,
+        order: 19
       },
 
       windExposure: {
         type: 'dropdown',
         prompt: 'Wind Exposure',
         options: ['Lee slope', 'Windward slope', 'Down flow', 'Cross-loaded slope', 'Reverse-loaded slope', 'No wind exposure'],
-        value: null
+        value: null,
+        order: 20
       },
 
       vegetationCover: {
         type: 'dropdown',
         prompt: 'Vegetation cover',
         value: null,
-        options: ['Open slope', 'Sparse trees or gladed slope', 'Dense trees']
+        options: ['Open slope', 'Sparse trees or gladed slope', 'Dense trees'],
+        order: 21
       }
 
     };
 
-    function getDTO () {
-      return _.reduce(fields, function (dtos, field, key) {
-        dtos[key] = field.getDTO();
-        return dtos;
-      }, {});
-    }
-
-    function validate () {
-      return _.reduce(fields, function (errors, field, key) {
-        var err = field.validate();
-        if (err) {
-          errors[key].push(err);
-        }
-
-        return errors;
-      });
-    }
-
-    (function () {
-      _.forEach(fields, function (field) {
-        _.assign(field, acFormUtils.assignUtils(field));
-      });
-    })();
-
-    return {
-      fields: fields,
-      getDTO: getDTO,
-      validate: validate
-    }
-
+    return acFormUtils.buildReport(fields);
 
   });

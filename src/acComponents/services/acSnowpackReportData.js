@@ -3,18 +3,20 @@ angular.module('acComponents.services')
 
     var fields = {
 
+      snowpackObsComment: {
+        type: 'textarea',
+        prompt: 'Snowpack Observation Comment',
+        value: null,
+        order: 1
+      },
+
       snowpackObsType: {
         type: 'radio',
         prompt: 'Is this a point observation or a summary of your day?',
         options: ['Point Observation', 'Summary'],
         value: null,
-        helpText: 'Please add additional information about the snowpack, especially notes about weak layer, how the snow varied by aspect/elevation, and details of any slope testing performed.'
-      },
-
-      snowpackObsComment: {
-        type: 'textarea',
-        prompt: 'Snowpack Observation Comment',
-        value: null
+        helpText: 'Please add additional information about the snowpack, especially notes about weak layer, how the snow varied by aspect/elevation, and details of any slope testing performed.',
+        order: 2
       },
 
       snowpackSiteElevation: {
@@ -24,22 +26,23 @@ angular.module('acComponents.services')
           min: 0,
           max: 4000
         },
-        value: null
+        value: null,
+        order: 3
       },
 
       snowpackSiteElevationBand: {
         type: 'radio',
         prompt: 'Snowpack Site Elevation Band',
         options: ['Alpine', 'Treeline', 'Below Treeline'],
-        value: null
+        value: null,
+        order: 4
       },
 
       snowpackSiteAspect: {
         type: 'radio',
         prompt: 'Snowpack Site Aspect',
-        options: [
-          'N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'
-        ]
+        options: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'],
+        order: 5
       },
 
       snowpackDepth: {
@@ -49,7 +52,8 @@ angular.module('acComponents.services')
           min: 0,
           max: 10000
         },
-        helpText:'Total height of snow in centimetres. Averaged if this is a summary.'
+        helpText:'Total height of snow in centimetres. Averaged if this is a summary.',
+        order: 6
       },
 
       snowpackWhumpfingObserved:{
@@ -57,7 +61,8 @@ angular.module('acComponents.services')
         prompt: 'Did you observe whumpfing?',
         options: ['Yes', 'No'],
         selected: null,
-        helpText: 'A whumpf is a rapid settlement of the snowpack caused by the collapse of a weak layer. It is accompanied by an audible noise.'
+        helpText: 'A whumpf is a rapid settlement of the snowpack caused by the collapse of a weak layer. It is accompanied by an audible noise.',
+        order: 7
       },
 
       snowpackCrackingObserved:{
@@ -65,7 +70,8 @@ angular.module('acComponents.services')
         prompt: 'Did you observe cracking?',
         options: ['Yes', 'No'],
         selected: null,
-        helpText: 'Cracking is shooting cracks radiating more than a couple of metres from your sled or skis. '
+        helpText: 'Cracking is shooting cracks radiating more than a couple of metres from your sled or skis.',
+        order: 8
       },
 
       snowpackSurfaceCondition: {
@@ -78,7 +84,8 @@ angular.module('acComponents.services')
           'Facets': false,
           'Corn': false,
           'Variable': false
-        }
+        },
+        order: 9
       },
 
       snowpackFootPenetration: {
@@ -88,7 +95,8 @@ angular.module('acComponents.services')
           min: 0,
           max: 200
         },
-        helpText:'How far you sink into the snow when standing on one fully-weighted foot.'
+        helpText:'How far you sink into the snow when standing on one fully-weighted foot.',
+        order: 10
       },
 
       snowpackSkiPenetration: {
@@ -98,7 +106,8 @@ angular.module('acComponents.services')
           min: 0,
           max: 200
         },
-        helpText:'How far  you sink into the snow when standing on one fully-weighted ski.'
+        helpText:'How far  you sink into the snow when standing on one fully-weighted ski.',
+        order: 11
       },
 
       snowpackSledPenetration: {
@@ -108,21 +117,24 @@ angular.module('acComponents.services')
           min: 0,
           max: 200
         },
-        helpText:'The depth a sled sinks into the snow after stopping slowly on level terrain.'
+        helpText:'The depth a sled sinks into the snow after stopping slowly on level terrain.',
+        order: 12
       },
 
       snowpackTestInitiation: {
         type: 'radio',
         prompt: 'Snowpack Test Result',
         options: ['None', 'Very Easy', 'Easy', 'Moderate', 'Hard'],
-        helpText: 'Average if you did a number of tests.'
+        helpText: 'Average if you did a number of tests.',
+        order: 13
       },
 
       snowpackTestFracture: {
         type: 'radio',
         prompt: 'Snowpack Test Fracture Character',
         options: ['Sudden ("Pop" or "Drop")', 'Resistant', 'Uneven break'],
-        helpText: 'Average if you did a number of tests. Describe further in comments if variable results.'
+        helpText: 'Average if you did a number of tests. Describe further in comments if variable results.',
+        order: 14
       },
 
       snowpackTestFailure: {
@@ -132,37 +144,11 @@ angular.module('acComponents.services')
           min: 0,
           max: 200
         },
-        helpText:'Depth below the surface that failure occurred.'
+        helpText:'Depth below the surface that failure occurred.',
+        order: 15
       }
     };
 
-    function getDTO () {
-      return _.reduce(fields, function (dtos, field, key) {
-        dtos[key] = field.getDTO();
-        return dtos;
-      }, {});
-    }
+    return acFormUtils.buildReport(fields);
 
-    function validate () {
-      return _.reduce(fields, function (errors, field, key) {
-        var err = field.validate();
-        if (err) {
-          errors[key].push(err);
-        }
-
-        return errors;
-      });
-    }
-
-    (function () {
-      _.forEach(fields, function (field) {
-        _.assign(field, acFormUtils.assignUtils(field));
-      });
-    })();
-
-    return {
-      fields: fields,
-      getDTO: getDTO,
-      validate: validate
-    }
   });
