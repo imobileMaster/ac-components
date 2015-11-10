@@ -216,7 +216,8 @@ angular.module('acComponents.directives')
               L.control.locate({
                     locateOptions: {
                         maxZoom: 14
-                    }
+                    },
+                  
                 }).addTo(map);
 
                 acBreakpoint.setBreakpoints({
@@ -673,16 +674,14 @@ angular.module('acComponents.directives')
                     reqObj.obs = _.reduce($scope.report.obs, function(total, item, key){
                         if (key === 'quickReport') {
                           total.quickReport = angular.copy(item);
-                        } else if (key === 'incidentReport') {
-                          total.incidentReport = item.getDTO();
                         } else {
-                          total[key] = acFormUtils.getDTOForFields(item.fields);
+                          total[key] = item.getDTO();
                         }
                         return total;
                     }, {});
 
                     console.log('to be sent: ', reqObj.obs);
-
+//return;
                     var token = store.get('token');
                     if (token) {
                         $scope.minsubmitting = true;
@@ -752,8 +751,8 @@ angular.module('acComponents.filters')
     });
 
 angular.module('acComponents.services')
-  .factory('acAvalancheReportData', function() {
-    var avalancheData = {
+  .factory('acAvalancheReportData', ["acFormUtils", function(acFormUtils) {
+    var fields = {
 
       avalancheObsComment: {
         prompt: 'Avalanche Observation Comment',
@@ -761,18 +760,6 @@ angular.module('acComponents.services')
         value: null,
         helpText: 'Please add additional information, for example terrain, aspect, elevation etc. especially if describing many avalanches together.'
       },
-
-      //avalancheOccurrenceDate: {
-      //  prompt: 'Avalanche Observation Date',
-      //  type: 'date',
-      //  value: null
-      //},
-      //
-      //avalancheOccurrenceTime: {
-      //  prompt: 'Avalanche Observation Time',
-      //  type: 'time',
-      //  value: null
-      //},
 
       avalancheOccurrenceEpoch: {
         prompt: 'Avalanche Observation Datetime',
@@ -787,7 +774,6 @@ angular.module('acComponents.services')
         options: ['1', '2-5', '6-10', '11-50', '51-100'],
         value: null
       },
-
 
       avalancheSize: {
         prompt: 'Avalanche Size',
@@ -891,7 +877,6 @@ angular.module('acComponents.services')
         value: null
       },
 
-
       startZoneElevation: {
         type: 'number',
         prompt: 'Start Zone Elevation (metres above sea level)',
@@ -969,13 +954,38 @@ angular.module('acComponents.services')
 
     };
 
+    function getDTO () {
+      return _.reduce(fields, function (dtos, field, key) {
+        dtos[key] = field.getDTO();
+        return dtos;
+      }, {});
+    }
+
+    function validate () {
+      return _.reduce(fields, function (errors, field, key) {
+        var err = field.validate();
+        if (err) {
+          errors[key].push(err);
+        }
+
+        return errors;
+      });
+    }
+
+    (function () {
+      _.forEach(fields, function (field) {
+        _.assign(field, acFormUtils.assignUtils(field));
+      });
+    })();
+
     return {
-      fields: avalancheData
-    };
+      fields: fields,
+      getDTO: getDTO,
+      validate: validate
+    }
 
 
-
-  });
+  }]);
 
 angular.module('acComponents.services')
     .factory('acBreakpoint', ["$rootScope", "$timeout", "$window", function ($rootScope, $timeout, $window) {
@@ -1096,47 +1106,13 @@ angular.module('acComponents.services')
       datetime: inputDefault
     };
 
-    return{
-      getDTOForFields: getDTO,
-      validateFields: validate
+    return {
+      assignUtils: assignUtils
     };
 
-
-    function assignDTO(fields){
-      _.forEach(fields, function (field){
-        if (angular.isDefined(field.type)){
-          field.getDTO = inputTypes[field.type].getDTO.bind(field);
-        }
-      });
+    function assignUtils(field) {
+      return inputTypes[field.type];
     }
-
-    function getDTO (fields) {
-      assignDTO(fields);
-      return _.reduce(fields, function (dtos, field, key) {
-        dtos[key] = field.getDTO();
-        return dtos;
-      }, {});
-    }
-
-    function assignValidation(fields){
-      _.forEach(fields, function (field){
-        if (angular.isDefined(field.type)){
-          field.validate = inputTypes[field.type].validate.bind(field);
-        }
-      });
-    }
-
-    function validate(fields){
-      assignValidation(fields);
-
-      return _.reduce(fields, function (errors, field, key) {
-        if (!field.validate()){
-          errors.push(field.prompt);
-        }
-        return errors;
-      }, []);
-    }
-
 
   });
 
@@ -1151,7 +1127,7 @@ angular.module('acComponents.services')
         };
     }]);
 angular.module('acComponents.services')
-  .service('acIncidentReportData', function() {
+  .service('acIncidentReportData', ["acFormUtils", function(acFormUtils) {
 
     var fields = {
       incidentDescription: {
@@ -1285,30 +1261,9 @@ angular.module('acComponents.services')
       });
     }
 
-    var utils = {
-      getDTO: function () {
-        if (angular.isDefined(this.value)) {
-          return this.value;
-        } else {
-          return this.options;
-        }
-      },
-      validate: function () {
-        if (angular.isDefined(this.value)) {
-          return this.value == null;
-        } else {
-          var selected = _.reduce(this.options, function (total, option) {
-            return value ? total+1 : total;
-          },0);
-
-          return selected > this.limit;
-        }
-      }
-    };
-
     (function () {
       _.forEach(fields, function (field) {
-        _.assign(field, utils);
+        _.assign(field, acFormUtils.assignUtils(field));
       });
     })();
 
@@ -1317,7 +1272,7 @@ angular.module('acComponents.services')
       getDTO: getDTO,
       validate: validate
     }
-  });
+  }]);
 
 angular.module('acComponents.services')
     .factory('acObservation', ["$http", "AC_API_ROOT_URL", function ($http, AC_API_ROOT_URL) {
@@ -1418,9 +1373,9 @@ angular.module('acComponents.services')
     });
 
 angular.module('acComponents.services')
-  .factory('acSnowpackReportData', function() {
+  .factory('acSnowpackReportData', ["acFormUtils", function(acFormUtils) {
 
-    var snowpackData = {
+    var fields = {
 
       snowpackObsType: {
         type: 'radio',
@@ -1555,10 +1510,36 @@ angular.module('acComponents.services')
       }
     };
 
-    return {
-      fields: snowpackData
+    function getDTO () {
+      return _.reduce(fields, function (dtos, field, key) {
+        dtos[key] = field.getDTO();
+        return dtos;
+      }, {});
     }
-  });
+
+    function validate () {
+      return _.reduce(fields, function (errors, field, key) {
+        var err = field.validate();
+        if (err) {
+          errors[key].push(err);
+        }
+
+        return errors;
+      });
+    }
+
+    (function () {
+      _.forEach(fields, function (field) {
+        _.assign(field, acFormUtils.assignUtils(field));
+      });
+    })();
+
+    return {
+      fields: fields,
+      getDTO: getDTO,
+      validate: validate
+    }
+  }]);
 
 angular.module('acComponents.services')
     .factory('acSubmission', ["$q", "$http", "AC_API_ROOT_URL", function ($q, $http, AC_API_ROOT_URL) {
