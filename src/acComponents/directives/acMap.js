@@ -9,7 +9,8 @@ angular.module('acComponents.directives')
         showRegions: '=acShowRegions',
         obs: '=acObs',
         ob: '=acOb',
-        minFilters: '=acMinFilters'
+        minFilters: '=acMinFilters',
+        currentReport: '=acReport'
       },
       link: function ($scope, el, attrs) {
         $scope.device = {};
@@ -36,10 +37,10 @@ angular.module('acComponents.directives')
           },
           reportType: {
             incident: '#FF5252',
-            quick: '#FFAB40',
+            quick: '#85C974',
             avalanche: '#83B8D3',
             snowpack: '#3E8C8D',
-            weather: '#85C974'
+            weather: '#FFAB40'
           },
           clusterColor: '#4B6D6F'
         };
@@ -126,6 +127,7 @@ angular.module('acComponents.directives')
                 $scope.$apply(function () {
                   $scope.region = layer;
                 });
+
               }
 
               layer.on('click', showRegion);
@@ -281,7 +283,9 @@ angular.module('acComponents.directives')
                 });
 
               marker.on('click', function (e) {
-
+                $scope.$apply(function () {
+                  $scope.currentReport = ob;
+                });
               });
 
               marker.eachLayer(function (layer) {

@@ -53,12 +53,14 @@ angular.module('acComponents.directives')
         return {
             replace: true,
             transclude: true,
+            scope: true,
             templateUrl: 'drawer.html',
             link: function ($scope, el, attrs) {
-                
+              $scope.drawerPosition = attrs.acDrawerPosition;
             }
         };
     });
+
 angular.module('acComponents.directives')
     .directive('acForecastMini', ["AC_API_ROOT_URL", function (AC_API_ROOT_URL) {
         return {
@@ -152,457 +154,463 @@ angular.module('acComponents.directives')
     }]);
 
 angular.module('acComponents.directives')
-    .directive('acMapboxMap', ["$rootScope", "$window", "$location", "$timeout", "acBreakpoint", "acObservation", "acForecast", "MAPBOX_ACCESS_TOKEN", "MAPBOX_MAP_ID", function ($rootScope, $window, $location, $timeout, acBreakpoint, acObservation, acForecast, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID) {
-        return {
-            template: '<div id="map"></div>',
-            replace: true,
-            scope: {
-                region: '=acRegion',
-                regions: '=acRegions',
-                showRegions: '=acShowRegions',
-                obs: '=acObs',
-                ob: '=acOb',
-                minFilters:'=acMinFilters'
-            },
-            link: function ($scope, el, attrs) {
-                $scope.device = {};
-                $scope.showRegions = $scope.showRegions || true;
-                var layers = {
-                    dangerIcons: L.featureGroup()
-                };
-                var styles = {
-                    region: {
-                        default: {
-                            fillColor: 'transparent',
-                            color: 'transparent'
-                        },
-                        selected: {
-                            fillColor: '#489BDF'
-                        },
-                        hover: {
-                            color: '#B43A7E'
-                        },
-                        selectedhover: {
-                            fillColor: '#489BDF',
-                            color: '#B43A7E'
-                        }
-                    },
-                    reportType:{
-                      incident: '#FF5252',
-                      quick: '#FFAB40',
-                      avalanche: '#83B8D3',
-                      snowpack: '#3E8C8D',
-                      weather: '#85C974'
-                    },
-                    clusterColor: '#4B6D6F'
-                };
-
-                L.mapbox.accessToken = MAPBOX_ACCESS_TOKEN;
-                var map = L.mapbox.map(el[0].id, MAPBOX_MAP_ID, {
-                  attributionControl: false,
-                  center:[52.3, -120.74966],
-                  maxZoom: 10,
-                  minZoom: 4,
-                  zoom: 6
-                });
-                var clusterOverlays = L.layerGroup().addTo(map);
-
-              /*var provinces = L.mapbox.geocoder('mapbox.places-province-v1');
-              provinces.query('British-Columbia', function (err, results) {
-                  var bcBounds = L.latLngBounds([results.bounds[1], results.bounds[0]], [results.bounds[3], results.bounds[2]]);
-                  map.fitBounds(bcBounds);
-              });*/
-
-              L.control.locate({
-                    locateOptions: {
-                        maxZoom: 14
-                    },
-                  
-                }).addTo(map);
-
-                acBreakpoint.setBreakpoints({
-                    xs: 480,
-                    sm: 600,
-                    md: 1025
-                });
-
-                $rootScope.$on('breakpoint', function (e, breakpoint) {
-                    $scope.device.size = breakpoint;
-                });
-
-                function getInvalidateSize(topOffset) {
-                    return function () {
-                        el.height($($window).height()-Number(topOffset));
-                        map.invalidateSize();
-                    }
-                }
-
-                if(attrs.topOffset) {
-                    var offset = Number(attrs.topOffset);
-                    var invalidateSize = getInvalidateSize(offset);
-
-                    angular.element(document).ready(invalidateSize);
-                    angular.element($window).bind('resize', invalidateSize);
-                }
-
-                function getDangerIcon(options) {
-                    var size = map.getZoom() <= 6 ? 60 : 80;
-
-                    return L.icon({
-                        iconUrl: options.iconUrl || acForecast.getDangerIconUrl(options.regionId),
-                        iconSize: [size, size],
-                        labelAnchor: [6, 0]
-                    });
-                };
-
-                function initRegionsLayer(){
-                    layers.regions = L.geoJson($scope.regions, {
-                        style: function(feature) {
-                            return styles.region.default;
-                        },
-                        onEachFeature: function (featureData, layer) {
-                            layer.bindLabel(featureData.properties.name);
-
-                            function showRegion(evt){
-                                if(map.getZoom() < 9) {
-                                    var padding = getMapPadding();
-
-                                    map.fitBounds(layer.getBounds(), {
-                                        paddingBottomRight: padding
-                                    });
-                                }
-
-                                layers.currentRegion = layer;
-
-                                $scope.$apply(function () {
-                                    $scope.region = layer;
-                                });
-                            }
-
-                            layer.on('click', showRegion);
-
-                            layer.on('mouseover', function() {
-                                if(layer == layers.currentRegion){
-                                    layer.setStyle(styles.region.selectedhover);
-                                } else {
-                                    layer.setStyle(styles.region.hover);
-                                }
-                            });
-
-                            layer.on('mouseout', function() {
-                                if(layer == layers.currentRegion){
-                                    layer.setStyle(styles.region.selected);
-                                } else {
-                                    layer.setStyle(styles.region.default);
-                                }
-                            });
-
-                            if(featureData.properties.centroid) {
-                                var centroid = L.latLng(featureData.properties.centroid[1], featureData.properties.centroid[0]);
-
-                                var marker = L.marker(centroid);
-                                var icon = getDangerIcon({regionId: featureData.id});
-
-                                marker.setIcon(icon);
-                                var zindex = 1;
-                                marker.setZIndexOffset(zindex);
-
-                                marker.on('click', function () {
-                                    //zindex = zindex === 1 ? 200 : 1;
-                                    //smarker.setZIndexOffset(zindex);
-                                    showRegion();
-                                });
-
-                                layers.dangerIcons.addLayer(marker);
-                            }
-                        }
-                    });
-
-                    refreshLayers();
-                }
-
-                function refreshDangerIconsLayer(){
-                    layers.dangerIcons.eachLayer(function (dangerIconLayer) {
-                        var iconUrl = dangerIconLayer.options.icon.options.iconUrl;
-                        var icon = getDangerIcon({ iconUrl: iconUrl });
-
-                        dangerIconLayer.setIcon(icon);
-                    });
-                }
-
-                function refreshLayers(){
-                    var zoom = map.getZoom();
-
-                    if(layers.regions && $scope.showRegions) {
-                        var regionsVisible = map.hasLayer(layers.regions);
-
-                        if(zoom < 6 && regionsVisible) {
-                            map.removeLayer(layers.regions);
-                        } else if (zoom >= 6 && !regionsVisible) {
-                            map.addLayer(layers.regions);
-                        } else if (zoom > 10 && regionsVisible) {
-                            map.removeLayer(layers.regions);
-                        }
-                    }
-
-                    if(layers.dangerIcons) {
-                        var dangerIconsVisible = map.hasLayer(layers.dangerIcons);
-
-                        if(map.getZoom() < 6 && dangerIconsVisible) {
-                            map.removeLayer(layers.dangerIcons);
-                        } else if (map.getZoom() >= 6 && !dangerIconsVisible){
-                            map.addLayer(layers.dangerIcons);
-                        }
-
-                        var dangerIcon = layers.dangerIcons.getLayers()[0];
-                        if(dangerIcon){
-                            var dangerIconSize = dangerIcon.options.icon.options.iconSize[0];
-                            if ((zoom > 6 && dangerIconSize === 60) || (zoom <= 6 && dangerIconSize === 80)) {
-                                refreshDangerIconsLayer();
-                            }
-                        }
-                    }
-
-                    if(layers.obs) {
-                        //map.addLayer(layers.obs);
-                    }
-
-                    var opacity = 0.2;
-                    if(layers.currentRegion && $scope.showRegions) {
-                        if(zoom <= 9) {
-                            styles.region.selected.fillOpacity = opacity;
-                            layers.currentRegion.setStyle(styles.region.selected);
-                        } else if(zoom > 9 && zoom < 13){
-                            switch(zoom){
-                                case 10:
-                                    opacity = 0.15;
-                                    break;
-                                case 11:
-                                    opacity = 0.10;
-                                    break;
-                                case 12:
-                                    opacity = 0.05;
-                                    break;
-                            }
-
-                            styles.region.selected.fillOpacity = opacity;
-                            layers.currentRegion.setStyle(styles.region.selected);
-                        } else {
-                            layers.currentRegion.setStyle(styles.region.default);
-                        }
-                    }
-
-                    getFilters();
-                }
-
-                function getMarkerColor(type){
-                  return styles.reportType[type];
-                }
-
-                function getFilters(){
-
-                }
-
-                function refreshObsLayer() {
-                    clusterOverlays.clearLayers();
-
-                    if($scope.obs.length > 0 ) {
-                      var markers = new L.markerClusterGroup().addTo(clusterOverlays);
-
-                       $scope.obs.map(function (ob) {
-
-                        var marker = L.mapbox.featureLayer({
-                          type: 'Feature',
-                          geometry: {
-                            type: 'Point',
-                            coordinates: [ob.latlng[1],ob.latlng[0]]
-                          },
-                          properties: {
-                            'marker-size': 'small',
-                            'marker-color': getMarkerColor(ob.obtype),
-                            zIndexOffset: 1000
-                          }
-                        })
-                          .setFilter(function() {
-                            if(_.indexOf($scope.minFilters, ob.obtype) !== -1){
-                              return true;
-                            } else {
-                              return false;
-                            }
-                          });
-
-                         marker.on('click', function (e){
-
-                         });
-
-                        marker.eachLayer(function (layer){
-                          markers.addLayer(layer);
-                        });
-
-                      });
-
-                    } else{
-
-                      clusterOverlays.clearLayers();
-                    }
-
-                    refreshLayers();
-                }
-
-                function latLngToGeoJSON(latlng){
-                    return {
-                        type: 'Point',
-                        coordinates: [latlng.lng, latlng.lat]
-                    };
-                }
-
-                function getMapPadding(){
-                    switch($scope.device.size) {
-                        case 'xs':
-                            return L.point([0, 0]);
-                        case 'sm':
-                            return L.point([350, 0]);
-                        case 'md':
-                        case 'lg':
-                            return L.point([480, 0]);
-                        default:
-                            return L.point([0,0]);
-                    }
-                }
-
-                function getMapOffset(){
-                    return getMapPadding().divideBy(2);
-                }
-
-                // offfset can be negative i.e. [-240, 0]
-                function offsetLatLng(latlng, offset){
-                    var point = map.latLngToLayerPoint(latlng);
-                    return map.layerPointToLatLng(point.subtract(offset));
-                }
-
-                function getMapCenter(){
-                    var offset = getMapOffset();
-                    return offsetLatLng(map.getCenter(), offset);
-                }
-
-
-                function setRegionFocus() {
-                    if($scope.showRegions){
-                        var regionLayers = layers.regions.getLayers();
-                        var mapCenter = getMapCenter();
-
-                        var region = _.find(regionLayers, function (r) {
-                            return gju.pointInPolygon(latLngToGeoJSON(mapCenter), r.feature.geometry);
-                        });
-
-                        if(!region){
-                            region = _.min(regionLayers, function (r) {
-                                var centroid = L.latLng(r.feature.properties.centroid[1], r.feature.properties.centroid[0]);
-                                return centroid.distanceTo(mapCenter);
-                            });
-                        }
-
-                        if(region) setRegion(region);
-                    }
-                }
-
-                function setRegion(region) {
-                    layers.currentRegion = region;
-                    if($scope.region !== region) {
-                        $timeout(function () {
-                            $scope.region = region;
-                        }, 10);
-                    }
-
-                    layers.regions.eachLayer(function (layer) {
-                        if(layer === region){
-                            layer.setStyle(styles.region.selected);
-                        } else {
-                            layer.setStyle(styles.region.default);
-                        }
-                    });
-                }
-
-
-                map.on('load', refreshLayers);
-                //map.on('dragend', setRegionFocus);
-                map.on('zoomend', refreshLayers);
-
-                $scope.$watch('region', function (newRegion, oldRegion) {
-                    if(layers.regions && newRegion && newRegion !== oldRegion) {
-                        setRegion(newRegion);
-                    }
-                });
-
-                $scope.$watch('regions', function (newRegions, oldRegions) {
-                    if(newRegions && newRegions.features) {
-                        initRegionsLayer();
-                    }
-                });
-
-                $scope.$watch('showRegions', function (newShowRegions, oldShowRegions) {
-                    if(newShowRegions !== oldShowRegions) {
-                        if(!newShowRegions && map.hasLayer(layers.regions)) {
-                            if(layers.currentRegion) {
-                                $scope.region = null;
-                                layers.currentRegion.setStyle(styles.region.default);
-                            }
-                            map.removeLayer(layers.regions);
-                        } else if (newShowRegions && !map.hasLayer(layers.regions)) {
-                            map.addLayer(layers.regions);
-                            setRegionFocus();
-                        }
-                    }
-                });
-
-                $scope.$watch('obs', function (newObs, oldObs) {
-                    if(newObs) {
-                        refreshObsLayer();
-                    }
-                });
-
-                $scope.$watch('minFilters', function (newObs, oldObs) {
-                  if(newObs) {
-                    refreshObsLayer();
-                  }
-                },true);
-
-                $scope.$watch('ob', function (newObs, oldObs) {
-                    if(newObs && newObs.latlng) {
-                        acObservation.getOne(newObs.obid, 'html').then(function (obHtml) {
-                            var marker = L.marker(newObs.latlng, {
-                                icon: L.mapbox.marker.icon({
-                                    'marker-size': 'small',
-                                    'marker-color': '#09c'
-                                })
-                            });
-                            var maxHeight = map.getSize().y - 100;
-
-                            marker.bindPopup(obHtml, {maxHeight: maxHeight, maxWidth: 400, autoPanPaddingTopLeft: [0, 30]});
-                            marker.on('popupclose', function () {
-                                map.removeLayer(marker);
-                                $timeout(function () {
-                                    $location.path('/');
-                                }, 0);
-                            });
-
-                            marker.setZIndexOffset(10000);
-                            map.addLayer(marker);
-
-                            marker.togglePopup();
-                        });
-                        acObservation.getOne(newObs.obid, 'json').then(function (ob) {
-                            // add opengraph tags
-                             $rootScope.ogTags  = [ {type: 'title', value: ob.title},
-                                                     {type: 'image', value: ob.thumbs[0]},
-                                                     {type: 'description', value: ob.comment}];
-                        });
-                    }
-                });
-
-            }
+  .directive('acMapboxMap', ["$rootScope", "$window", "$location", "$timeout", "acBreakpoint", "acObservation", "acForecast", "MAPBOX_ACCESS_TOKEN", "MAPBOX_MAP_ID", function ($rootScope, $window, $location, $timeout, acBreakpoint, acObservation, acForecast, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID) {
+    return {
+      template: '<div id="map"></div>',
+      replace: true,
+      scope: {
+        region: '=acRegion',
+        regions: '=acRegions',
+        showRegions: '=acShowRegions',
+        obs: '=acObs',
+        ob: '=acOb',
+        minFilters: '=acMinFilters',
+        currentReport: '=acReport'
+      },
+      link: function ($scope, el, attrs) {
+        $scope.device = {};
+        $scope.showRegions = $scope.showRegions || true;
+        var layers = {
+          dangerIcons: L.featureGroup()
         };
-    }]);
+        var styles = {
+          region: {
+            default: {
+              fillColor: 'transparent',
+              color: 'transparent'
+            },
+            selected: {
+              fillColor: '#489BDF'
+            },
+            hover: {
+              color: '#B43A7E'
+            },
+            selectedhover: {
+              fillColor: '#489BDF',
+              color: '#B43A7E'
+            }
+          },
+          reportType: {
+            incident: '#FF5252',
+            quick: '#85C974',
+            avalanche: '#83B8D3',
+            snowpack: '#3E8C8D',
+            weather: '#FFAB40'
+          },
+          clusterColor: '#4B6D6F'
+        };
+
+        L.mapbox.accessToken = MAPBOX_ACCESS_TOKEN;
+        var map = L.mapbox.map(el[0].id, MAPBOX_MAP_ID, {
+          attributionControl: false,
+          center: [52.3, -120.74966],
+          maxZoom: 10,
+          minZoom: 4,
+          zoom: 6,
+          zoomControl: false
+        });
+        var clusterOverlays = L.layerGroup().addTo(map);
+
+        addMapControls();
+
+        function addMapControls(){
+          L.control.locate({
+            locateOptions: {
+              maxZoom: 14
+            },
+            position: 'bottomright'
+          }).addTo(map);
+
+          new L.Control.Zoom({ position: 'bottomright' }).addTo(map);
+        }
+
+
+        acBreakpoint.setBreakpoints({
+          xs: 480,
+          sm: 600,
+          md: 1025
+        });
+
+        $rootScope.$on('breakpoint', function (e, breakpoint) {
+          $scope.device.size = breakpoint;
+        });
+
+        function getInvalidateSize(topOffset) {
+          return function () {
+            el.height($($window).height() - Number(topOffset));
+            map.invalidateSize();
+          }
+        }
+
+        if (attrs.topOffset) {
+          var offset = Number(attrs.topOffset);
+          var invalidateSize = getInvalidateSize(offset);
+
+          angular.element(document).ready(invalidateSize);
+          angular.element($window).bind('resize', invalidateSize);
+        }
+
+        function getDangerIcon(options) {
+          var size = map.getZoom() <= 6 ? 60 : 80;
+
+          return L.icon({
+            iconUrl: options.iconUrl || acForecast.getDangerIconUrl(options.regionId),
+            iconSize: [size, size],
+            labelAnchor: [6, 0]
+          });
+        };
+
+        function initRegionsLayer() {
+          layers.regions = L.geoJson($scope.regions, {
+            style: function (feature) {
+              return styles.region.default;
+            },
+            onEachFeature: function (featureData, layer) {
+              layer.bindLabel(featureData.properties.name);
+
+              function showRegion(evt) {
+                if (map.getZoom() < 9) {
+                  var padding = getMapPadding();
+
+                  map.fitBounds(layer.getBounds(), {
+                    paddingBottomRight: padding
+                  });
+                }
+
+                layers.currentRegion = layer;
+
+                $scope.$apply(function () {
+                  $scope.region = layer;
+                });
+
+              }
+
+              layer.on('click', showRegion);
+
+              layer.on('mouseover', function () {
+                if (layer == layers.currentRegion) {
+                  layer.setStyle(styles.region.selectedhover);
+                } else {
+                  layer.setStyle(styles.region.hover);
+                }
+              });
+
+              layer.on('mouseout', function () {
+                if (layer == layers.currentRegion) {
+                  layer.setStyle(styles.region.selected);
+                } else {
+                  layer.setStyle(styles.region.default);
+                }
+              });
+
+              if (featureData.properties.centroid) {
+                var centroid = L.latLng(featureData.properties.centroid[1], featureData.properties.centroid[0]);
+
+                var marker = L.marker(centroid);
+                var icon = getDangerIcon({regionId: featureData.id});
+
+                marker.setIcon(icon);
+                var zindex = 1;
+                marker.setZIndexOffset(zindex);
+
+                marker.on('click', function () {
+                  //zindex = zindex === 1 ? 200 : 1;
+                  //smarker.setZIndexOffset(zindex);
+                  showRegion();
+                });
+
+                layers.dangerIcons.addLayer(marker);
+              }
+            }
+          });
+
+          refreshLayers();
+        }
+
+        function refreshDangerIconsLayer() {
+          layers.dangerIcons.eachLayer(function (dangerIconLayer) {
+            var iconUrl = dangerIconLayer.options.icon.options.iconUrl;
+            var icon = getDangerIcon({iconUrl: iconUrl});
+
+            dangerIconLayer.setIcon(icon);
+          });
+        }
+
+        function refreshLayers() {
+          var zoom = map.getZoom();
+
+          if (layers.regions && $scope.showRegions) {
+            var regionsVisible = map.hasLayer(layers.regions);
+
+            if (zoom < 6 && regionsVisible) {
+              map.removeLayer(layers.regions);
+            } else if (zoom >= 6 && !regionsVisible) {
+              map.addLayer(layers.regions);
+            } else if (zoom > 10 && regionsVisible) {
+              map.removeLayer(layers.regions);
+            }
+          }
+
+          if (layers.dangerIcons) {
+            var dangerIconsVisible = map.hasLayer(layers.dangerIcons);
+
+            if (map.getZoom() < 6 && dangerIconsVisible) {
+              map.removeLayer(layers.dangerIcons);
+            } else if (map.getZoom() >= 6 && !dangerIconsVisible) {
+              map.addLayer(layers.dangerIcons);
+            }
+
+            var dangerIcon = layers.dangerIcons.getLayers()[0];
+            if (dangerIcon) {
+              var dangerIconSize = dangerIcon.options.icon.options.iconSize[0];
+              if ((zoom > 6 && dangerIconSize === 60) || (zoom <= 6 && dangerIconSize === 80)) {
+                refreshDangerIconsLayer();
+              }
+            }
+          }
+
+          if (layers.obs) {
+            //map.addLayer(layers.obs);
+          }
+
+          var opacity = 0.2;
+          if (layers.currentRegion && $scope.showRegions) {
+            if (zoom <= 9) {
+              styles.region.selected.fillOpacity = opacity;
+              layers.currentRegion.setStyle(styles.region.selected);
+            } else if (zoom > 9 && zoom < 13) {
+              switch (zoom) {
+                case 10:
+                  opacity = 0.15;
+                  break;
+                case 11:
+                  opacity = 0.10;
+                  break;
+                case 12:
+                  opacity = 0.05;
+                  break;
+              }
+
+              styles.region.selected.fillOpacity = opacity;
+              layers.currentRegion.setStyle(styles.region.selected);
+            } else {
+              layers.currentRegion.setStyle(styles.region.default);
+            }
+          }
+
+          getFilters();
+        }
+
+        function getMarkerColor(type) {
+          return styles.reportType[type];
+        }
+
+        function getFilters() {
+
+        }
+
+        function refreshObsLayer() {
+          clusterOverlays.clearLayers();
+
+          if ($scope.obs.length > 0) {
+            var markers = new L.markerClusterGroup().addTo(clusterOverlays);
+
+            $scope.obs.map(function (ob) {
+
+              var marker = L.mapbox.featureLayer({
+                type: 'Feature',
+                geometry: {
+                  type: 'Point',
+                  coordinates: [ob.latlng[1], ob.latlng[0]]
+                },
+                properties: {
+                  'marker-size': 'small',
+                  'marker-color': getMarkerColor(ob.obtype),
+                  zIndexOffset: 1000
+                }
+              })
+                .setFilter(function () {
+                  if (_.indexOf($scope.minFilters, ob.obtype) !== -1) {
+                    return true;
+                  } else {
+                    return false;
+                  }
+                });
+
+              marker.on('click', function (e) {
+                $scope.$apply(function () {
+                  $scope.currentReport = ob;
+                });
+              });
+
+              marker.eachLayer(function (layer) {
+                markers.addLayer(layer);
+              });
+
+            });
+
+          } else {
+
+            clusterOverlays.clearLayers();
+          }
+
+          refreshLayers();
+        }
+
+        function latLngToGeoJSON(latlng) {
+          return {
+            type: 'Point',
+            coordinates: [latlng.lng, latlng.lat]
+          };
+        }
+
+        function getMapPadding() {
+          switch ($scope.device.size) {
+            case 'xs':
+              return L.point([0, 0]);
+            case 'sm':
+              return L.point([350, 0]);
+            case 'md':
+            case 'lg':
+              return L.point([480, 0]);
+            default:
+              return L.point([0, 0]);
+          }
+        }
+
+        function getMapOffset() {
+          return getMapPadding().divideBy(2);
+        }
+
+        // offfset can be negative i.e. [-240, 0]
+        function offsetLatLng(latlng, offset) {
+          var point = map.latLngToLayerPoint(latlng);
+          return map.layerPointToLatLng(point.subtract(offset));
+        }
+
+        function getMapCenter() {
+          var offset = getMapOffset();
+          return offsetLatLng(map.getCenter(), offset);
+        }
+
+
+        function setRegionFocus() {
+          if ($scope.showRegions) {
+            var regionLayers = layers.regions.getLayers();
+            var mapCenter = getMapCenter();
+
+            var region = _.find(regionLayers, function (r) {
+              return gju.pointInPolygon(latLngToGeoJSON(mapCenter), r.feature.geometry);
+            });
+
+            if (!region) {
+              region = _.min(regionLayers, function (r) {
+                var centroid = L.latLng(r.feature.properties.centroid[1], r.feature.properties.centroid[0]);
+                return centroid.distanceTo(mapCenter);
+              });
+            }
+
+            if (region) setRegion(region);
+          }
+        }
+
+        function setRegion(region) {
+          layers.currentRegion = region;
+          if ($scope.region !== region) {
+            $timeout(function () {
+              $scope.region = region;
+            }, 10);
+          }
+
+          layers.regions.eachLayer(function (layer) {
+            if (layer === region) {
+              layer.setStyle(styles.region.selected);
+            } else {
+              layer.setStyle(styles.region.default);
+            }
+          });
+        }
+
+
+        map.on('load', refreshLayers);
+        //map.on('dragend', setRegionFocus);
+        map.on('zoomend', refreshLayers);
+
+        $scope.$watch('region', function (newRegion, oldRegion) {
+          if (layers.regions && newRegion && newRegion !== oldRegion) {
+            setRegion(newRegion);
+          }
+        });
+
+        $scope.$watch('regions', function (newRegions, oldRegions) {
+          if (newRegions && newRegions.features) {
+            initRegionsLayer();
+          }
+        });
+
+        $scope.$watch('showRegions', function (newShowRegions, oldShowRegions) {
+          if (newShowRegions !== oldShowRegions) {
+            if (!newShowRegions && map.hasLayer(layers.regions)) {
+              if (layers.currentRegion) {
+                $scope.region = null;
+                layers.currentRegion.setStyle(styles.region.default);
+              }
+              map.removeLayer(layers.regions);
+            } else if (newShowRegions && !map.hasLayer(layers.regions)) {
+              map.addLayer(layers.regions);
+              setRegionFocus();
+            }
+          }
+        });
+
+        $scope.$watch('obs', function (newObs, oldObs) {
+          if (newObs) {
+            refreshObsLayer();
+          }
+        });
+
+        $scope.$watch('minFilters', function (newObs, oldObs) {
+          if (newObs) {
+            refreshObsLayer();
+          }
+        }, true);
+
+        $scope.$watch('ob', function (newObs, oldObs) {
+          if (newObs && newObs.latlng) {
+            acObservation.getOne(newObs.obid, 'html').then(function (obHtml) {
+              var marker = L.marker(newObs.latlng, {
+                icon: L.mapbox.marker.icon({
+                  'marker-size': 'small',
+                  'marker-color': '#09c'
+                })
+              });
+              var maxHeight = map.getSize().y - 100;
+
+              marker.bindPopup(obHtml, {maxHeight: maxHeight, maxWidth: 400, autoPanPaddingTopLeft: [0, 30]});
+              marker.on('popupclose', function () {
+                map.removeLayer(marker);
+                $timeout(function () {
+                  $location.path('/');
+                }, 0);
+              });
+
+              marker.setZIndexOffset(10000);
+              map.addLayer(marker);
+
+              marker.togglePopup();
+            });
+            acObservation.getOne(newObs.obid, 'json').then(function (ob) {
+              // add opengraph tags
+              $rootScope.ogTags = [{type: 'title', value: ob.title},
+                {type: 'image', value: ob.thumbs[0]},
+                {type: 'description', value: ob.comment}];
+            });
+          }
+        });
+
+      }
+    };
+  }]);
 
 angular.module('acComponents.directives')
     .directive('fileModel', ["$parse", function($parse) {
@@ -1616,8 +1624,8 @@ angular.module('acComponents.services')
         };
     }]);
 
-angular.module("acComponents.templates", []).run(["$templateCache", function($templateCache) {$templateCache.put("danger-icon.html","<svg version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" x=\"0px\" y=\"0px\" viewBox=\"398.5 12.1 555 560\" enable-background=\"new 398.5 12.1 555 560\" xml:space=\"preserve\" class=\"danger-icon\"><polygon id=\"alp\" points=\"747.7,218.1 623.1,197.6 678.8,109.8\"></polygon><polygon id=\"tln\" points=\"794.2,291 542.8,323.6 616.7,207.4 755.5,230.3\"></polygon><polygon id=\"btl\" points=\"858.3,391.8 499.4,391.8 535.1,335.5 800.6,301.1\"></polygon></svg>");
-$templateCache.put("drawer.html","<div class=\"ac-drawer\"><style>.ac-drawer-tools {\n    z-index: -200;\n}\n\n.ac-date-filters {\n    background-color: transparent;\n}\n\n.ac-date-filters ul {\n    position: relative;\n    width: 250px;\n}\n\n.ac-date-filters ul.expanded {\n    right: 200px;\n}\n\n.ac-date-filters ul li {\n    color: rgba(255, 255, 255, 0.2);\n}\n\n.ac-date-filters ul li.on {\n    color: rgb(0, 86, 183);\n}\n\n.ac-date-filters ul li i {\n    padding-top: 5px;\n    margin-left: 8px;\n}\n\n.ac-date-filters ul li span {\n    display: block;\n    font-size: 0.7em;\n    padding-left: 4px;\n}\n\n</style><a ng-click=\"drawer.visible = false\" class=\"ac-drawer-close visible-xs\"><i class=\"fa fa-close fa-lg\"></i></a><div class=\"ac-drawer-tools\"><ul><li ng-click=\"drawer.enabled = !drawer.enabled; regionsVisible = !regionsVisible;\" ng-class=\"{on: drawer.visible &amp;&amp; drawer.enabled}\" style=\"margin-bottom: 50px;\"><div ac-danger-icon=\"ac-danger-icon\" style=\"height: 50px; width:50px;\"></div></li><li style=\"background-color: transparent;\" class=\"ac-date-filters\"><ul ng-init=\"expandedMin = false\" ng-class=\"{expanded: expandedMin}\" class=\"list-inline\"><li ng-click=\"expandedMin = !expandedMin\" class=\"on\"><i class=\"fa fa-map-marker fa-inverse fa-2x\"></i><span> Filters</span></li><li ng-repeat=\"minFilter in minFilters\" ng-click=\"toggleFilter(\'minFilter:\'+ minFilter)\" ng-class=\"{on: getMinFilters(minFilter)}\"><i class=\"fa fa-map-marker fa-inverse fa-2x\"></i><span>{{ minFilter }}</span></li></ul></li><li ng-click=\"expanded = true\" style=\"background-color: transparent;\" class=\"ac-date-filters\"><ul ng-class=\"{expanded: expanded}\" ng-init=\"expanded = false\" class=\"list-inline\"><li ng-repeat=\"dateFilter in dateFilters\" ng-click=\"toggleFilter(\'obsPeriod:\'+dateFilter)\" ng-class=\"{on: filters.obsPeriod === dateFilter}\"><i class=\"fa fa-calendar fa-inverse fa-2x\"></i><span>{{ dateFilter }}</span></li></ul></li></ul></div><div ng-transclude=\"ng-transclude\" class=\"ac-drawer-body\"></div></div>");
+angular.module("acComponents.templates", []).run(["$templateCache", function($templateCache) {$templateCache.put("danger-icon.html","<div class=\"danger-icon\"><svg version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" x=\"0px\" y=\"0px\" viewBox=\"398.5 12.1 555 560\" enable-background=\"new 398.5 12.1 555 560\" xml:space=\"preserve\"><polygon id=\"alp\" points=\"747.7,218.1 623.1,197.6 678.8,109.8\"></polygon><polygon id=\"tln\" points=\"794.2,291 542.8,323.6 616.7,207.4 755.5,230.3\"></polygon><polygon id=\"btl\" points=\"858.3,391.8 499.4,391.8 535.1,335.5 800.6,301.1\"></polygon></svg><span>FORECAST</span></div>");
+$templateCache.put("drawer.html","<div class=\"ac-drawer\"><a ng-click=\"drawer.right.visible = false\" class=\"ac-drawer-close visible-xs\"><i class=\"fa fa-close fa-lg\"></i></a><div class=\"ac-drawer-tools\"><ul><li ng-if=\"drawerPosition === \'right\'\" ng-click=\"toggleForecast()\" ng-class=\"{on: drawer.right.visible &amp;&amp; drawer.right.enabled}\" style=\"margin-bottom: 50px;\"><div ac-danger-icon=\"ac-danger-icon\" style=\"height: 60px; width:60px;\"></div></li><li ng-if=\"drawerPosition === \'left\'\" ng-click=\"goToSubmitReport()\" style=\"margin-bottom: 50px;\" class=\"ac-submit-report-tab on\"><i class=\"fa fa-plus fa-2x\"></i><i class=\"fa fa-tasks fa-inverse fa-2x\"></i><span>New report</span></li><li ng-if=\"drawerPosition === \'left\'\" class=\"ac-filters ac-min-filters\"><ul ng-init=\"expandedMin = false\" class=\"list-inline\"><li ng-click=\"expandedMin = !expandedMin\" class=\"ac-minfilter-button\"><i class=\"fa fa-map-marker fa-inverse fa-2x\"></i><span> Filters</span></li><li ng-repeat=\"minFilter in minFilters\" ng-if=\"expandedMin\" ng-click=\"toggleFilter(\'minFilter:\'+ minFilter)\" ng-class=\"{on: getMinFilters(minFilter)}\"><i ng-class=\"\'report-\'+ minFilter\" class=\"fa fa-map-marker fa-inverse fa-2x\"></i><span>{{ minFilter }}</span></li></ul></li><li ng-if=\"drawerPosition === \'left\'\" class=\"ac-filters ac-date-filters\"><ul class=\"list-inline\"><li ng-click=\"toggleDateFilters()\" class=\"on\"><i class=\"fa fa-calendar fa-inverse fa-2x\"></i><span>{{ filters.obsPeriod }}</span></li><li ng-repeat=\"dateFilter in dateFilters\" ng-if=\"expandedDate\" ng-click=\"toggleFilter(\'obsPeriod:\'+dateFilter);\" ng-class=\"{hidden: filters.obsPeriod === dateFilter}\"><i class=\"fa fa-calendar fa-inverse fa-2x\"></i><span>{{ dateFilter }}</span></li></ul></li></ul></div><div ng-transclude=\"ng-transclude\" class=\"ac-drawer-body\"></div></div>");
 $templateCache.put("forecast-mini.html","<div class=\"panel\"><div ng-show=\"forecast.externalUrl\" style=\"min-height: 500px;\" class=\"panel-body\"><div class=\"row\"><div class=\"col-xs-12\"><h3 class=\"ac-forecast-region\">{{ forecast.name }}</h3></div></div><div class=\"row\"><div class=\"col-xs-12\"><p>Avalanche information for this region is available &nbsp;<a ng-href=\"{{forecast.externalUrl}}\" target=\"_blank\"><i class=\"fa fa-external-link\">here.</i></a></p></div></div></div><div ng-show=\"forecast.parksUrl\" style=\"min-height: 500px;\" class=\"panel-body\"><div class=\"row\"><div class=\"col-xs-12\"><h3 class=\"ac-forecast-region\">{{ forecast.name }}</h3></div></div><div class=\"row\"><div class=\"col-xs-12\"><p>Avalanche information for this region is available &nbsp;<a ng-href=\"{{forecast.parksUrl}}\" target=\"_blank\"><i class=\"fa fa-external-link\">here.</i></a></p></div></div></div><div ng-hide=\"forecast.externalUrl || forecast.parksUrl\" class=\"panel-body ac-forecast-mini-body\"><div class=\"row\"><div class=\"col-xs-6\"><h4 class=\"ac-forecast-region\">{{ forecast.bulletinTitle | acNormalizeForecastTitle }}</h4></div><div ng-if=\"forecast.region == &quot;kananaskis&quot;\" class=\"col-xs-6\"><a target=\"_blank\" href=\"\" class=\"pull-right\"><img style=\"width:75px;\" src=\"http://www.avalanche.ca/assets/images/kananaskis.jpg\"/></a></div><div ng-if=\"!(forecast.region == &quot;kananaskis&quot;)\" class=\"col-xs-6\"><a target=\"_blank\" href=\"{{sponsor.getText(&quot;sponsor.url&quot;)}}\" class=\"pull-right\"><img src=\"{{sponsor.getText(&quot;sponsor.image-229&quot;)}}\"/></a></div></div><div class=\"row ac-forecast-dates\"><div class=\"col-md-6\"><dl><dd class=\"small\"><strong class=\"ac-text-primary\">DATE ISSUED</strong></dd><dt class=\"small\"><span class=\"ac-text-default\">{{ forecast.dateIssued | date:\'EEEE MMMM d, y h:mm a\'  | uppercase }}</span></dt></dl></div><div class=\"col-md-6\"><dl><dd class=\"small\"><strong class=\"ac-text-primary\">VALID UNTIL</strong></dd><dt class=\"small\"><span class=\"ac-text-default\">{{ forecast.validUntil | date:\'EEEE MMMM d, y h:mm a\' | uppercase }}</span></dt></dl></div></div><div class=\"row\"><div class=\"col-xs-12\"><p class=\"ac-forecast-highlights\"><strong ng-bind-html=\"forecast.highlights\"></strong></p></div></div><div class=\"row\"><div class=\"col-xs-12\"><ul role=\"tablist\" class=\"nav nav-pills\"><li class=\"active\"><a href=\"\" role=\"tab\" data-target=\"#forecast\" data-toggle=\"tab\">Forecast</a></li><li><a href=\"\" role=\"tab\" data-target=\"#problems\" data-toggle=\"tab\">Problems</a></li><li><a href=\"\" role=\"tab\" data-target=\"#details\" data-toggle=\"tab\">Details</a></li><li><a href=\"/forecasts/{{forecast.region}}\" role=\"tab\" data-toggle=\"tab\">Full Page</a></li><li><a href=\"/weather\" role=\"tab\" data-toggle=\"tab\">Weather</a></li><li><a href=\"/submit\" role=\"tab\" data-toggle=\"tab\">Submit</a></li></ul><div class=\"tab-content\"><div id=\"forecast\" class=\"tab-pane active\"><div class=\"row\"><div class=\"col-xs-12\"><div class=\"panel panel-primary\"><div class=\"panel-heading\">{{ forecast.dangerRatings[0].date | dateUtc:\'dddd\' }}</div><div class=\"panel-body ac-forecast-nowcast\"><img ng-show=\"forecast.region\" ng-src=\"{{forecast.region &amp;&amp; apiUrl+\'/api/forecasts/\' + forecast.region  + \'/nowcast.svg\' || \'\'}}\" class=\"ac-nowcast\"/></div><table class=\"table table-condensed ac-forecast-days\"><thead class=\"ac-thead-dark\"><tr><th></th><th>{{ forecast.dangerRatings[1].date | dateUtc:\'dddd\' }}</th><th>{{ forecast.dangerRatings[2].date | dateUtc:\'dddd\' }}</th></tr></thead><tbody><tr><td class=\"ac-veg-zone--alp\"><strong>Alpine</strong></td><td class=\"ac-danger-rating--{{ forecast.dangerRatings[1].dangerRating.alp.split(\':\')[1].toLowerCase()}}\"><strong>{{ forecast.dangerRatings[1].dangerRating.alp.replace(\':\', \' \') }}</strong></td><td class=\"ac-danger-rating--{{ forecast.dangerRatings[2].dangerRating.alp.split(\':\')[1].toLowerCase()}}\"><strong>{{ forecast.dangerRatings[2].dangerRating.alp.replace(\':\', \' \') }}</strong></td></tr><tr><td class=\"ac-veg-zone--tln\"><strong>Treeline</strong></td><td class=\"ac-danger-rating--{{ forecast.dangerRatings[1].dangerRating.tln.split(\':\')[1].toLowerCase()}}\"><strong>{{ forecast.dangerRatings[1].dangerRating.tln.replace(\':\', \' \') }}</strong></td><td class=\"ac-danger-rating--{{ forecast.dangerRatings[2].dangerRating.tln.split(\':\')[1].toLowerCase()}}\"><strong>{{ forecast.dangerRatings[2].dangerRating.tln.replace(\':\', \' \') }}</strong></td></tr><tr><td class=\"ac-veg-zone--btl\"><strong>Below Treeline</strong></td><td class=\"ac-danger-rating--{{ forecast.dangerRatings[1].dangerRating.btl.split(\':\')[1].toLowerCase()}}\"><strong>{{ forecast.dangerRatings[1].dangerRating.btl.replace(\':\', \' \') }}</strong></td><td class=\"ac-danger-rating--{{ forecast.dangerRatings[2].dangerRating.btl.split(\':\')[1].toLowerCase()}}\"><strong>{{ forecast.dangerRatings[2].dangerRating.btl.replace(\':\', \' \') }}</strong></td></tr><tr><td><strong>Confidence:</strong></td><td colspan=\"2\"><span class=\"ac-text-default\">{{ forecast.confidence }}</span></td></tr></tbody></table><footer id=\"forecast-bulletin\" class=\"col-xs-12\"></footer><div class=\"panel-group\"><div class=\"panel panel-default first\"><h4 class=\"panel-title\"><a href=\"\" data-target=\"#collapseTwo\" data-parent=\"#accordion\" data-toggle=\"collapse\" class=\"collapsed\">{{dangerRating.getText(\'generic.title\')}}</a></h4><div id=\"collapseTwo\" class=\"collapse\"><div ng-bind-html=\"dangerRating.getStructuredText(\'generic.body\').asHtml(ctx)\" class=\"panel-body\"></div></div></div><div class=\"panel panel-default last\"><h4 class=\"panel-title\"><a href=\"\" data-target=\"#collapseOne\" data-parent=\"#accordion\" data-toggle=\"collapse\" class=\"collapsed\">{{disclaimer.getText(\'generic.title\')}}</a></h4><div id=\"collapseOne\" class=\"collapse\"><div ng-bind-html=\"disclaimer.getStructuredText(\'generic.body\').asHtml(ctx)\" class=\"panel-body\"></div></div></div></div></div></div></div></div><div id=\"problems\" class=\"tab-pane\"><div id=\"problemsAccordion\" class=\"panel-group\"><div ng-repeat=\"problem in forecast.problems\" class=\"panel panel-primary\"><div class=\"panel-heading\"><h4 class=\"panel-title\"><a href=\"\" data-target=\"#problem{{$index}}\" data-toggle=\"collapse\" data-parent=\"#problemsAccordion\">{{ problem.type }}<i class=\"fa fa-fw fa-level-down pull-right\"></i><small class=\"pull-right\">click to expand</small></a></h4></div><div id=\"problem{{$index}}\" class=\"panel-collapse collapse\"><div class=\"panel-body\"><div class=\"row\"><div class=\"col-md-6\"><div class=\"panel panel-default\"><div class=\"panel-heading\"><strong class=\"small\">What Elevations?</strong></div><div class=\"panel-body ac-problem-icon ac-problem-icon--elevations\"><img ng-src=\"{{problem.icons.elevations}}\" class=\"center-block\"/></div></div></div><div class=\"col-md-6\"><div class=\"panel panel-default\"><div class=\"panel-heading\"><strong class=\"small\">What Aspects?</strong></div><div class=\"panel-body ac-problem-icon ac-problem-icon--aspects\"><img ng-src=\"{{problem.icons.aspects}}\" class=\"center-block\"/></div></div></div></div><div class=\"row\"><div class=\"col-md-6\"><div class=\"panel panel-default\"><div class=\"panel-heading\"><strong class=\"small\">Chances of Avalanches?</strong></div><div class=\"panel-body ac-problem-icon ac-problem-icon--likelihood\"><img ng-src=\"{{problem.icons.likelihood}}\" class=\"center-block\"/></div></div></div><div class=\"col-md-6\"><div class=\"panel panel-default\"><div class=\"panel-heading\"><strong class=\"small\">Expected Size?</strong></div><div class=\"panel-body ac-problem-icon ac-problem-icon--expected-size\"><img ng-src=\"{{problem.icons.expectedSize}}\" class=\"center-block\"/></div></div></div></div><div class=\"row\"><div class=\"col-md-12\"><p ng-bind-html=\"problem.comment\" class=\"ac-problem narative\"></p><div class=\"panel panel-default ac-problem-travel-advice\"><div class=\"panel-heading\"><strong class=\"small\">Travel and Terrain Advice</strong></div><div class=\"panel-body\"><p ng-bind-html=\"problem.travelAndTerrainAdvice\"></p></div></div></div></div></div></div></div></div></div><div id=\"details\" class=\"tab-pane\"><div id=\"detailsAccordion\" class=\"panel-group\"><div class=\"panel panel-primary\"><div class=\"panel-heading\"><h4 class=\"panel-title\"><a href=\"\" data-target=\"#avalancheSummary\" data-toggle=\"collapse\" data-parent=\"#detailsAccordion\">Avalanche Summary<i class=\"fa fa-fw fa-level-down fa-lg pull-right\"></i><small class=\"pull-right\">click to expand</small></a></h4></div><div id=\"avalancheSummary\" class=\"panel-collapse collapse\"><div ng-bind-html=\"forecast.avalancheSummary\" class=\"panel-body\"></div></div></div><div class=\"panel panel-primary\"><div class=\"panel-heading\"><h4 class=\"panel-title\"><a href=\"\" data-target=\"#snowpackSummary\" data-toggle=\"collapse\" data-parent=\"#detailsAccordion\">Snowpack Summary<i class=\"fa fa-fw fa-level-down fa-lg pull-right\"></i><small class=\"pull-right\">click to expand</small></a></h4></div><div id=\"snowpackSummary\" class=\"panel-collapse collapse\"><div ng-bind-html=\"forecast.snowpackSummary\" class=\"panel-body\"></div></div></div><div class=\"panel panel-primary\"><div class=\"panel-heading\"><h4 class=\"panel-title\"><a href=\"\" data-target=\"#weatherForecast\" data-toggle=\"collapse\" data-parent=\"#detailsAccordion\">Weather Forecast<i class=\"fa fa-fw fa-level-down fa-lg pull-right\"></i><small class=\"pull-right\">click to expand</small></a></h4></div><div id=\"weatherForecast\" class=\"panel-collapse collapse\"><div ng-bind-html=\"forecast.weatherForecast\" class=\"panel-body\"></div></div></div></div></div></div></div></div></div></div>");
 $templateCache.put("loading-indicator.html","<div class=\"ac-loading-indicator\"><div class=\"rect1\"></div><div class=\"rect2\"></div><div class=\"rect3\"></div><div class=\"rect4\"></div><div class=\"rect5\"></div></div>");
 $templateCache.put("min-report-form.html","<div class=\"min-form\"><form name=\"acMinForm\" ng-submit=\"submitForm()\" ng-show=\"!report.subid\" role=\"form\"><div ng-class=\"{\'has-error\': !acMinForm.title.$valid}\" class=\"form-group\"><label for=\"title\"><i class=\"fa fa-newspaper-o\"></i> Report title</label><input type=\"text\" name=\"title\" ng-model=\"report.title\" required=\"required\" class=\"form-control\"/></div><div ng-class=\"{\'has-error\': !acMinForm.datetime.$valid}\" class=\"form-group\"><label for=\"datetime\"><i class=\"fa fa-clock-o\"></i> Date and Time</label><input type=\"datetime\" name=\"datetime\" ng-model=\"report.datetime\" ac-datetime-picker=\"ac-datetime-picker\" class=\"form-control\"/></div><div ng-class=\"{\'has-error\': !acMinForm.latlng.$valid}\" class=\"form-group\"><label for=\"latlng\"><i class=\"fa fa-map-marker\"></i> Location</label><div ac-location-select=\"ac-location-select\" latlng=\"report.latlng\" style=\"height: 300px; width: 100%; margin: 10px 0;\"></div><input type=\"text\" name=\"latlng\" ng-model=\"report.latlng\" placeholder=\"Drop pin on map to set location\" required=\"required\" class=\"form-control\"/></div><div class=\"form-group\"><label for=\"uploads\"><i class=\"fa fa-image\"></i> Add photo<small style=\"font-weight: normal;\"> .jpg or .png</small></label><input type=\"file\" name=\"uploads\" file-model=\"report.files\" accept=\".png,.jpg,.jpeg\" multiple=\"multiple\" class=\"form-control\"/><div>{{ report.files.length }} photos added</div></div><!--Quick report--><div class=\"panel-group\"><div class=\"panel panel-default\"><div style=\"background-color: black; color: white;\" class=\"panel-heading\"><h4 class=\"panel-title\">Riding conditions:</h4></div><div class=\"panel-body\"><div class=\"panel-group\"><div ng-repeat=\"(item, ridingCondition) in report.obs.quickReport.ridingConditions\" class=\"panel panel-default\"><div class=\"panel-heading\"><h4 class=\"panel-title\"><strong>{{ ridingCondition.prompt }}</strong></h4></div><div class=\"panel-body\"><div class=\"form-group\"></div><div ng-if=\"ridingCondition.type==\'multiple\'\" ng-repeat=\"(option, enabled) in ridingCondition.options\" class=\"checkbox\"><label><input type=\"checkbox\" ng-model=\"ridingCondition.options[option]\"/>{{option}}</label></div><div ng-if=\"ridingCondition.type==\'single\'\" ng-repeat=\"option in ridingCondition.options\" class=\"radio\"><label><input type=\"radio\" ng-model=\"ridingCondition.selected\" ng-value=\"option\"/>{{option}}</label></div></div></div></div></div></div><div class=\"panel panel-default\"><div style=\"background-color: black; color: white;\" class=\"panel-heading\"><h4 class=\"panel-title\"><strong>Avalanche conditions</strong></h4></div><div class=\"panel-body\"><div class=\"form-group\"><div class=\"checkbox\"><label><input type=\"checkbox\" ng-model=\"report.obs.quickReport.avalancheConditions.slab\"/>Slab avalanches today or yesterday.</label></div><div class=\"checkbox\"><label><input type=\"checkbox\" ng-model=\"report.obs.quickReport.avalancheConditions.sound\"/>Whumphing or drum-like sounds or shooting cracks.</label></div><div class=\"checkbox\"><label><input type=\"checkbox\" ng-model=\"report.obs.quickReport.avalancheConditions.snow\"/>30cm + of new snow, or significant drifitng, or rain in the last 48 hours.</label></div><div class=\"checkbox\"><label><input type=\"checkbox\" ng-model=\"report.obs.quickReport.avalancheConditions.temp\"/>Rapid temperature rise to near zero degrees or wet surface snow.</label></div></div></div></div></div><div class=\"form-group\"><label>Comments</label><textarea rows=\"3\" ng-model=\"report.obs.quickReport.comment\" class=\"form-control\"></textarea></div><!--Avalanche report--><div class=\"panel-group\"><div class=\"panel panel-default\"><div style=\"background-color: black; color: white;\" class=\"panel-heading\"><h4 class=\"panel-title\">Avalanche report</h4></div><div class=\"panel-body\"><div class=\"panel-group\"><div ng-repeat=\"(item, av) in report.obs.avalancheReport.fields\" class=\"panel panel-default\"><div class=\"panel-heading\"><h4 class=\"panel-title\"><strong>{{ av.prompt }}</strong></h4></div><div class=\"panel-body\"><div class=\"form-group\"></div><p>{{av.helpText}}</p><div ng-if=\"av.type==\'checkbox\'\" ng-repeat=\"(option, enabled) in av.options\" class=\"checkbox\"><label><input type=\"checkbox\" ng-model=\"av.options[option]\"/>{{option}}</label></div><div ng-if=\"av.type==\'radio\'\" ng-repeat=\"option in av.options\" class=\"radio\"><label><input type=\"radio\" ng-model=\"av.value\" value=\"{{option}}\"/>{{option}}</label></div><div ng-if=\"av.type==\'number\'\" class=\"number\"><label><input type=\"number\" max=\"{{av.options.max}}\" min=\"{{av.options.min}}\" ng-model=\"av.value\"/></label></div><div ng-if=\"av.type==\'dropdown\'\" class=\"select\"><select ng-options=\"option for option in av.options\" ng-model=\"av.value\"></select></div><div ng-if=\"av.type==\'textarea\'\" class=\"textarea\"><textarea rows=\"3\" ng-model=\"av.value\" class=\"form-control\"></textarea></div><div ng-if=\"av.type==\'datetime\'\" class=\"datetime-input\"><label for=\"datetime\"></label><input type=\"datetime\" name=\"datetime-avalanche\" ng-model=\"av.value\" ac-datetime-picker=\"ac-datetime-picker\" placeholder=\"Click to select date\" class=\"form-control\"/></div></div></div></div></div></div></div><!--Weather report--><div class=\"panel-group\"><div class=\"panel panel-default\"><div style=\"background-color: black; color: white;\" class=\"panel-heading\"><h4 class=\"panel-title\">Weather report</h4></div><div class=\"panel-body\"><div class=\"panel-group\"><div ng-repeat=\"(item, av) in report.obs.weatherReport.fields\" class=\"panel panel-default\"><div class=\"panel-heading\"><h4 class=\"panel-title\"><strong>{{ av.prompt }}</strong></h4></div><div class=\"panel-body\"><div class=\"form-group\"></div><p>{{av.helpText}}</p><div ng-if=\"av.type==\'checkbox\'\" ng-repeat=\"(option, enabled) in av.options\" class=\"checkbox\"><label><input type=\"checkbox\" ng-model=\"av.options[option]\"/>{{option}}</label></div><div ng-if=\"av.type==\'radio\'\" ng-repeat=\"option in av.options\" class=\"radio\"><label><input type=\"radio\" ng-model=\"av.value\" value=\"{{option}}\"/>{{option}}</label></div><div ng-if=\"av.type==\'number\'\" class=\"number\"><label><input type=\"number\" max=\"{{av.options.max}}\" min=\"{{av.options.min}}\" ng-model=\"av.value\"/></label></div><div ng-if=\"av.type==\'dropdown\'\" class=\"select\"><select ng-options=\"option for option in av.options\" ng-model=\"av.value\"></select></div><div ng-if=\"av.type==\'textarea\'\" class=\"textarea\"><textarea rows=\"3\" ng-model=\"av.value\" class=\"form-control\"></textarea></div><div ng-if=\"av.type==\'datetime\'\" class=\"datetime-input\"><label for=\"datetime\"></label><input type=\"datetime\" name=\"datetime-avalanche\" ng-model=\"av.value\" ac-datetime-picker=\"ac-datetime-picker\" placeholder=\"Click to select date\" class=\"form-control\"/></div></div></div></div></div></div></div><!--snowpack report--><div class=\"panel-group\"><div class=\"panel panel-default\"><div style=\"background-color: black; color: white;\" class=\"panel-heading\"><h4 class=\"panel-title\">Snowpack report</h4></div><div class=\"panel-body\"><div class=\"panel-group\"><div ng-repeat=\"(item, av) in report.obs.snowpackReport.fields\" class=\"panel panel-default\"><div class=\"panel-heading\"><h4 class=\"panel-title\"><strong>{{ av.prompt }}</strong></h4></div><div class=\"panel-body\"><div class=\"form-group\"></div><p>{{av.helpText}}</p><div ng-if=\"av.type==\'checkbox\'\" ng-repeat=\"(option, enabled) in av.options\" class=\"checkbox\"><label><input type=\"checkbox\" ng-model=\"av.options[option]\"/>{{option}}</label></div><div ng-if=\"av.type==\'radio\'\" ng-repeat=\"option in av.options\" class=\"radio\"><label><input type=\"radio\" ng-model=\"av.value\" value=\"{{option}}\"/>{{option}}</label></div><div ng-if=\"av.type==\'number\'\" class=\"number\"><label><input type=\"number\" max=\"{{av.options.max}}\" min=\"{{av.options.min}}\" ng-model=\"av.value\"/></label></div><div ng-if=\"av.type==\'dropdown\'\" class=\"select\"><select ng-options=\"option for option in av.options\" ng-model=\"av.value\"></select></div><div ng-if=\"av.type==\'textarea\'\" class=\"textarea\"><textarea rows=\"3\" ng-model=\"av.value\" class=\"form-control\"></textarea></div><div ng-if=\"av.type==\'datetime\'\" class=\"datetime-input\"><label for=\"datetime\"></label><input type=\"datetime\" name=\"datetime-avalanche\" ng-model=\"av.value\" ac-datetime-picker=\"ac-datetime-picker\" placeholder=\"Click to select date\" class=\"form-control\"/></div></div></div></div></div></div></div><!--incident report--><div class=\"panel-group\"><div class=\"panel panel-default\"><div style=\"background-color: black; color: white;\" class=\"panel-heading\"><h4 class=\"panel-title\">Incident report</h4></div><div class=\"panel-body\"><div class=\"panel-group\"><div ng-repeat=\"(item, av) in report.obs.incidentReport.fields\" class=\"panel panel-default\"><div class=\"panel-heading\"><h4 class=\"panel-title\"><strong>{{ av.prompt }}</strong></h4></div><div class=\"panel-body\"><div class=\"form-group\"></div><p>{{av.helpText}}</p><div ng-if=\"av.type==\'checkbox\'\" ng-repeat=\"(option, enabled) in av.options\" class=\"checkbox\"><label><input type=\"checkbox\" ng-model=\"av.options[option]\"/>{{option}}</label></div><div ng-if=\"av.type==\'radio\'\" ng-repeat=\"option in av.options\" class=\"radio\"><label><input type=\"radio\" ng-model=\"av.value\" value=\"{{option}}\"/>{{option}}</label></div><div ng-if=\"av.type==\'number\'\" class=\"number\"><label><input type=\"number\" max=\"{{av.options.max}}\" min=\"{{av.options.min}}\" ng-model=\"av.value\"/></label></div><div ng-if=\"av.type==\'dropdown\'\" class=\"select\"><select ng-options=\"option for option in av.options\" ng-model=\"av.value\"></select></div><div ng-if=\"av.type==\'textarea\'\" class=\"textarea\"><textarea rows=\"3\" ng-model=\"av.value\" class=\"form-control\"></textarea></div><div ng-if=\"av.type==\'datetime\'\" class=\"datetime-input\"><label for=\"datetime\"></label><input type=\"datetime\" name=\"datetime-avalanche\" ng-model=\"av.value\" ac-datetime-picker=\"ac-datetime-picker\" placeholder=\"Click to select date\" class=\"form-control\"/></div></div></div></div></div></div></div><input type=\"submit\" id=\"submit\" value=\"Submit\" ng-disabled=\"minsubmitting\" style=\"border-radius:0; background-color: rgb(0, 86, 183); color: white;\" class=\"btn btn-default\"/><i ng-show=\"minsubmitting\" class=\"fa fa-fw fa-lg fa-spinner fa-spin\"></i></form><div ng-show=\"report.subid\"><div role=\"alert\" class=\"alert alert-success\">Your report was successfully submited.</div><div class=\"well\"><H4>Share this report:</H4><ul class=\"list-inline\"><li><a ng-href=\"https://twitter.com/intent/tweet?status={{report.shareUrl}}\"><i class=\"fa fa-twitter fa-fw fa-lg\"></i></a></li><li><a ng-href=\"https://www.facebook.com/sharer/sharer.php?u={{report.shareUrl}}\"><i class=\"fa fa-facebook fa-fw fa-lg\"></i></a></li><li><a ng-href=\"https://plus.google.com/share?url={{report.shareUrl}}\"><i class=\"fa fa-google-plus fa-fw fa-lg\"></i></a></li></ul></div></div><div ng-show=\"minerror\"><div role=\"alert\" class=\"alert alert-danger\"><p>There was an error submittting you report.</p><p ng-if=\"minerrormsg\">{{minerrormsg}}</p><div ng-if=\"validationErrors\">Please checkout the following fields:<p ng-repeat=\"(tab, fields) in validationErrors\"><span class=\"firstCapital\">{{tab}} - {{fields}}</span></p></div></div></div></div>");
