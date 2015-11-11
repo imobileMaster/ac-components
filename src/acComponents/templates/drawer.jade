@@ -13,16 +13,16 @@
               span New report
 
             li.ac-filters.ac-min-filters(ng-if="drawerPosition === 'left'")
-              ul.list-inline(ng-init="expandedMin = false")
+              ul.list-inline(ng-init="expandedMin = false",ng-class="{opened: expandedMin}")
                 li.ac-minfilter-button(ng-click="expandedMin = !expandedMin")
                   i.fa.fa-map-marker.fa-inverse.fa-2x
-                  span  Filters
+                  span MIN Filter
                 li(ng-repeat="minFilter in minFilters", ng-if="expandedMin",ng-click="toggleFilter('minFilter:'+ minFilter)", ng-class="{on: getMinFilters(minFilter)}")
                   i.fa.fa-map-marker.fa-inverse.fa-2x(ng-class="'report-'+ minFilter")
                   span {{ minFilter }}
 
             li.ac-filters.ac-date-filters(ng-if="drawerPosition === 'left'")
-              ul.list-inline
+              ul.list-inline(ng-class="{opened: expandedDate}")
                 li.on(ng-click="toggleDateFilters()")
                   i.fa.fa-calendar.fa-inverse.fa-2x
                   span {{ filters.obsPeriod }}
