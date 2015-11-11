@@ -42,7 +42,7 @@ angular.module('acComponents.directives')
             snowpack: '#3E8C8D',
             weather: '#FFAB40'
           },
-          clusterColor: '#4B6D6F'
+          clusterColor: '#607D8B'
         };
 
         L.mapbox.accessToken = MAPBOX_ACCESS_TOKEN;
