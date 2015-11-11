@@ -25,19 +25,19 @@ angular.module('acComponents.directives')
                 $scope.additionalFields = {
                   avalancheReport : {
                     name: 'Avalanche',
-                    text: 'Add Avalanche information, then build a comprehensive report by filling out details on other observation tabs: Snow, Weather and Incident.'
+                    text: 'Share information about a single, notable avalanche or tell us about overall avalanche conditions by describing many avalanches in a general sense. Aspect, elevation, trigger, dimensions/size are key data.'
                   },
                   snowpackReport : {
-                    name: 'Snow',
-                    text: 'Add Snow information, then build a comprehensive report by filling out details on other observation tabs: Avalanche, Weather and Incident.'
+                    name: 'Snowpack',
+                    text: 'Snowpack depth, layering, and bonding are key data. Test results are very useful.'
                   },
                   weatherReport : {
                     name: 'Weather',
-                    text: 'Add Weather information, then build a comprehensive report by filling out details on other observation tabs: Snow, Weather and Incident.'
+                    text: 'Key data includes information about current and accumulated precipitation, wind speed and direction, temperatures, and cloud cover.'
                   },
                   incidentReport : {
                     name: 'Incident',
-                    text: 'Add Incident information, then build a comprehensive report by filling out details on other observation tabs: Avalanche, Snow and Weather.'
+                    text: 'Sharing incidents can help us all learn. Describe close calls and accidents here. Be sensitive to the privacy of others. Before reporting serious accidents check our submission guidelines.'
                   }
                 };
 

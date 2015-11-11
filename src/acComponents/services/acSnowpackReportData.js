@@ -42,6 +42,7 @@ angular.module('acComponents.services')
         type: 'radio',
         prompt: 'Snowpack Site Aspect',
         options: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'],
+        value: null,
         order: 5
       },
 
@@ -53,6 +54,7 @@ angular.module('acComponents.services')
           max: 10000
         },
         helpText:'Total height of snow in centimetres. Averaged if this is a summary.',
+        value: null,
         order: 6
       },
 
@@ -60,7 +62,7 @@ angular.module('acComponents.services')
         type: 'radio',
         prompt: 'Did you observe whumpfing?',
         options: ['Yes', 'No'],
-        selected: null,
+        value: null,
         helpText: 'A whumpf is a rapid settlement of the snowpack caused by the collapse of a weak layer. It is accompanied by an audible noise.',
         order: 7
       },
@@ -69,7 +71,7 @@ angular.module('acComponents.services')
         type: 'radio',
         prompt: 'Did you observe cracking?',
         options: ['Yes', 'No'],
-        selected: null,
+        value: null,
         helpText: 'Cracking is shooting cracks radiating more than a couple of metres from your sled or skis.',
         order: 8
       },
@@ -96,6 +98,7 @@ angular.module('acComponents.services')
           max: 200
         },
         helpText:'How far you sink into the snow when standing on one fully-weighted foot.',
+        value: null,
         order: 10
       },
 
@@ -107,6 +110,7 @@ angular.module('acComponents.services')
           max: 200
         },
         helpText:'How far  you sink into the snow when standing on one fully-weighted ski.',
+        value: null,
         order: 11
       },
 
@@ -118,6 +122,7 @@ angular.module('acComponents.services')
           max: 200
         },
         helpText:'The depth a sled sinks into the snow after stopping slowly on level terrain.',
+        value: null,
         order: 12
       },
 
@@ -126,6 +131,7 @@ angular.module('acComponents.services')
         prompt: 'Snowpack Test Result',
         options: ['None', 'Very Easy', 'Easy', 'Moderate', 'Hard'],
         helpText: 'Average if you did a number of tests.',
+        value: null,
         order: 13
       },
 
@@ -134,6 +140,7 @@ angular.module('acComponents.services')
         prompt: 'Snowpack Test Fracture Character',
         options: ['Sudden ("Pop" or "Drop")', 'Resistant', 'Uneven break'],
         helpText: 'Average if you did a number of tests. Describe further in comments if variable results.',
+        value: null,
         order: 14
       },
 
@@ -145,6 +152,7 @@ angular.module('acComponents.services')
           max: 200
         },
         helpText:'Depth below the surface that failure occurred.',
+        value: null,
         order: 15
       }
     };
