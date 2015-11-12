@@ -27,7 +27,11 @@
             .col-xs-6(ng-if='forecast.region == "kananaskis"')
                 a.pull-right(target='_blank', href='')
                     img(style='width:75px;' src='http://www.avalanche.ca/assets/images/kananaskis.jpg')
-            .col-xs-6(ng-if='!(forecast.region == "kananaskis")')
+            .col-xs-6(ng-if='forecast.region == "whistler-blackcomb"')
+                a.pull-right.ac-forcast-mini--wbc-logo(target='_blank', href='http://whistlerblackcomb.com/mountain-info/backcountry') 
+                  include wbc-logo.html
+
+            .col-xs-6(ng-if='!(forecast.region == "kananaskis" || forecast.region == "whistler-blackcomb")')
                 a.pull-right(target='_blank', href='{{sponsor.getText("sponsor.url")}}')
                     img(src='{{sponsor.getText("sponsor.image-229")}}')
         .row.ac-forecast-dates
@@ -199,3 +203,30 @@
                                             small.pull-right click to expand
                                 #weatherForecast.panel-collapse.collapse
                                     .panel-body(ng-bind-html='forecast.weatherForecast')
+
+        .row.ac-forecast-mini--whistler-links(ng-if='forecast.region == "whistler-blackcomb"')
+            .col-xs-9
+              div
+                a(href='#') Weather Stations
+              div
+                a(href='#') Danger Ratings Explained
+              div
+                a(href='#') Forecast Disclaimer
+              div
+                a(href='#') Whistler-Blackcomb Website
+              div
+                a(href='#') Whistler Heli-skiing Website
+              div
+                a(href='#') Extremely Canadian Website
+
+            .col-xs-3.social-media
+              div
+                a(href='#')
+                  i.fa.fa-twitter-square
+              div
+                a(href='#')
+                  i.fa.fa-facebook-square
+              div
+                a(href='#')
+                  i.fa.fa-rss-square
+
