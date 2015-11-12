@@ -1,5 +1,5 @@
 angular.module('acComponents.directives')
-  .directive('acMapboxMap', function ($rootScope, $window, $location, $timeout, acBreakpoint, acObservation, acForecast, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID) {
+  .directive('acMapboxMap', function ($rootScope, $window, $location, $timeout, acBreakpoint, acObservation, acForecast, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID) {
     return {
       template: '<div id="map"></div>',
       replace: true,
@@ -283,9 +283,15 @@ angular.module('acComponents.directives')
                 });
 
               marker.on('click', function (e) {
-                $scope.$apply(function () {
-                  $scope.currentReport = ob;
+
+                acSubmission.getOne(ob.subid).then(function(results){
+                  results.requested = ob.obtype;
+                  $scope.currentReport = results;
                 });
+
+                //$scope.$apply(function () {
+                //  $scope.currentReport = ob;
+                //});
               });
 
               marker.eachLayer(function (layer) {
