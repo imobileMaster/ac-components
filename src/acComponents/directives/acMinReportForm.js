@@ -14,11 +14,13 @@ angular.module('acComponents.directives')
             }
         };
     })
-    .directive('acMinReportForm', function($q, $timeout, acQuickReportData, acAvalancheReportData, acIncidentReportData, acSnowpackReportData, acWeatherReportData, acFormUtils, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, store) {
+    .directive('acMinReportForm', function($q, $timeout, acQuickReportData, acAvalancheReportData, acIncidentReportData, acSnowpackReportData, acWeatherReportData, acFormUtils, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, store, $anchorScroll) {
         return {
             templateUrl: 'min-report-form.html',
             replace: true,
             link: function($scope, el, attrs) {
+
+                var submissionGuidelinesLink = 'http://www.avalanche.ca/fxresources/Submissions+Guidelines.pdf';
 
                 initReport();
 
@@ -37,7 +39,7 @@ angular.module('acComponents.directives')
                   },
                   incidentReport : {
                     name: 'Incident',
-                    text: 'Sharing incidents can help us all learn. Describe close calls and accidents here. Be sensitive to the privacy of others. Before reporting serious accidents check our submission guidelines.'
+                    text: 'Sharing incidents can help us all learn. Describe close calls and accidents here. Be sensitive to the privacy of others. Before reporting serious accidents check our <a href="'+submissionGuidelinesLink+'" target="_blank">submission guidelines</a>.'
                   }
                 };
 
@@ -47,9 +49,14 @@ angular.module('acComponents.directives')
                   }
                 };
 
+                $scope.scrollToTop = function () {
+                  $anchorScroll.yOffset = 100;
+                  $anchorScroll('top');
+                };
+
                 function tabCompleted (tab) {
                   if (tab === 'quickReport') {
-                    return acQuickReportData.isCompleted();
+                    return acQuickReportData.isCompleted($scope.report.obs.quickReport);
                   } else {
                     return $scope.report.obs[tab].isCompleted();
                   }

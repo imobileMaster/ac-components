@@ -1,13 +1,6 @@
 angular.module('acComponents.services')
   .factory('acWeatherReportData', function(acFormUtils) {
     var fields = {
-      weatherObsComment: {
-        type: 'textarea',
-        prompt: 'Weather Observation Comment',
-        value: null,
-        order: 1
-      },
-
       skyCondition: {
         type: 'checkbox',
         prompt: 'Cloud Cover:',
@@ -19,19 +12,18 @@ angular.module('acComponents.services')
           'Overcast (8/8)': false,
           'Fog': false
         },
+        inline: true,
         helpText: 'Values expressed in eighths refer to the proportion of the sky that was covered with clouds. E.g. 2/8 refers to a sky approximately one quarter covered with cloud.',
-        order: 2
+        order: 1
       },
 
       precipitationType: {
-        type: 'checkbox',
+        type: 'radio',
         prompt: 'Precipitation Type:',
-        options: {
-          'Snow': false,
-          'Rain': false,
-          'None': false
-        },
-        order: 3
+        options: ['Snow', 'Rain', 'None'],
+        value: null,
+        inline: true,
+        order: 2
       },
 
       snowfallRate: {
@@ -43,7 +35,8 @@ angular.module('acComponents.services')
         },
         value: null,
         helpText: 'If there was no snow, please leave this field blank.',
-        order: 4
+        errorMessage: 'Number between 1 and 20 please.',
+        order: 3
       },
 
       rainfallRate: {
@@ -51,8 +44,9 @@ angular.module('acComponents.services')
         prompt: 'Rainfall rate:',
         options: ['Drizzle', 'Showers', 'Raining', 'Pouring'],
         value: null,
+        inline: true,
         helpText: 'If there was no rain, please leave this field blank.',
-        order: 5
+        order: 4
       },
 
       temperature: {
@@ -63,7 +57,8 @@ angular.module('acComponents.services')
           max: 40
         },
         value: null,
-        order: 6
+        errorMessage: 'Number between -50 and 40 please.',
+        order: 5
       },
 
       minTemp: {
@@ -74,7 +69,8 @@ angular.module('acComponents.services')
           'max': 30
         },
         value: null,
-        order: 7
+        errorMessage: 'Number between -50 and 30 please.',
+        order: 6
       },
 
       maxTemp: {
@@ -85,7 +81,8 @@ angular.module('acComponents.services')
           max: 40
         },
         value: null,
-        order: 8
+        errorMessage: 'Number between -40 and 40 please.',
+        order: 7
       },
 
       temperatureTrend: {
@@ -93,8 +90,9 @@ angular.module('acComponents.services')
         prompt: 'Temperature Trend:',
         options: ['Falling', 'Steady', 'Rising'],
         value: null,
+        inline: true,
         helpText: 'Describe how the temperature changed in the last 3 hours.',
-        order: 9
+        order: 8
       },
 
       newSnow24Hours: {
@@ -105,7 +103,8 @@ angular.module('acComponents.services')
           max: 100
         },
         value: null,
-        order: 10
+        errorMessage: 'Number between 0 and 100 please.',
+        order: 9
       },
 
       precipitation24Hours: {
@@ -116,7 +115,8 @@ angular.module('acComponents.services')
           max: 100
         },
         value: null,
-        order: 11
+        errorMessage: 'Number between 0 and 100 please.',
+        order: 10
       },
 
       stormSnowAmount: {
@@ -128,7 +128,8 @@ angular.module('acComponents.services')
         },
         value: null,
         helpText: 'Please enter the amount of snow that has fallen during the current storm cycle. You can specify a storm start date to describe the time period over which this snow fell.',
-        order: 12
+        errorMessage: 'Number between 0 and 300 please.',
+        order: 11
       },
 
       stormStartDate: {
@@ -136,7 +137,7 @@ angular.module('acComponents.services')
         prompt: 'Storm Start Date',
         value: null,
         helpText: 'The date on which the most recent storm started. Leave blank if there has not been a recent storm.',
-        order: 13
+        order: 12
       },
 
       windSpeed: {
@@ -145,22 +146,30 @@ angular.module('acComponents.services')
         options: ['Calm', 'Light (1-25 km/h)', 'Moderate (26-40 km/h)', 'Strong (41-60 km/h)', 'Extreme (>60 km/h)'],
         value: null,
         helpText: 'Calm: smoke rises. Light: flags and twigs move. Moderate: snow begins to drift. Strong: whole tress in motion. Extreme: difficulty walking.',
-        order: 14
+        order: 13
       },
 
       windDirection: {
         type: 'radio',
         prompt: 'Wind Direction',
         options: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'],
+        inline: true,
         value: null,
-        order: 15
+        order: 14
       },
 
       blowingSnow: {
         type: 'radio',
         prompt: 'Blowing Snow',
         options: ['None', 'Light', 'Moderate', 'Intense'],
+        inline: true,
         helpText: 'How much snow is blowing at ridge crest elevation. Light: localized snow drifting. Moderate: a plume of snow is visible. Intense: a large plume moving snow well down the slope.',
+        order: 15
+      },
+
+      weatherObsComment: {
+        type: 'textarea',
+        prompt: 'Weather Observation Comment',
         value: null,
         order: 16
       }

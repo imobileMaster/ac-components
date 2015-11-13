@@ -3,20 +3,14 @@ angular.module('acComponents.services')
 
     var fields = {
 
-      snowpackObsComment: {
-        type: 'textarea',
-        prompt: 'Snowpack Observation Comment',
-        value: null,
-        order: 1
-      },
-
       snowpackObsType: {
         type: 'radio',
         prompt: 'Is this a point observation or a summary of your day?',
         options: ['Point Observation', 'Summary'],
+        inline: true,
         value: null,
         helpText: 'Please add additional information about the snowpack, especially notes about weak layer, how the snow varied by aspect/elevation, and details of any slope testing performed.',
-        order: 2
+        order: 1
       },
 
       snowpackSiteElevation: {
@@ -27,15 +21,17 @@ angular.module('acComponents.services')
           max: 4000
         },
         value: null,
-        order: 3
+        errorMessage: 'Number between 0 and 4000 please.',
+        order: 2
       },
 
       snowpackSiteElevationBand: {
         type: 'radio',
         prompt: 'Snowpack Site Elevation Band',
         options: ['Alpine', 'Treeline', 'Below Treeline'],
+        inline: true,
         value: null,
-        order: 4
+        order: 3
       },
 
       snowpackSiteAspect: {
@@ -43,7 +39,8 @@ angular.module('acComponents.services')
         prompt: 'Snowpack Site Aspect',
         options: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'],
         value: null,
-        order: 5
+        inline: true,
+        order: 4
       },
 
       snowpackDepth: {
@@ -55,25 +52,28 @@ angular.module('acComponents.services')
         },
         helpText:'Total height of snow in centimetres. Averaged if this is a summary.',
         value: null,
-        order: 6
+        errorMessage: 'Number between 0 and 10000 please.',
+        order: 5
       },
 
       snowpackWhumpfingObserved:{
         type: 'radio',
         prompt: 'Did you observe whumpfing?',
         options: ['Yes', 'No'],
+        inline: true,
         value: null,
         helpText: 'A whumpf is a rapid settlement of the snowpack caused by the collapse of a weak layer. It is accompanied by an audible noise.',
-        order: 7
+        order: 6
       },
 
       snowpackCrackingObserved:{
         type: 'radio',
         prompt: 'Did you observe cracking?',
         options: ['Yes', 'No'],
+        inline: true,
         value: null,
         helpText: 'Cracking is shooting cracks radiating more than a couple of metres from your sled or skis.',
-        order: 8
+        order: 7
       },
 
       snowpackSurfaceCondition: {
@@ -87,7 +87,8 @@ angular.module('acComponents.services')
           'Corn': false,
           'Variable': false
         },
-        order: 9
+        inline: true,
+        order: 8
       },
 
       snowpackFootPenetration: {
@@ -99,7 +100,8 @@ angular.module('acComponents.services')
         },
         helpText:'How far you sink into the snow when standing on one fully-weighted foot.',
         value: null,
-        order: 10
+        errorMessage: 'Number between 0 and 200 please.',
+        order: 9
       },
 
       snowpackSkiPenetration: {
@@ -111,7 +113,8 @@ angular.module('acComponents.services')
         },
         helpText:'How far  you sink into the snow when standing on one fully-weighted ski.',
         value: null,
-        order: 11
+        errorMessage: 'Number between 0 and 200 please.',
+        order: 10
       },
 
       snowpackSledPenetration: {
@@ -123,7 +126,8 @@ angular.module('acComponents.services')
         },
         helpText:'The depth a sled sinks into the snow after stopping slowly on level terrain.',
         value: null,
-        order: 12
+        errorMessage: 'Number between 0 and 200 please.',
+        order: 11
       },
 
       snowpackTestInitiation: {
@@ -132,7 +136,8 @@ angular.module('acComponents.services')
         options: ['None', 'Very Easy', 'Easy', 'Moderate', 'Hard'],
         helpText: 'Average if you did a number of tests.',
         value: null,
-        order: 13
+        inline: true,
+        order: 12
       },
 
       snowpackTestFracture: {
@@ -141,7 +146,8 @@ angular.module('acComponents.services')
         options: ['Sudden ("Pop" or "Drop")', 'Resistant', 'Uneven break'],
         helpText: 'Average if you did a number of tests. Describe further in comments if variable results.',
         value: null,
-        order: 14
+        inline: true,
+        order: 13
       },
 
       snowpackTestFailure: {
@@ -152,6 +158,14 @@ angular.module('acComponents.services')
           max: 200
         },
         helpText:'Depth below the surface that failure occurred.',
+        value: null,
+        errorMessage: 'Number between 0 and 200 please.',
+        order: 14
+      },
+
+      snowpackObsComment: {
+        type: 'textarea',
+        prompt: 'Snowpack Observation Comment',
         value: null,
         order: 15
       }

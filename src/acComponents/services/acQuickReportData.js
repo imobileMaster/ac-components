@@ -73,8 +73,36 @@ angular.module('acComponents.services')
             }
         };
 
-        this.isCompleted = function () {
-          return true;
-        }
+
+        // this function is different from the other isCompleted functions because we had to preserve the form of the service
+        // in order to keep the functionality of the mobile app.
+        this.isCompleted = function (fields) {
+
+          var avalancheConditionsCompleted = checkedOption(fields.avalancheConditions);
+
+          var ridingConditionsCompleted = _.reduce(fields.ridingConditions, function (total, item, key) {
+            if (item.type === 'single' && !_.isEmpty(item.selected)) {
+              total++;
+            } else if (item.type === 'multiple') {
+              var itemCompleted = checkedOption(item.options);
+
+              if (itemCompleted > 0) {
+                total++;
+              }
+            }
+
+            return total;
+          }, 0);
+
+          var commentCompleted = !_.isEmpty(fields.comment) ? 1 : 0;
+
+          return avalancheConditionsCompleted + ridingConditionsCompleted + commentCompleted > 0;
+
+          function checkedOption (collection) {
+            return _.reduce(collection, function (total, value) {
+              return total + value ? 1 : 0;
+            }, 0);
+          }
+        };
   }
     );
