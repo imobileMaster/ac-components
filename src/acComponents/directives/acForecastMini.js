@@ -40,4 +40,10 @@ angular.module('acComponents.directives')
             }
         };
     })
+    .directive('whistlerLinks', function (AC_API_ROOT_URL) {
+        return {
+            restrict: 'E',
+            templateUrl: 'wbc-links.html'
+        };
+    });
 ;

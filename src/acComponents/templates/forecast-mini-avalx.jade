@@ -91,40 +91,23 @@
                                    footer#forecast-bulletin.col-xs-12
                                 .panel-group
 
-                                    .panel.panel-default.first
-                                        h4.panel-title
-                                            a.collapsed(href='' data-target='#collapseTwo', data-parent='#accordion', data-toggle='collapse')
-                                                | {{dangerRating.getText('generic.title')}}
-                                        #collapseTwo.collapse
-                                            .panel-body(ng-bind-html="dangerRating.getStructuredText('generic.body').asHtml(ctx)")
+                                    div(ng-switch='forecast.region')
+                                      div(ng-switch-when="whistler-blackcomb")
+                                        whistler-links
+                                      div(ng-switch-default)
+                                        .panel.panel-default.first
+                                            h4.panel-title
+                                                a.collapsed(href='' data-target='#collapseTwo', data-parent='#accordion', data-toggle='collapse')
+                                                    | {{dangerRating.getText('generic.title')}}
+                                            #collapseTwo.collapse
+                                                .panel-body(ng-bind-html="dangerRating.getStructuredText('generic.body').asHtml(ctx)")
 
-                                    .panel.panel-default.last
-                                        h4.panel-title
-                                            a.collapsed(href='', data-target="#collapseOne" data-parent='#accordion', data-toggle='collapse')
-                                                | {{disclaimer.getText('generic.title')}}
-                                        #collapseOne.collapse
-                                            .panel-body(ng-bind-html="disclaimer.getStructuredText('generic.body').asHtml(ctx)")
-                              .row.ac-forecast-mini--whistler-links(ng-if='forecast.region == "whistler-blackcomb"')
-                                  .col-xs-9
-                                    div
-                                      a(href='#') Weather Stations
-                                    div
-                                      a(target='_blank' href='http://www.whistlerblackcomb.com/') Whistler-Blackcomb Website
-                                    div
-                                      a(target='_blank' href='http://www.whistlerheliskiing.com/') Whistler Heli-skiing Website
-                                    div
-                                      a(target='_blank' href='http://www.extremelycanadian.com/') Extremely Canadian Website
-
-                                  .col-xs-3.social-media
-                                    div
-                                      a(href='https://twitter.com/whistlerblckcmb')
-                                        i.fa.fa-twitter-square
-                                    div
-                                      a(href='https://www.facebook.com/whistlerblackcomb')
-                                        i.fa.fa-facebook-square
-                                    div
-                                      a(href='/api/forecasts/whistler-blackcomb.rss')
-                                        i.fa.fa-rss-square
+                                        .panel.panel-default.last
+                                            h4.panel-title
+                                                a.collapsed(href='', data-target="#collapseOne" data-parent='#accordion', data-toggle='collapse')
+                                                    | {{disclaimer.getText('generic.title')}}
+                                            #collapseOne.collapse
+                                                .panel-body(ng-bind-html="disclaimer.getStructuredText('generic.body').asHtml(ctx)")
 
 
                 #problems.tab-pane
