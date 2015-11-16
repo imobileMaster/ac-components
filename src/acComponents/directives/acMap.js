@@ -36,11 +36,11 @@ angular.module('acComponents.directives')
             }
           },
           reportType: {
-            incident: '#FF5252',
-            quick: '#85C974',
-            avalanche: '#83B8D3',
-            snowpack: '#3E8C8D',
-            weather: '#FFAB40'
+            incident: '#F44336',
+            quick: '#4CAF50',
+            avalanche: '#03A9F4',
+            snowpack: '#3F51B5',
+            weather: '#FFC107'
           },
           clusterColor: '#607D8B'
         };
@@ -283,10 +283,12 @@ angular.module('acComponents.directives')
                 });
 
               marker.on('click', function (e) {
+                $rootScope.requestInProgress = true;
 
                 acSubmission.getOne(ob.subid).then(function(results){
                   results.requested = ob.obtype;
                   $scope.currentReport = results;
+                  $rootScope.requestInProgress = false;
                 });
 
                 //$scope.$apply(function () {
