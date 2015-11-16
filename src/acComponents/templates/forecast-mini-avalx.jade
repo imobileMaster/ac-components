@@ -2,15 +2,18 @@
     .row
         .col-xs-6
             h4.ac-forecast-region {{ forecast.bulletinTitle | acNormalizeForecastTitle }}
-        .col-xs-6(ng-if='forecast.region == "kananaskis"')
-            a.pull-right(target='_blank', href='')
-                img(style='width:75px;' src='http://www.avalanche.ca/assets/images/kananaskis.jpg')
-        .col-xs-6.ac-forcast-mini--wbc-logo(ng-if='forecast.region == "whistler-blackcomb"')
-            include wbc-logo.html
+        div(ng-switch='forecast.region')
 
-        .col-xs-6(ng-if='!(forecast.region == "kananaskis" || forecast.region == "whistler-blackcomb")')
-            a.pull-right(target='_blank', href='{{sponsor.getText("sponsor.url")}}')
-                img(src='{{sponsor.getText("sponsor.image-229")}}')
+          .col-xs-6(ng-switch-when='kananaskis')
+              a.pull-right(target='_blank', href='')
+                  img(style='width:75px;' src='http://www.avalanche.ca/assets/images/kananaskis.jpg')
+
+          .col-xs-6.ac-forcast-mini--wbc-logo(ng-switch-when='whistler-blackcomb')
+              include wbc-logo.html
+
+          .col-xs-6(ng-switch-default)
+              a.pull-right(target='_blank', href='{{sponsor.getText("sponsor.url")}}')
+                  img(src='{{sponsor.getText("sponsor.image-229")}}')
     .row.ac-forecast-dates
         .col-md-6
             dl
