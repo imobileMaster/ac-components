@@ -22,9 +22,13 @@ angular.module('acComponents.services')
           return this.options;
         },
         validate: function(){
-          var noOfSelected = this.getNumberSelected();
+          if (angular.isDefined(this.limit)) {
+            var noOfSelected = this.getNumberSelected();
 
-          return noOfSelected<= this.limit;
+            return noOfSelected <= this.limit;
+          }
+
+          return true;
         },
         reset: function () {
           var options = this.options;

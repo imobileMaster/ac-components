@@ -11,12 +11,14 @@ angular.module('acComponents.config', [])
     .constant('AC_API_ROOT_URL', 'http://localhost:9000');
 
 // Modules
+angular.module('acComponents.controllers', []);
 angular.module('acComponents.directives', []);
 angular.module('acComponents.filters', []);
 angular.module('acComponents.services', []);
 angular.module('acComponents',
     [
         'acComponents.config',
+        'acComponents.controllers',
         'acComponents.directives',
         'acComponents.filters',
         'acComponents.services',
