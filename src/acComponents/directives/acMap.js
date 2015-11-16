@@ -1,5 +1,5 @@
 angular.module('acComponents.directives')
-  .directive('acMapboxMap', function ($rootScope, $window, $location, $timeout, acBreakpoint, acObservation, acForecast, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID) {
+  .directive('acMapboxMap', function ($rootScope, $window, $location, $timeout, acBreakpoint, acObservation, acForecast, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID) {
     return {
       template: '<div id="map"></div>',
       replace: true,
@@ -9,7 +9,8 @@ angular.module('acComponents.directives')
         showRegions: '=acShowRegions',
         obs: '=acObs',
         ob: '=acOb',
-        minFilters: '=acMinFilters'
+        minFilters: '=acMinFilters',
+        currentReport: '=acReport'
       },
       link: function ($scope, el, attrs) {
         $scope.device = {};
@@ -35,13 +36,13 @@ angular.module('acComponents.directives')
             }
           },
           reportType: {
-            incident: '#FF5252',
-            quick: '#FFAB40',
-            avalanche: '#83B8D3',
-            snowpack: '#3E8C8D',
-            weather: '#85C974'
+            incident: '#F44336',
+            quick: '#4CAF50',
+            avalanche: '#03A9F4',
+            snowpack: '#3F51B5',
+            weather: '#FFC107'
           },
-          clusterColor: '#4B6D6F'
+          clusterColor: '#607D8B'
         };
 
         L.mapbox.accessToken = MAPBOX_ACCESS_TOKEN;
@@ -126,6 +127,7 @@ angular.module('acComponents.directives')
                 $scope.$apply(function () {
                   $scope.region = layer;
                 });
+
               }
 
               layer.on('click', showRegion);
@@ -281,7 +283,17 @@ angular.module('acComponents.directives')
                 });
 
               marker.on('click', function (e) {
+                $rootScope.requestInProgress = true;
 
+                acSubmission.getOne(ob.subid).then(function(results){
+                  results.requested = ob.obtype;
+                  $scope.currentReport = results;
+                  $rootScope.requestInProgress = false;
+                });
+
+                //$scope.$apply(function () {
+                //  $scope.currentReport = ob;
+                //});
               });
 
               marker.eachLayer(function (layer) {

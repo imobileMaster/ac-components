@@ -1,59 +1,32 @@
 .ac-drawer
-    style.
-        .ac-drawer-tools {
-            z-index: -200;
-        }
 
-        .ac-date-filters {
-            background-color: transparent;
-        }
-
-        .ac-date-filters ul {
-            position: relative;
-            width: 250px;
-        }
-
-        .ac-date-filters ul.expanded {
-            right: 200px;
-        }
-
-        .ac-date-filters ul li {
-            color: rgba(255, 255, 255, 0.2);
-        }
-
-        .ac-date-filters ul li.on {
-            color: rgb(0, 86, 183);
-        }
-
-        .ac-date-filters ul li i {
-            padding-top: 5px;
-            margin-left: 8px;
-        }
-
-        .ac-date-filters ul li span {
-            display: block;
-            font-size: 0.7em;
-            padding-left: 4px;
-        }
-
-
-    a.ac-drawer-close.visible-xs(ng-click="drawer.visible = false")
+    a.ac-drawer-close.visible-xs(ng-click="drawer.right.visible = false")
         i.fa.fa-close.fa-lg
     .ac-drawer-tools
         ul
-            li(ng-click="drawer.enabled = !drawer.enabled; regionsVisible = !regionsVisible;", ng-class="{on: drawer.visible && drawer.enabled}", style="margin-bottom: 50px;")
-                div(ac-danger-icon, style="height: 50px; width:50px;")
-            li.ac-date-filters(style="background-color: transparent;")
-              ul.list-inline(ng-init="expandedMin = false", ng-class="{expanded: expandedMin}")
-                li.on(ng-click="expandedMin = !expandedMin")
+            li(ng-if="drawerPosition === 'right'", ng-click="toggleForecast()", ng-class="{on: drawer.right.visible && drawer.right.enabled}", style="margin-bottom: 50px;")
+                div(ac-danger-icon, style="height: 60px; width:60px;")
+
+            li.ac-submit-report-tab.on(ng-if="drawerPosition === 'left'", ng-click="goToSubmitReport()", style="margin-bottom: 50px;")
+              i.fa.fa-plus.fa-2x
+              i.fa.fa-tasks.fa-inverse.fa-2x
+              span New report
+
+            li.ac-filters.ac-min-filters(ng-if="drawerPosition === 'left'")
+              ul.list-inline(ng-init="expandedMin = false",ng-class="{opened: expandedMin}")
+                li.ac-minfilter-button(ng-click="expandedMin = !expandedMin")
                   i.fa.fa-map-marker.fa-inverse.fa-2x
-                  span  Filters
-                li(ng-repeat="minFilter in minFilters", ng-click="toggleFilter('minFilter:'+ minFilter)", ng-class="{on: getMinFilters(minFilter)}")
-                  i.fa.fa-map-marker.fa-inverse.fa-2x
+                  span MIN Filter
+                li(ng-repeat="minFilter in minFilters", ng-if="expandedMin",ng-click="toggleFilter('minFilter:'+ minFilter)", ng-class="{on: getMinFilters(minFilter)}")
+                  i.fa.fa-map-marker.fa-inverse.fa-2x(ng-class="'report-'+ minFilter")
                   span {{ minFilter }}
-            li.ac-date-filters(ng-click="expanded = true", style="background-color: transparent;")
-                ul.list-inline(ng-class="{expanded: expanded}", ng-init="expanded = false")
-                    li(ng-repeat="dateFilter in dateFilters", ng-click="toggleFilter('obsPeriod:'+dateFilter)", ng-class="{on: filters.obsPeriod === dateFilter}")
-                        i.fa.fa-calendar.fa-inverse.fa-2x
-                        span {{ dateFilter }}
+
+            li.ac-filters.ac-date-filters(ng-if="drawerPosition === 'left'")
+              ul.list-inline(ng-class="{opened: expandedDate}")
+                li.on(ng-click="toggleDateFilters()")
+                  i.fa.fa-calendar.fa-inverse.fa-2x
+                  span {{ filters.obsPeriod }}
+                li(ng-repeat="dateFilter in dateFilters", ng-if="expandedDate", ng-click="toggleFilter('obsPeriod:'+dateFilter);", ng-class="{hidden: filters.obsPeriod === dateFilter}")
+                  i.fa.fa-calendar.fa-inverse.fa-2x
+                  span {{ dateFilter }}
     .ac-drawer-body(ng-transclude)

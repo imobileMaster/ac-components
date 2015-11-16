@@ -1,0 +1,82 @@
+.panel
+  .panel-body
+    .row
+      .pull-right.close-drawer(ng-click="closeDrawer()")
+        i.fa.fa-close
+      .col-sm-8.col-xs-12
+        h3 {{::sub.title}}
+      .col-sm-3.col-xs-12
+        a.pull-right(target='_blank', href='{{sponsor.getText("sponsor.url")}}')
+          img(src='{{sponsor.getText("sponsor.image-229")}}')
+    .row.submission-header
+      .col-sm-12.section-label
+        i.fa.fa-clock-o
+        span Submitted
+      .col-sm-12
+        p By <span> {{::sub.user}} </span>
+        p On {{::sub.dateFormatted}}
+
+  .panel-body
+    .row-fluid.observation-tabs
+      ul.nav.nav-pills(role="tablist")
+        li(ng-repeat="tab in reportTypes",role="presentation", ng-class="[hasReport(tab),{active: tab === sub.requested}]")
+          a(data-target="{{'#'+tab}}", ng-click="changeTab(tab)", aria-controls="{{tab}}", role="tab", data-toggle="tab",style="text-transform: uppercase;") {{::tab}}
+    .row-fluid
+      .tab-content
+        div.tab-pane(ng-repeat="tab in reportTypes", role="tabpanel", id="{{tab}}", ng-class="{active: tab === sub.requested}")
+          div(ng-repeat="ob in sub.obs")
+            div.submission-header(ng-if="ob.obtype === sub.requested", ng-repeat="item in activeTab")
+              .observation-item(ng-if="item.type === 'number' || item.type === 'radio'|| item.type === 'dropdown'")
+                .row-fluid.section-label
+                  i.fa.fa-info-circle
+                  span {{::item.prompt}}
+                  span.value {{::item.value}}
+              .observation-item(ng-if="item.type === 'textarea'")
+                .row-fluid.section-label
+                  i.fa.fa-comment
+                  span {{::item.prompt}}
+                .row-fluid
+                  | {{::item.value}}
+              .observation-item(ng-if="item.type === 'checkbox'")
+                .row-fluid.section-label
+                  i.fa.fa-info-circle
+                  span {{::item.prompt}}
+                .row-fluid
+                  ul
+                    li(ng-repeat="op in item.value track by $index")
+                      i.fa.fa-check {{op}}
+              .observation-item(ng-if="item.type === 'datetime'")
+                .row-fluid.section-label
+                  i.fa.fa-info-circle
+                  span {{::item.prompt}}
+                  span.value {{::item.value | date: medium : '-0800'}}
+
+
+  .panel-body.upload-n-share
+    .row(ng-if="sub.uploads.length > 0")
+      .col-sm-12.section-label
+        i.fa.fa-camera
+        span Uploads (click/tap to enlarge)
+
+      .col-sm-12
+        ul.list-inline
+          li(ng-repeat="url in sub.thumbs")
+            a(ng-href="{{::url}}", target="_blank")
+              img(ng-src="{{::url}}", width="75", alt="{{::sub.title}}")
+    .row
+      .col-sm-12.section-label
+        i.fa.fa-share-square-o
+        span Share this report
+
+      .col-sm-12
+        .col-sm-12
+          ul.list-inline
+            li
+              a(ng-href="https://twitter.com/intent/tweet?status={{::sub.shareUrl}}")
+                i.fa.fa-twitter.fa-fw.fa-lg
+            li
+              a(ng-href="https://www.facebook.com/sharer/sharer.php?u={{::sub.shareUrl}}")
+                i.fa.fa-facebook.fa-fw.fa-lg
+            li
+              a(ng-href="https://plus.google.com/share?url={{::sub.shareUrl}}")
+                i.fa.fa-google-plus.fa-fw.fa-lg
