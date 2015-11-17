@@ -14,19 +14,11 @@ angular.module('acComponents.directives')
             }
         };
     })
-    .directive('acMinReportForm', function($q, $timeout, acBreakpoint, acQuickReportData, acAvalancheReportData, acIncidentReportData, acSnowpackReportData, acWeatherReportData, acFormUtils, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, store, $anchorScroll, $modal) {
+    .directive('acMinReportForm', function($state, $q, $timeout, acBreakpoint, acQuickReportData, acAvalancheReportData, acIncidentReportData, acSnowpackReportData, acWeatherReportData, acFormUtils, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, store, $anchorScroll, $modal) {
         return {
             templateUrl: 'min-report-form.html',
             replace: true,
             link: function($scope, el, attrs) {
-
-                acBreakpoint.setBreakpoints({xs: 400, sm: 600, md: 1025});
-
-                $scope.isMobile = false;
-
-                $scope.$on('breakpoint', function (event, bp) {
-                  $scope.isMobile = (_.indexOf(['xs', 'sm', 'md'], bp) > -1);
-                });
 
                 var submissionGuidelinesLink = 'http://www.avalanche.ca/fxresources/Submissions+Guidelines.pdf';
 
@@ -108,6 +100,11 @@ angular.module('acComponents.directives')
 
                 $scope.resetForm = resetForm;
 
+                $scope.goBack = function () {
+                  resetForm();
+                  $state.go('ac.map');
+                };
+
                 $scope.submitForm = function() {
 
                     var reqObj = _.cloneDeep($scope.report);
@@ -123,7 +120,7 @@ angular.module('acComponents.directives')
                         return total;
                     }, {});
 
-                    console.log('to be sent: ', reqObj.obs);
+                    //console.log('to be sent: ', reqObj.obs);
 //return;
                     var token = store.get('token');
                     if (token) {

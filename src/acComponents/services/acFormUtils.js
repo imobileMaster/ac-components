@@ -13,6 +13,13 @@ angular.module('acComponents.services')
       },
       isCompleted: function () {
         return !_.isEmpty(this.value);
+      },
+      getDisplayObject: function(){
+        return {
+          prompt: this.prompt,
+          order: (this.order)?this.order:50,
+          type: this.type
+        }
       }
     };
 
@@ -32,7 +39,7 @@ angular.module('acComponents.services')
         },
         reset: function () {
           var options = this.options;
-          this.options.forEach(function (option, key) {
+          _.forEach(this.options, function (option, key) {
             options[key] = false;
           });
         },
@@ -49,7 +56,8 @@ angular.module('acComponents.services')
             return total;
           }, 0);
 
-        }
+        },
+        getDisplayObject: inputDefault.getDisplayObject
       },
       number:{
         getDTO: function (){
@@ -59,7 +67,8 @@ angular.module('acComponents.services')
           return (this.value == null) || parseInt(this.value) >= this.options.min && parseInt(this.value) <= this.options.max;
         },
         reset: inputDefault.reset,
-        isCompleted: inputDefault.isCompleted
+        isCompleted: inputDefault.isCompleted,
+        getDisplayObject: inputDefault.getDisplayObject
       },
       dropdown: inputDefault,
       textarea: inputDefault,
@@ -85,7 +94,8 @@ angular.module('acComponents.services')
         getDTO: getDTO,
         validate: validateFields,
         reset: resetFields,
-        isCompleted: isCompleted
+        isCompleted: isCompleted,
+        mapDisplayResponse: mapDisplayResponse
       };
 
       function assignUtils(field) {
@@ -123,6 +133,38 @@ angular.module('acComponents.services')
 
         return total > 0;
       }
+
+      function mapDisplayResponse(ob) {
+        if (_.isEmpty(ob)) return;
+
+        var merged = _.reduce(ob, function (results, value, key) {
+          if (_.isUndefined(results[key]) && value) {
+            results[key] = {};
+          }
+
+          if (value && !_.isEmpty(parseValue(value))) {
+            results[key] = (fields[key])?fields[key].getDisplayObject():{};
+            results[key].value = parseValue(value);
+          }
+
+          return results;
+        }, {});
+
+        return _.sortBy(_.values(merged), 'order');
+      }
+
+      function parseValue(field) {
+        if (_.isPlainObject(field)) {
+          return _.reduce(field, function (array, item, key) {
+            if (item) {
+              array.push(key);
+            }
+            return array;
+          }, [])
+        } else {
+          return field;
+        }
+      };
     }
 
 
