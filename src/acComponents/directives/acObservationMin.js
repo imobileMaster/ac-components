@@ -92,16 +92,21 @@ angular.module('acComponents.directives')
             }
 
             if (item.type === 'multiple' && item.options) {
-              _.filter(item.options, function (it, key) {
+              var selected = _.reduce(item.options, function (select, it, key) {
                 if (it) {
-                  quickTab.push({
-                    prompt: item.prompt,
-                    type: 'radio',
-                    order: 1,
-                    value: key
-                  });
+                  select.push(key);
                 }
-              });
+                return select;
+              },[]);
+
+              if (!_.isEmpty(selected)){
+                quickTab.push({
+                  prompt: item.prompt,
+                  type: 'checkbox',
+                  order: 1,
+                  value: selected
+                });
+              }
             }
           });
 
