@@ -14,11 +14,21 @@ angular.module('acComponents.directives')
             }
         };
     })
-    .directive('acMinReportForm', function($q, $timeout, acQuickReportData, acAvalancheReportData, acIncidentReportData, acSnowpackReportData, acWeatherReportData, acFormUtils, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, store) {
+    .directive('acMinReportForm', function($q, $timeout, acBreakpoint, acQuickReportData, acAvalancheReportData, acIncidentReportData, acSnowpackReportData, acWeatherReportData, acFormUtils, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, store, $anchorScroll, $modal) {
         return {
             templateUrl: 'min-report-form.html',
             replace: true,
             link: function($scope, el, attrs) {
+
+                acBreakpoint.setBreakpoints({xs: 400, sm: 600, md: 1025});
+
+                $scope.isMobile = false;
+
+                $scope.$on('breakpoint', function (event, bp) {
+                  $scope.isMobile = (_.indexOf(['xs', 'sm', 'md'], bp) > -1);
+                });
+
+                var submissionGuidelinesLink = 'http://www.avalanche.ca/fxresources/Submissions+Guidelines.pdf';
 
                 initReport();
 
@@ -37,7 +47,7 @@ angular.module('acComponents.directives')
                   },
                   incidentReport : {
                     name: 'Incident',
-                    text: 'Sharing incidents can help us all learn. Describe close calls and accidents here. Be sensitive to the privacy of others. Before reporting serious accidents check our submission guidelines.'
+                    text: 'Sharing incidents can help us all learn. Describe close calls and accidents here. Be sensitive to the privacy of others. Before reporting serious accidents check our <a href="'+submissionGuidelinesLink+'" target="_blank">submission guidelines</a>.'
                   }
                 };
 
@@ -47,9 +57,14 @@ angular.module('acComponents.directives')
                   }
                 };
 
+                $scope.scrollToTop = function () {
+                  $anchorScroll.yOffset = 100;
+                  $anchorScroll('top');
+                };
+
                 function tabCompleted (tab) {
                   if (tab === 'quickReport') {
-                    return acQuickReportData.isCompleted();
+                    return acQuickReportData.isCompleted($scope.report.obs.quickReport);
                   } else {
                     return $scope.report.obs[tab].isCompleted();
                   }
@@ -97,10 +112,11 @@ angular.module('acComponents.directives')
 
                     var reqObj = _.cloneDeep($scope.report);
 
-
                     reqObj.obs = _.reduce($scope.report.obs, function(total, item, key){
                         if (key === 'quickReport') {
-                          total.quickReport = angular.copy(item);
+                          if (acQuickReportData.isCompleted(item)) {
+                            total.quickReport = item;
+                          }
                         } else if (item.isCompleted()){
                           total[key] = item.getDTO();
                         }
@@ -134,6 +150,25 @@ angular.module('acComponents.directives')
                         return $q.reject('auth-error');
                     }
                 };
+
+                $scope.openMapModal = function () {
+                  var modalInstance = $modal.open({
+                    animation: false,
+                    templateUrl: 'min-map-modal.html',
+                    controller: 'acMapModal',
+                    size: 'lg',
+                    windowClass: 'map-modal',
+                    resolve: {
+                      latlng: function () {
+                        return $scope.report.latlng
+                      }
+                    }
+                  });
+
+                  modalInstance.result.then(function (latlng) {
+                    $scope.report.latlng = latlng;
+                  });
+                }
             }
         };
     });

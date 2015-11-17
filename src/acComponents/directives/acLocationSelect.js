@@ -20,29 +20,12 @@ angular.module('acComponents.directives')
 
                 map = L.mapbox.map(el[0], MAPBOX_MAP_ID, {
                     attributionControl: false,
-                    scrollWheelZoom: false
+                    scrollWheelZoom: true
                 }).on('click', function (e) {
                     if (!marker) {
                         setLatlng(e.latlng);
+                        createMarker (e.latlng);
 
-                        marker = L.marker(e.latlng, {
-                            icon: L.mapbox.marker.icon({
-                                'marker-color': 'f79118'
-                            }),
-                            draggable: true
-                        });
-
-                        marker.bindPopup('Position: ' + e.latlng.toString().substr(6) + '<br/>(drag to relocate)')
-                            .addTo(map)
-                            .openPopup();
-
-                        marker.on('dragend', function(e) {
-                            var location = marker.getLatLng();
-                            marker.setPopupContent('Position: ' + location.toString().substr(6) + '<br/>(drag to relocate)');
-                            marker.openPopup();
-
-                            setLatlng(location);
-                        });
                     } else if(marker && !map.hasLayer(marker)) {
                         setLatlng(e.latlng);
                         marker
@@ -57,8 +40,32 @@ angular.module('acComponents.directives')
                 $scope.$watch('latlng', function (latlng) {
                     if (marker && latlng.length === 0) {
                         map.removeLayer(marker);
+                    } else if (!marker && latlng.length > 0) {
+                        createMarker(L.latLng(latlng[0], latlng[1]));
                     }
                 });
+
+
+                function createMarker (latlng) {
+                  marker = L.marker(latlng, {
+                    icon: L.mapbox.marker.icon({
+                      'marker-color': 'f79118'
+                    }),
+                    draggable: true
+                  });
+
+                  marker.bindPopup('Position: ' + latlng.toString().substr(6) + '<br/>(drag to relocate)')
+                    .addTo(map)
+                    .openPopup();
+
+                  marker.on('dragend', function(e) {
+                    var location = marker.getLatLng();
+                    marker.setPopupContent('Position: ' + location.toString().substr(6) + '<br/>(drag to relocate)');
+                    marker.openPopup();
+
+                    setLatlng(location);
+                  });
+                }
             }
         };
     });

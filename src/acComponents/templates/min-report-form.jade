@@ -1,160 +1,174 @@
 .min-form
-    form(name="acMinForm", ng-submit="submitForm()", ng-show="!report.subid", role="form", )
-        .div(class="col-xs-12 col-md-4 form-left-column")
-          h2.form-subtitle Step 1: Required Info
+    form(name="acMinForm", ng-submit="submitForm()", novalidate, ng-if="!report.subid", role="form", ac-submission-form-validator)
+        div.form-fields.col-xs-12.no-padding
+          div.col-xs-12.col-md-4.form-left-column
+            .required-info.clearfix
+              h2.form-subtitle #1. Required Info
 
-          p Complete all required information: report title, submission, date/time and location.
+              p Complete all required information: report title, submission, date/time and location.
 
-          .form-group(ng-class="{'has-error': !acMinForm.title.$valid}")
-            label(for="title")
-              i.fa.fa-newspaper-o
-              |  Report title
-            input.form-control(type="text", name="title", ng-model="report.title", required)
-          .form-group(ng-class="{'has-error': !acMinForm.datetime.$valid}")
-            label(for="datetime")
-              i.fa.fa-clock-o
-              |  Submitted On
-            input.form-control(type="datetime", name="datetime", ng-model="report.datetime", ac-datetime-picker)
-          .form-group(ng-class="{'has-error': !acMinForm.latlng.$valid}")
-            label(for="latlng")
-              i.fa.fa-map-marker
-              |  Location
-            div(ac-location-select, latlng="report.latlng", style="height: 300px; width: 100%; margin: 10px 0;")
-            input.form-control(type="text", name="latlng", ng-model="report.latlng", placeholder="Drop pin on map to set location", required)
+              .required-info-data.col-xs-12
+                .form-group(ng-class="{'has-error': !acMinForm.title.$valid}")
+                  label(for="title")
+                    i.fa.fa-newspaper-o
+                    |  Report title
+                  input.form-control(type="text", name="title", ng-model="report.title", required)
+                .form-group(ng-class="{'has-error': !acMinForm.datetime.$valid}")
+                  label(for="datetime")
+                    i.fa.fa-clock-o
+                    |  Submitted On
+                  input.form-control(type="datetime", name="datetime", ng-model="report.datetime", ac-datetime-picker)
+                .form-group(ng-class="{'has-error': !acMinForm.latlng.$valid}")
+                  label(for="latlng")
+                    i.fa.fa-map-marker
+                    |  Location
+                  .location-btn(ng-if="!isMobile")
+                    input.btn.btn-default.col-xs-12(type="button", value="{{ report.latlng.length > 0 ? 'Change' : 'Pin'}} location", ng-click="openMapModal()")
+                  div(ac-location-select, latlng="report.latlng", style="height: 300px; width: 100%; margin: 10px 0;", ng-if="isMobile")
+                  input.form-control(type="hidden", ng-if="!isMobile" name="latlng", ng-model="report.latlng", placeholder="Drop pin on map to set location", required)
+                  input.form-control(type="text", ng-if="isMobile" name="latlng", ng-model="report.latlng", placeholder="Drop pin on map to set location", required)
+            .uploads
+              h2.form-subtitle #2. Uploads
 
-          h2.form-subtitle Step 2: Uploads
+              p Do you have a photo/video of your trip or observation? Add it here.
 
-          p Do you have a photo/video of your trip or observation? Add it here.
+              .form-group
+                label(for="uploads")
+                  i.fa.fa-image
+                  |  Add photo
+                  small  .jpg or .png
+                input.form-control(type="file", name="uploads", file-model="report.files", accept=".png,.jpg,.jpeg", multiple)
+                div {{ report.files.length }} photos added
 
-          .form-group
-            label(for="uploads")
-              i.fa.fa-image
-              |  Add photo
-              small  .jpg or .png
-            input.form-control(type="file", name="uploads", file-model="report.files", accept=".png,.jpg,.jpeg", multiple)
-            div {{ report.files.length }} photos added
+          div(class="col-xs-12 col-md-8 form-right-column")
+            h2.form-subtitle#top #3. Observations
 
-        div(class="col-xs-12 col-md-8 form-right-column")
-          h2.form-subtitle Step 3: Observations
+            div.announcement
+              .announcement-left
+                | new
+              .announcement-right
+                | You can now submit more detailed data. Add information on one, many, or all tabs, then click SUBMIT at the bottom.
+            tabset.observation-tabs(type="pills")
+              //
+                Quick report
+              tab(ac-tab-style="{{getTabExtraClasses('quickReport')}}")
+                tab-heading.tab-head
+                  | Quick
+                | Use the Quick Report to quickly share information about your trip. You can create a comprehensive
+                | report by adding more details in the Avalanche, Snowpack, Weather, and/or Incident tabs.
+                .fields-group
+                  .field.col-xs-12(ng-repeat="(item, ridingCondition) in report.obs.quickReport.ridingConditions")
+                    .options.col-xs-12.col-md-8
+                      h4.field-title.col-xs-12
+                        strong {{ ::ridingCondition.prompt }}
 
-          div.announcement
-            .announcement-left
-              | new
-            .announcement-right
-              | You can now submit more detailed data. Add information on one, many, or all tabs, then click SUBMIT at the bottom.
-          tabset.observation-tabs(type="pills")
-            //
-              Quick report
-            tab(ac-tab-style="{{getTabExtraClasses('quickReport')}}")
-              tab-heading(style="text-transform: uppercase;")
-                | Quick
-              | Use the Quick Report to quickly share information about your trip. You can create a comprehensive
-              | report by adding more details in the Avalanche, Snowpack, Weather, and/or Incident tabs.
-              .panel-group.fields-group
-                .panel.panel-default
-                  .panel-heading(style="background-color: black; color: white;")
-                    h4.panel-title
-                      | Riding conditions:
-                  .panel-body
-                    .panel-group
-                      .panel.panel-default(ng-repeat="(item, ridingCondition) in report.obs.quickReport.ridingConditions")
-                        .panel-heading
-                          h4.panel-title
-                            strong {{ ridingCondition.prompt }}
-                        .panel-body
-                          .form-group
-                          .checkbox(ng-if="ridingCondition.type=='multiple'", ng-repeat="(option, enabled) in ridingCondition.options")
-                            label
-                              input(type="checkbox", ng-model="ridingCondition.options[option]")
-                              | {{option}}
-
-                          .radio(ng-if="ridingCondition.type=='single'", ng-repeat="option in ridingCondition.options")
-                            label
-                              input(type="radio", ng-model="ridingCondition.selected", ng-value="option")
-                              | {{option}}
-
-                .panel.panel-default
-                  .panel-heading(style="background-color: black; color: white;")
-                    h4.panel-title
-                      strong Avalanche conditions
-                  .panel-body
-                    .form-group
-                      .checkbox
+                      .checkbox.col-xs-12.col-md-6.inline(ng-if="ridingCondition.type=='multiple'",
+                      ng-repeat="(option, enabled) in ridingCondition.options", ng-class="{'column-left':$odd}")
                         label
-                          input(type="checkbox", ng-model="report.obs.quickReport.avalancheConditions.slab")
+                          input(type="checkbox", name="{{ ::item}}", ng-model="ridingCondition.options[option]")
+                          | {{ ::option}}
+                      .radio.col-xs-12.col-md-6.inline(ng-if="ridingCondition.type=='single'", ng-repeat="option in ridingCondition.options")
+                        label
+                          input(type="radio", name="{{ ::item}}", ng-model="ridingCondition.selected", ng-value="option")
+                          | {{ ::option}}
+
+                    .options.col-xs-12.col-md-4
+                  .field.col-xs-12
+                    .options.col-xs-12.col-md-8
+                      h4.field-title.col-xs-12
+                        strong Avalanche conditions
+
+                      .checkbox.col-xs-12
+                        label
+                          input(type="checkbox", name="slab", ng-model="report.obs.quickReport.avalancheConditions.slab")
                           | Slab avalanches today or yesterday.
-                      .checkbox
+                      .checkbox.col-xs-12
                         label
-                          input(type="checkbox", ng-model="report.obs.quickReport.avalancheConditions.sound")
+                          input(type="checkbox", name="sound", ng-model="report.obs.quickReport.avalancheConditions.sound")
                           | Whumphing or drum-like sounds or shooting cracks.
-                      .checkbox
+                      .checkbox.col-xs-12
                         label
-                          input(type="checkbox", ng-model="report.obs.quickReport.avalancheConditions.snow")
+                          input(type="checkbox", name="snow", ng-model="report.obs.quickReport.avalancheConditions.snow")
                           | 30cm + of new snow, or significant drifitng, or rain in the last 48 hours.
-                      .checkbox
+                      .checkbox.col-xs-12
                         label
-                          input(type="checkbox", ng-model="report.obs.quickReport.avalancheConditions.temp")
+                          input(type="checkbox", name="temp" ng-model="report.obs.quickReport.avalancheConditions.temp")
                           | Rapid temperature rise to near zero degrees or wet surface snow.
-                .form-group
-                  label Comments
-                  textarea.form-control(rows="3", ng-model="report.obs.quickReport.comment")
+                    .options.col-xs-12.col-md-4
+                  .field.col-xs-12
+                    .options.col-xs-12.col-md-8
+                      h4.field-title.col-xs-12
+                        strong Comments
 
-            tab(ng-repeat="(key, tab) in additionalFields", ac-tab-style="{{getTabExtraClasses(key)}}")
-              tab-heading(style="text-transform: uppercase;")
-               | {{tab.name}}
-              | {{tab.text}}
+                      .textarea.col-xs-12
+                        textarea.form-control(rows="3", name="comment" ng-model="report.obs.quickReport.comment", style="resize: vertical;")
+                    .options.col-xs-12.col-md-4
 
-              .panel-group.fields-group
-                .panel.panel-default(ng-repeat="(item, av) in report.obs[key].fields")
-                  .panel-heading
-                    h4.panel-title
-                      strong {{ av.prompt }}
-                  .panel-body
-                    .form-group
-                    p {{av.helpText}}
-                    .checkbox(ng-if="av.type=='checkbox'", ng-repeat="(option, enabled) in av.options")
-                      label
-                        input(type="checkbox", ng-model="av.options[option]")
-                        | {{option}}
+              tab(ng-repeat="(key, tab) in additionalFields", ac-tab-style="{{getTabExtraClasses(key)}}")
+                tab-heading.tab-head
+                 | {{ ::tab.name}}
+                span(ng-bind-html="tab.text")
 
-                    .radio(ng-if="av.type=='radio'", ng-repeat="option in av.options")
-                      label
-                        input(type="radio", ng-model="av.value", value="{{option}}")
-                        | {{option}}
-                    .number(ng-if="av.type=='number'")
-                      label
-                        input(type="number", max="{{av.options.max}}", min="{{av.options.min}}", ng-model="av.value")
-                    .select(ng-if="av.type=='dropdown'")
-                      select(ng-options="option for option in av.options", ng-model="av.value")
-                    .textarea(ng-if="av.type=='textarea'")
-                      textarea.form-control(rows="3", ng-model="av.value")
-                    .datetime-input(ng-if="av.type=='datetime'")
-                      label(for="datetime")
-                      input.form-control(type="datetime", name="datetime-avalanche", ng-model="av.value", ac-datetime-picker, placeholder="Click to select date")
+                .fields-group
+                  .field.col-xs-12(ng-repeat="(item, av) in report.obs[key].fields")
+                    .options.col-xs-12.col-md-8
+                      h4.field-title.col-xs-12
+                        strong {{ ::av.prompt }}
 
-        input.btn.btn-default(type="submit", id="submit", value="Submit", ng-disabled="minsubmitting", style="border-radius:0; background-color: rgb(0, 86, 183); color: white;")
+                      .checkbox.col-md-6.col-xs-12(ng-if="av.type=='checkbox'", ng-repeat="(option, enabled) in av.options", ng-class="{'inline':av.inline, 'column-left':$odd}")
+                        label
+                          input(type="checkbox", name="{{::item}}", ng-model="av.options[option]", ng-click="validate(item, av)")
+                          | {{ ::option}}
+                      .radio.col-md-6.col-xs-12(ng-if="av.type=='radio'", ng-repeat="option in av.options", ng-class="{'inline':av.inline, 'column-left':$odd}")
+                        label
+                          input(type="radio", ng-model="report.obs[key].fields[item].value", value="{{ ::option}}")
+                          | {{ ::option}}
+                      .number.col-xs-12(ng-if="av.type=='number'", ng-class="{'inline':av.inline}")
+                        label
+                          input(type="number", name="{{::item}}" placeholder="Number between {{ ::av.options.min}} and {{ ::av.options.max}}", ng-model="report.obs[key].fields[item].value", ng-blur="validate(item, av)")
+                      .select.col-md-6.col-xs-12(ng-if="av.type=='dropdown'", ng-class="{'inline':av.inline, 'column-left':$odd}")
+                        select(ng-options="option for option in av.options", ng-model="report.obs[key].fields[item].value")
+                          option(value="") Select option
+                      .textarea.col-xs-12(ng-if="av.type=='textarea'")
+                        textarea.form-control(rows="3", ng-model="report.obs[key].fields[item].value")
+                      .datetime-input.col-xs-12(ng-if="av.type=='datetime'")
+                        label(for="datetime")
+                          input(type="datetime", ng-model="report.obs[key].fields[item].value", ac-datetime-picker, placeholder="Click to select date")
+                      .error.col-xs-12.no-padding(ng-if="acMinForm[item].$invalid") {{::av.errorMessage}}
+                    .options.col-xs-12.col-md-4
+                      .help-text(ng-if="av.helpText")
+                        p
+                          i.fa.fa-question-circle
+                          span {{ ::av.helpText}}
+                        span(ng-if="av.guidelines")
+                          a(href="{{ ::av.guidelines}}" target="_blank") Submission guidelines
+
+            .return-to-top.col-xs-12.no-padding
+              .text ADD MORE DATA?
+              input.btn.btn-default(type="button", value="Back to top", ng-click="scrollToTop()")
+        input.btn.btn-default(type="submit", id="submit", value="Submit", ng-disabled="acMinForm.$invalid || minsubmitting")
         i.fa.fa-fw.fa-lg.fa-spinner.fa-spin(ng-show="minsubmitting")
 
-    div(ng-show="report.subid")
+    div(ng-if="report.subid")
         .alert.alert-success(role="alert")
             | Your report was successfully submited.
         .well
             H4 Share this report:
             ul.list-inline
                 li
-                    a(ng-href="https://twitter.com/intent/tweet?status={{report.shareUrl}}")
+                    a(ng-href="https://twitter.com/intent/tweet?status={{::report.shareUrl}}")
                         i.fa.fa-twitter.fa-fw.fa-lg
                 li
-                    a(ng-href="https://www.facebook.com/sharer/sharer.php?u={{report.shareUrl}}")
+                    a(ng-href="https://www.facebook.com/sharer/sharer.php?u={{::report.shareUrl}}")
                         i.fa.fa-facebook.fa-fw.fa-lg
                 li
-                    a(ng-href="https://plus.google.com/share?url={{report.shareUrl}}")
+                    a(ng-href="https://plus.google.com/share?url={{::report.shareUrl}}")
                         i.fa.fa-google-plus.fa-fw.fa-lg
-    div(ng-show="minerror")
+    div(ng-if="minerror")
         .alert.alert-danger(role="alert")
             p There was an error submittting you report.
             p(ng-if="minerrormsg") {{minerrormsg}}
             div(ng-if="validationErrors") Please checkout the following fields:
               p(ng-repeat="(tab, fields) in validationErrors")
-                span.firstCapital {{tab}} - {{fields}}
+                span.firstCapital {{::tab}} - {{::fields}}
 

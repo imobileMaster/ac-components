@@ -24,32 +24,32 @@
     .row-fluid
       .tab-content
         div.tab-pane(ng-repeat="tab in reportTypes", role="tabpanel", id="{{tab}}", ng-class="{active: tab === sub.requested}")
+          .row-fluid.section-label
+            i.fa.fa-info-circle
+            span Information
           div(ng-repeat="ob in sub.obs")
             div.submission-header(ng-if="ob.obtype === sub.requested", ng-repeat="item in activeTab")
-              .observation-item(ng-if="item.type === 'number' || item.type === 'radio'|| item.type === 'dropdown'")
-                .row-fluid.section-label
-                  i.fa.fa-info-circle
-                  span {{::item.prompt}}
+              ul.observation-information
+                li.observation-item(ng-if="item.type === 'number' || item.type === 'radio'|| item.type === 'dropdown'")
+                  | {{::item.prompt}}
+                  i.fa.fa-check
                   span.value {{::item.value}}
-              .observation-item(ng-if="item.type === 'textarea'")
-                .row-fluid.section-label
-                  i.fa.fa-comment
-                  span {{::item.prompt}}
-                .row-fluid
-                  | {{::item.value}}
-              .observation-item(ng-if="item.type === 'checkbox'")
-                .row-fluid.section-label
-                  i.fa.fa-info-circle
-                  span {{::item.prompt}}
-                .row-fluid
+                li.observation-item(ng-if="item.type === 'checkbox'")
+                  | {{::item.prompt}}
                   ul
                     li(ng-repeat="op in item.value track by $index")
-                      i.fa.fa-check {{op}}
-              .observation-item(ng-if="item.type === 'datetime'")
+                      i.fa.fa-check
+                      span.value {{op}}
+                li.observation-item(ng-if="item.type === 'datetime'")
+                  | {{::item.prompt}}
+                  span &nbsp; {{::item.value | dateformat}}
+
+              .observation-item.comments(ng-if="item.type === 'textarea'")
                 .row-fluid.section-label
-                  i.fa.fa-info-circle
-                  span {{::item.prompt}}
-                  span.value {{::item.value | date: medium : '-0800'}}
+                  i.fa.fa-comment
+                  span Comments
+                .row-fluid
+                  .col-sm-12 {{::item.value}}
 
 
   .panel-body.upload-n-share
