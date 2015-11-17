@@ -39,7 +39,7 @@ angular.module('acComponents.services')
         },
         reset: function () {
           var options = this.options;
-          this.options.forEach(function (option, key) {
+          _.forEach(this.options, function (option, key) {
             options[key] = false;
           });
         },
