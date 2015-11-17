@@ -18,7 +18,8 @@
                   i.fa.fa-map-marker.fa-inverse.fa-2x
                   span MIN Filter
                 li(ng-repeat="minFilter in minFilters", ng-if="expandedMin",ng-click="toggleFilter('minFilter:'+ minFilter)", ng-class="{on: getMinFilters(minFilter)}")
-                  i.fa.fa-map-marker.fa-inverse.fa-2x(ng-class="'report-'+ minFilter")
+                  div.report-allmin(ac-allmin-icon, ng-if="minFilter === 'all min'")
+                  i.fa.fa-map-marker.fa-inverse.fa-2x(ng-class="'report-'+ minFilter", ng-if="minFilter !== 'all min'")
                   span {{ minFilter }}
 
             li.ac-filters.ac-date-filters(ng-if="drawerPosition === 'left'")
