@@ -1,6 +1,6 @@
 .ac-drawer
 
-    a.ac-drawer-close.visible-xs(ng-click="drawer.right.visible = false")
+    a.ac-drawer-close.visible-xs(ng-click="drawer.right.visible = false", ng-if="drawerPosition === 'right'")
         i.fa.fa-close.fa-lg
     .ac-drawer-tools
         ul
