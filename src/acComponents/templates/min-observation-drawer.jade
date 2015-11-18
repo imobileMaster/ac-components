@@ -20,7 +20,7 @@
     .row-fluid.observation-tabs
       ul.nav.nav-pills(role="tablist")
         li(ng-repeat="tab in reportTypes",role="presentation", ng-class="[hasReport(tab),{active: tab === sub.requested}]")
-          a(data-target="{{'#'+tab}}", ng-click="changeTab(tab)", aria-controls="{{tab}}", role="tab", data-toggle="tab",style="text-transform: uppercase;") {{::tab}}
+          a(ng-click="changeTab(tab)",style="text-transform: uppercase;") {{::tab}}
     .row-fluid
       .tab-content
         div.tab-pane(ng-repeat="tab in reportTypes", role="tabpanel", id="{{tab}}", ng-class="{active: tab === sub.requested}")

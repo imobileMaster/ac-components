@@ -1,5 +1,5 @@
 angular.module('acComponents.directives')
-  .directive('acMapboxMap', function ($rootScope, $window, $location, $timeout, acBreakpoint, acObservation, acForecast, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID) {
+  .directive('acMapboxMap', function ($rootScope, $window, $location, $timeout, acBreakpoint, acObservation, acForecast, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, $stateParams) {
     return {
       template: '<div id="map"></div>',
       replace: true,
@@ -247,6 +247,9 @@ angular.module('acComponents.directives')
         }
 
         function getMarkerColor(type) {
+          if (_.isUndefined(type)){
+            type = 'quick';
+          }
           return styles.reportType[type];
         }
 
@@ -257,7 +260,7 @@ angular.module('acComponents.directives')
         function refreshObsLayer() {
           clusterOverlays.clearLayers();
 
-          if ($scope.obs.length > 0) {
+          if ($scope.obs && $scope.obs.length > 0) {
             var markers = new L.markerClusterGroup().addTo(clusterOverlays);
 
             $scope.obs.map(function (ob) {
@@ -290,10 +293,6 @@ angular.module('acComponents.directives')
                   $scope.currentReport = results;
                   $rootScope.requestInProgress = false;
                 });
-
-                //$scope.$apply(function () {
-                //  $scope.currentReport = ob;
-                //});
               });
 
               marker.eachLayer(function (layer) {
@@ -425,6 +424,51 @@ angular.module('acComponents.directives')
         $scope.$watch('minFilters', function (newObs, oldObs) {
           if (newObs) {
             refreshObsLayer();
+          }
+        }, true);
+
+        $scope.$watch('currentReport', function(newVal, oldVal){
+
+          if($stateParams.subid && newVal && newVal.latlng){
+            clusterOverlays.clearLayers();
+            var markers = new L.markerClusterGroup().addTo(clusterOverlays);
+
+            newVal.obs.map(function (ob) {
+              var marker = L.mapbox.featureLayer({
+                type: 'Feature',
+                geometry: {
+                  type: 'Point',
+                  coordinates: [newVal.latlng[1], newVal.latlng[0]]
+                },
+                properties: {
+                  'marker-size': 'small',
+                  'marker-color': getMarkerColor(ob.obtype),
+                  zIndexOffset: 1000
+                }
+              })
+                .setFilter(function () {
+                  if (_.indexOf($scope.minFilters, ob.obtype) !== -1) {
+                    return true;
+                  } else {
+                    return false;
+                  }
+              });;
+
+              marker.on('click', function (e) {
+                $rootScope.requestInProgress = true;
+
+                acSubmission.getOne(newVal.subid).then(function(results){
+                  results.requested = ob.obtype;
+                  $scope.currentReport = results;
+                  $rootScope.requestInProgress = false;
+                });
+              });
+
+              marker.eachLayer(function (layer) {
+                markers.addLayer(layer);
+              });
+            });
+            map.setView(newVal.latlng, 10);
           }
         }, true);
 

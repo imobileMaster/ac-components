@@ -1,5 +1,5 @@
 angular.module('acComponents.directives')
-  .directive('acObservationMin', function (acReportData, acConfig) {
+  .directive('acObservationMin', function (acReportData, acConfig, $stateParams, $state) {
     return {
       templateUrl: 'min-observation-drawer.html',
       scope: {
@@ -32,6 +32,9 @@ angular.module('acComponents.directives')
 
         function closeDrawer() {
           scope.sub = null;
+          if($stateParams.subid){
+            $state.go('ac.map');
+          }
         }
 
         function changeTab(tab) {
@@ -44,12 +47,14 @@ angular.module('acComponents.directives')
         }
 
         scope.$watch('sub', function (newValue, oldValue) {
-          if (newValue && newValue !== oldValue) {
+          if (newValue && newValue.latlng) {
             processTabInfo(newValue);
           }
         });
 
         function processTabInfo(newObj) {
+          newObj.requested = requestedTab(newObj);
+
           var requestedObj = _.filter(newObj.obs, function (ob) {
             return newObj.requested === ob.obtype;
           });
@@ -64,6 +69,14 @@ angular.module('acComponents.directives')
 
           if (requestedObj[0].ob) {
             scope.activeTab = acReportData[newObj.requested].mapDisplayResponse(requestedObj[0].ob);
+          }
+        }
+
+        function requestedTab(newObj){
+          if(newObj.requested){
+            return newObj.requested;
+          } else {
+            return newObj.obs[0].obtype;
           }
         }
 
