@@ -34,7 +34,7 @@ describe("acComponents.services.acFormUtils", function() {
 
   describe("buildReport", function() {
 
-    it("should return an object", function () {
+    xit("should return an object", function () {
       var report = acFormUtils.buildReport(mockFields);
 
       expect(angular.isObject(report)).to.equal(true);
