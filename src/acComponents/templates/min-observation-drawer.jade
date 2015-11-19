@@ -16,7 +16,7 @@
         p By <span> {{::sub.user}} </span>
         p On {{::sub.dateFormatted}}
 
-  .panel-body
+  .panel-body(style="padding-right: 0")
     .row-fluid.observation-tabs
       ul.nav.nav-pills(role="tablist")
         li(ng-repeat="tab in reportTypes",role="presentation", ng-class="[hasReport(tab),{active: tab === sub.requested}]")
