@@ -48,8 +48,8 @@
                 p.ac-forecast-highlights
                     strong(ng-bind-html="forecast.highlights")
         .row
-            .col-xs-12
-                ul.nav.nav-pills(role='tablist')
+            .col-xs-12.observation-tabs
+                ul.nav.nav-pills(role='tablist', style="text-transform: uppercase;")
                   li.active
                     a(href="", role='tab', data-target="#forecast", data-toggle='tab') Forecast
                   li
@@ -57,12 +57,9 @@
                   li
                     a(href="", role='tab', data-target="#details", data-toggle='tab') Details
                   li
-                    a(href="/forecasts/{{forecast.region}}", role='tab',  data-toggle='tab') Full Page
+                    a(href="/forecasts/{{forecast.region}}", role='tab') Full Page
                   li
-                    a(href="/weather", role='tab',  data-toggle='tab') Weather
-                  li
-                    a(href="/submit", role='tab',  data-toggle='tab') Submit
-
+                    a(href="/weather", role='tab') Weather
 
                 .tab-content
                     #forecast.tab-pane.active
