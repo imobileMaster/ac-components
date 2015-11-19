@@ -77,7 +77,8 @@ angular.module('acComponents.services')
     };
 
     return {
-      buildReport: buildReport
+      buildReport: buildReport,
+      validateLocationString: validateLocation
     };
 
     function buildReport(fields) {
@@ -167,6 +168,26 @@ angular.module('acComponents.services')
       };
     }
 
+    function validateLocation (locationString) {
+      try {
 
+        if (locationString.indexOf(',') === -1) {
+          return false;
+        }
+
+        var latLng = locationString.split(',');
+
+        if (latLng.length !== 2) {
+          return false;
+        }
+
+        var location = L.latLng(latLng[0], latLng[1]);
+
+        return angular.isNumber(location.lat) && angular.isNumber(location.lng);
+
+      } catch (e) {
+        return false;
+      }
+    }
 
   });
