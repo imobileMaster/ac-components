@@ -76,7 +76,14 @@ angular.module('acComponents.directives')
           if(newObj.requested){
             return newObj.requested;
           } else {
-            return newObj.obs[0].obtype;
+            var requested = null;
+            _.forEach(scope.reportTypes, function (item){
+              if(_.some(newObj.obs, {obtype:item})){
+                requested = item;
+                return false;
+              }
+            });
+            return requested;
           }
         }
 
