@@ -3,45 +3,49 @@
         div.form-fields.col-xs-12.no-padding
           div.col-xs-12.col-md-4.form-left-column
             .required-info.clearfix
-              h2.form-subtitle 1. Required Info
+              h2.form-subtitle Step 1. Required Info
 
               p Complete all required information: report title, submission, date/time and location.
 
               .required-info-data.col-xs-12
                 .form-group(ng-class="{'has-error': !acMinForm.title.$valid}")
                   label(for="title")
-                    i.fa.fa-newspaper-o
-                    |  Report title
+                    | Name your report
                   input.form-control(type="text", name="title", ng-model="report.title", required)
                 .form-group(ng-class="{'has-error': !acMinForm.datetime.$valid}")
                   label(for="datetime")
-                    i.fa.fa-clock-o
-                    |  Submitted On
+                    |  Submission date and time
                   input.form-control(type="datetime", name="datetime", ng-model="report.datetime", ac-datetime-picker)
-                .form-group(ng-class="{'has-error': !acMinForm.latlng.$valid}")
+                .form-group(ng-class="{'has-error': invalidLatLng}")
                   label(for="latlng")
+                    |  Enter location by map
+                  .btn-map(ng-click="openMapModal()")
+                    i.fa.fa-map-o
+                  label
+                    | or enter location by Lat Long
+                  input.form-control.latlng(type="text", ng-class="{'modified': tempLatlngModified}", name="tempLatlng", ac-enter="saveLocation()" ng-model="report.tempLatlng", placeholder="e.g. 51.522, -188.883", required)
+                  .save-location(role="button", ng-if="tempLatlngModified", ng-click="saveLocation()")
                     i.fa.fa-map-marker
-                    |  Location
-                  div(ac-location-select, latlng="report.latlng", style="height: 300px; width: 100%; margin: 10px 0;")
-                  input.form-control(type="text", name="latlng", ng-model="report.latlng", placeholder="Drop pin on map to set location", required)
+                  .error.col-xs-12.no-padding(ng-if="invalidLatLng") Invalid coordinates format
             .uploads
-              h2.form-subtitle 2. Uploads
+              h2.form-subtitle Step 2. Uploads
 
-              p Do you have a photo/video of your trip or observation? Add it here.
+              p Add a photo (.jpg or .png) to help tell your story.
 
               .form-group
-                label(for="uploads")
-                  i.fa.fa-image
-                  |  Add photo
-                  small  .jpg or .png
-                input.form-control(type="file", name="uploads", file-model="report.files", accept=".png,.jpg,.jpeg", multiple)
-                div {{ report.files.length }} photos added
+                .col-xs-12.no-padding.btn-file
+                  .col-xs-3.no-padding
+                      span.btn.btn-default
+                        | Browse
+                  input.col-xs-9.no-padding(type="text", readonly="readonly", placeholder=".jpg or .png" value="{{ report.files.length ? report.files.length + ' photos added' : null}}")
+                  input(type="file", name="uploads", file-model="report.files", accept=".png,.jpg,.jpeg", multiple)
+
 
           div(class="col-xs-12 col-md-8 form-right-column")
-            h2.form-subtitle#top 3. Observations
+            h2.form-subtitle#top Step 3. Observations
 
             .announcement
-              | Add information on one, many, or all tabs, then click SUBMIT at the bottom.
+              | Add information on one, some, or all tabs, then click SUBMIT at the bottom.
             tabset.observation-tabs(type="pills")
               //
                 Quick report

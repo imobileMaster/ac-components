@@ -16,6 +16,12 @@ angular.module('acComponents.directives')
             ctrl[fieldName].$setValidity(fieldName, state);
           }
         }
+
+        $scope.$watch('atleastOneTabCompleted', function (newVal) {
+          if (angular.isDefined(newVal)) {
+            ctrl.$setValidity('atleastOneTab', newVal);
+          }
+        });
       }
     };
   });

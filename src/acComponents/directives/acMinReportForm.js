@@ -43,9 +43,15 @@ angular.module('acComponents.directives')
                   }
                 };
 
+                $scope.atleastOneTabCompleted = false;
+
                 $scope.getTabExtraClasses = function (tab) {
+                  var completed = tabCompleted(tab);
+
+                  $scope.atleastOneTabCompleted = $scope.atleastOneTabCompleted || completed;
+
                   return {
-                    completed: tabCompleted(tab)
+                    completed: completed
                   }
                 };
 
@@ -120,6 +126,10 @@ angular.module('acComponents.directives')
                         return total;
                     }, {});
 
+                    if (_.keys(reqObj.obs).length === 0) {
+                      return $q.reject('incomplete-form');
+                    }
+
                     //console.log('to be sent: ', reqObj.obs);
 //return;
                     var token = store.get('token');
@@ -165,7 +175,34 @@ angular.module('acComponents.directives')
                   modalInstance.result.then(function (latlng) {
                     $scope.report.latlng = latlng;
                   });
-                }
+                };
+
+                var watch = $scope.$watchCollection(function () { return [$scope.report.latlng, $scope.report.tempLatlng]; }, function (newVal, oldVal) {
+                  if (newVal) {
+                    if (newVal[0] !== oldVal[0]) {
+                      $scope.report.tempLatlng = $scope.report.latlng.join(',');
+                      newVal[1] = $scope.report.tempLatlng;
+                      $scope.tempLatlngModified = false;
+                    }
+                    if (newVal[1] && newVal[1] !== newVal[0].join(',')) {
+                      $scope.tempLatlngModified = true;
+                    }
+                  }
+                });
+
+                $scope.$on('$destroy', function () {
+                  watch();
+                });
+
+                $scope.saveLocation = function () {
+                  if (acFormUtils.validateLocationString($scope.report.tempLatlng)) {
+                    $scope.report.latlng = $scope.report.tempLatlng.split(',');
+                    $scope.tempLatlngModified = false;
+                    $scope.invalidLatLng = false;
+                  } else {
+                    $scope.invalidLatLng = true;
+                  }
+                };
             }
         };
     });
