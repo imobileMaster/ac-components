@@ -70,7 +70,7 @@ angular.module('acComponents.directives')
 
                 function initReport() {
                   $scope.report = {
-                    title: 'auto: Quick Report',
+                    title: '',
                     datetime: moment().format('YYYY-MM-DD hh:mm A'),
                     latlng: [],
                     files: [],
