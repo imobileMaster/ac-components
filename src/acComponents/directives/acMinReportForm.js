@@ -107,7 +107,8 @@ angular.module('acComponents.directives')
                 $scope.resetForm = resetForm;
 
                 $scope.goBack = function () {
-                  resetForm();
+                  resetFields();
+                  initReport();
                   $state.go('ac.map');
                 };
 
@@ -130,8 +131,6 @@ angular.module('acComponents.directives')
                       return $q.reject('incomplete-form');
                     }
 
-                    //console.log('to be sent: ', reqObj.obs);
-//return;
                     var token = store.get('token');
                     if (token) {
                         $scope.minsubmitting = true;
