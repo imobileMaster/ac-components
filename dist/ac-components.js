@@ -15,8 +15,8 @@ angular.module('acComponents.config', [])
         minFilters: ['avalanche', 'quick', 'snowpack', 'incident', 'weather'],
         dateFilters : ['7-days','1-days','3-days', '14-days', '30-days']
   })
-    //.constant('AC_API_ROOT_URL', 'http://avalanche-canada-dev.elasticbeanstalk.com');
-    .constant('AC_API_ROOT_URL', 'http://localhost:9000');
+    .constant('AC_API_ROOT_URL', 'http://avalanche-canada-min.elasticbeanstalk.com');
+    //.constant('AC_API_ROOT_URL', 'http://localhost:9000');
 
 // Modules
 angular.module('acComponents.controllers', []);
@@ -33,6 +33,26 @@ angular.module('acComponents',
         'acComponents.templates',
         'ngSanitize'
     ]);
+
+'use strict';
+
+angular.module('acComponents.controllers')
+  .controller('acMapModal', ["$scope", "$modalInstance", "latlng", "$timeout", function ($scope, $modalInstance, latlng, $timeout) {
+
+    $scope.params = {
+      latlng: latlng
+    };
+
+    $scope.save = function () {
+      $modalInstance.close($scope.params.latlng);
+    };
+
+    $modalInstance.opened.then(function () {
+      $timeout( function () {
+        $scope.show = true;
+      }, 0);
+    })
+  }]);
 
 angular.module('acComponents.directives')
   .directive('acAllminIcon', function () {
