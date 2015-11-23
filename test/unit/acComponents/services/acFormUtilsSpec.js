@@ -1,5 +1,3 @@
-'use strict';
-
 describe("acComponents.services.acFormUtils", function() {
   var acFormUtils, mockFields;
 
@@ -59,7 +57,7 @@ describe("acComponents.services.acFormUtils", function() {
     };
   }));
 
-  describe("buildReport", function() {
+  describe(".buildReport()", function() {
 
     var report;
 
@@ -71,7 +69,7 @@ describe("acComponents.services.acFormUtils", function() {
       expect(angular.isObject(report)).to.equal(true);
     });
 
-    it("should return an object with the augumented fields", function () {
+    it("should return an object with the augmented fields", function () {
       _.forEach(report.fields, function (field, key) {
         expect(angular.isObject(mockFields[key])).to.equal(true);
         expect(field).to.have.ownProperty('reset');
@@ -88,6 +86,92 @@ describe("acComponents.services.acFormUtils", function() {
       expect(report).to.have.ownProperty('validate');
       expect(report).to.have.ownProperty('isCompleted');
       expect(report).to.have.ownProperty('mapDisplayResponse');
+    });
+
+    it(".reset() should reset all fields", function () {
+      report.fields.checkbox.options.opt1 = true;
+      report.fields.textarea.value = "test string";
+      report.fields.radio.value = 'opt1';
+      report.fields.datetime.value = 'test value';
+      report.fields.number.value = 1;
+
+      report.reset();
+
+      _.forEach(report.fields, function (field, key) {
+        if (field.type === 'checkbox') {
+          expect(field.options).to.equal(mockFields[key].options);
+        } else {
+          expect(field.value).to.equal(null);
+        }
+      });
+    });
+
+    it(".getDTO() should return object with each field DTO", function () {
+      var dtos = report.getDTO();
+
+      _.forEach(mockFields, function (field, key) {
+        var fieldDTO = report.fields[key].getDTO();
+
+        expect(dtos[key]).to.eql(fieldDTO);
+      });
+    });
+
+    it(".validateFields should return an empty object if form is valid", function () {
+      report.fields.checkbox.options.opt1 = true;
+      report.fields.textarea.value = "test string";
+      report.fields.radio.value = 'opt1';
+      report.fields.datetime.value = 'test value';
+      report.fields.number.value = 1;
+
+      expect(report.validate()).to.eql({});
+    });
+
+    it(".validateFields should return an object with keys that have errors", function () {
+      report.fields.checkbox.options.opt1 = true;
+      report.fields.checkbox.options.opt2 = true;
+      report.fields.checkbox.options.opt3 = true;
+      report.fields.number.value = -1;
+
+      expect(report.validate()).to.eql({checkbox: true, number: true});
+    });
+
+    it(".isCompleted should return true if there is at least one field completed in the any tab", function () {
+      report.fields.checkbox.options.opt1 = true;
+
+      expect(report.isCompleted()).to.equal(true);
+    });
+
+    it(".isCompleted should return false if there is no field completed in the any tab", function () {
+      expect(report.isCompleted()).to.equal(false);
+    });
+
+    it(".mapDisplayResponse should return an object with fields display objects", function () {
+      var responseData = {
+        number: 1,
+        checkbox: {
+          opt1: true,
+          opt2: true,
+          opt3: true,
+          opt4: true
+        },
+        radio: 'opt1',
+        dropdown: 'opt2',
+        textarea: 'test value',
+        datetime: '2015-23-11'
+      };
+
+      var mergedData = report.mapDisplayResponse(responseData);
+
+      _.forEach(mergedData, function (field) {
+          expect(field.prompt).to.equal(report.fields[field.type].prompt);
+
+          if (field.type !== 'checkbox') {
+            expect(field.value).to.eql(responseData[field.type]);
+          } else {
+            expect(field.value).to.eql(Object.keys(responseData[field.type]));
+          }
+      });
+
     });
 
     describe ('checkbox', function () {
@@ -218,5 +302,25 @@ describe("acComponents.services.acFormUtils", function() {
         });
       });
     });
+  });
+
+  describe(".validateLocation()", function() {
+
+    it ('should return false if the given argument is not a string', function () {
+      expect(acFormUtils.validateLocationString(123)).to.equal(false);
+    });
+
+    it ('should return false if the coordinates are not separated by comma', function () {
+      expect(acFormUtils.validateLocationString('123.123')).to.equal(false);
+    });
+
+    it ('should return false if the coordinates are not numbers separated by comma', function () {
+      expect(acFormUtils.validateLocationString('aaa,bbb')).to.equal(false);
+    });
+
+    it ('should return true if the coordinates are correct', function () {
+      expect(acFormUtils.validateLocationString('-100.124346343,124.124235354673')).to.equal(true);
+    })
+
   });
 });
