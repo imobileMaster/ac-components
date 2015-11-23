@@ -32,21 +32,39 @@ describe("acComponents.services.acForecast", function() {
             acForecast.fetch();
         });
 
-        it("returns a promise", function () {
+        it("returns a promise", function (done) {
             $httpBackend.expectGET(apiUrl+'/api/forecasts').respond(200, {});
             var p = acForecast.fetch();
+
+            p.then(function (data) {
+              expect(data).to.eql({});
+              done();
+            }, function (err) {
+              console.log(err);
+              done();
+            });
+
             $httpBackend.flush();
 
-            expect(p).to.have.ownProperty('then');
         });
 
-        it("returns a promise even if forcasts are cached", function () {
+        it("returns a promise even if forcasts are cached", function (done) {
             $httpBackend.expectGET(apiUrl+'/api/forecasts').respond(200, {});
             acForecast.fetch();
             $httpBackend.flush();
 
             var p = acForecast.fetch();
-            expect(p).to.have.ownProperty('then');
+
+            p.then(function (data) {
+              expect(data).to.eql({});
+              done();
+            }, function (err) {
+              console.log(err);
+              done();
+            });
+
+            $httpBackend.flush();
+
         });
     });
 });

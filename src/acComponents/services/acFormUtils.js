@@ -60,9 +60,7 @@ angular.module('acComponents.services')
         getDisplayObject: inputDefault.getDisplayObject
       },
       number:{
-        getDTO: function (){
-          return this.value;
-        },
+        getDTO: inputDefault.getDTO,
         validate: function(){
           return (this.value == null) || parseInt(this.value) >= this.options.min && parseInt(this.value) <= this.options.max;
         },
@@ -165,7 +163,7 @@ angular.module('acComponents.services')
         } else {
           return field;
         }
-      };
+      }
     }
 
     function validateLocation (locationString) {
