@@ -111,12 +111,12 @@ angular.module('acComponents.services')
       function validateFields() {
         return _.reduce(fields, function (errors, field, key) {
           var err = field.validate();
-          if (err) {
-            errors[key].push(err);
+          if (!err) {
+            errors[key] = true;
           }
 
           return errors;
-        });
+        }, {});
       }
 
       function resetFields() {
@@ -137,13 +137,15 @@ angular.module('acComponents.services')
         if (_.isEmpty(ob)) return;
 
         var merged = _.reduce(ob, function (results, value, key) {
-          if (_.isUndefined(results[key]) && value) {
+          if (_.isUndefined(results[key]) && angular.isDefined(value)) {
             results[key] = {};
           }
 
-          if (value && !_.isEmpty(parseValue(value))) {
+          var parsedValue = parseValue(value);
+
+          if (angular.isDefined(value) && !_.isEmpty(parsedValue.toString())) {
             results[key] = (fields[key])?fields[key].getDisplayObject():{};
-            results[key].value = parseValue(value);
+            results[key].value = parsedValue;
           }
 
           return results;
@@ -179,9 +181,10 @@ angular.module('acComponents.services')
           return false;
         }
 
-        var location = L.latLng(latLng[0], latLng[1]);
+        var lat = parseFloat(latLng[0]),
+          lng = parseFloat(latLng[1]);
 
-        return angular.isNumber(location.lat) && angular.isNumber(location.lng);
+        return !(isNaN(lat) || isNaN(lng));
 
       } catch (e) {
         return false;
