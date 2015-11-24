@@ -9,9 +9,13 @@
         a.pull-right(target='_blank', href='{{sponsor.getText("sponsor.url")}}')
           img(src='{{sponsor.getText("sponsor.image-229")}}')
     .row.submission-header
-      .col-sm-12.section-label
+      .col-sm-6.section-label
         i.fa.fa-clock-o
         span Submitted
+      .col-sm-6.section-label.full-page-link
+        div(class="pull-right" ng-click="viewFullPage(sub.subid)")
+          i.fa.fa-external-link
+          span full page
       .col-sm-12
         p By <span> {{::sub.user}} </span>
         p On {{::sub.dateFormatted}}

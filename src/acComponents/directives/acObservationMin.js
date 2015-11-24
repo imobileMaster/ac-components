@@ -8,12 +8,14 @@ angular.module('acComponents.directives')
       },
       link: function (scope, el, attrs) {
         el.addClass('ac-observation-drawer');
+        el.addClass(attrs.acObservationMin);
 
         scope.activeTab = {};
         scope.reportTypes = acConfig.reportTypes;
         scope.hasReport = hasReport;
         scope.changeTab = changeTab;
         scope.closeDrawer = closeDrawer;
+        scope.viewFullPage = viewFullPage;
 
         function hasReport(type) {
           if (!scope.sub) return;
@@ -148,6 +150,10 @@ angular.module('acComponents.directives')
             avalanches.push('Rapid temperature rise to near zero degrees or wet surface snow.');
           }
           return avalanches;
+        }
+
+        function viewFullPage(id){
+          $state.go('ac.reports', { subid:id });
         }
 
       }
