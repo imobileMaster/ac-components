@@ -49,7 +49,7 @@ angular.module('acComponents.directives')
         var map = L.mapbox.map(el[0].id, MAPBOX_MAP_ID, {
           attributionControl: false,
           center: [52.3, -120.74966],
-          maxZoom: 10,
+          maxZoom: 20,
           minZoom: 4,
           zoom: 6,
           zoomControl: false
@@ -61,7 +61,7 @@ angular.module('acComponents.directives')
         function addMapControls(){
           L.control.locate({
             locateOptions: {
-              maxZoom: 14
+              maxZoom: 20
             },
             position: 'bottomright'
           }).addTo(map);
@@ -293,6 +293,8 @@ angular.module('acComponents.directives')
                   $scope.currentReport = results;
                   $rootScope.requestInProgress = false;
                 });
+
+                map.setView(ob.latlng, map.getZoom());
               });
 
               marker.eachLayer(function (layer) {
