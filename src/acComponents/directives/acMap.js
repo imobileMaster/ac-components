@@ -49,7 +49,7 @@ angular.module('acComponents.directives')
         var map = L.mapbox.map(el[0].id, MAPBOX_MAP_ID, {
           attributionControl: false,
           center: [52.3, -120.74966],
-          maxZoom: 20,
+          maxZoom: 14,
           minZoom: 4,
           zoom: 6,
           zoomControl: false

@@ -278,7 +278,7 @@ angular.module('acComponents.directives')
         var map = L.mapbox.map(el[0].id, MAPBOX_MAP_ID, {
           attributionControl: false,
           center: [52.3, -120.74966],
-          maxZoom: 10,
+          maxZoom: 14,
           minZoom: 4,
           zoom: 6,
           zoomControl: false
@@ -290,7 +290,7 @@ angular.module('acComponents.directives')
         function addMapControls(){
           L.control.locate({
             locateOptions: {
-              maxZoom: 14
+              maxZoom: 20
             },
             position: 'bottomright'
           }).addTo(map);
@@ -522,6 +522,8 @@ angular.module('acComponents.directives')
                   $scope.currentReport = results;
                   $rootScope.requestInProgress = false;
                 });
+
+                map.setView(ob.latlng, map.getZoom());
               });
 
               marker.eachLayer(function (layer) {
@@ -1641,12 +1643,12 @@ angular.module('acComponents.services')
       function validateFields() {
         return _.reduce(fields, function (errors, field, key) {
           var err = field.validate();
-          if (err) {
-            errors[key].push(err);
+          if (!err) {
+            errors[key] = true;
           }
 
           return errors;
-        });
+        }, {});
       }
 
       function resetFields() {
@@ -1667,13 +1669,15 @@ angular.module('acComponents.services')
         if (_.isEmpty(ob)) return;
 
         var merged = _.reduce(ob, function (results, value, key) {
-          if (_.isUndefined(results[key]) && value) {
+          if (_.isUndefined(results[key]) && value !== null && angular.isDefined(value)) {
             results[key] = {};
           }
 
-          if (value && !_.isEmpty(parseValue(value))) {
+          var parsedValue = parseValue(value);
+
+          if (angular.isDefined(value) && value !== null && !_.isEmpty(parsedValue.toString())) {
             results[key] = (fields[key])?fields[key].getDisplayObject():{};
-            results[key].value = parseValue(value);
+            results[key].value = parsedValue;
           }
 
           return results;
@@ -1709,9 +1713,10 @@ angular.module('acComponents.services')
           return false;
         }
 
-        var location = L.latLng(latLng[0], latLng[1]);
+        var lat = parseFloat(latLng[0]),
+          lng = parseFloat(latLng[1]);
 
-        return angular.isNumber(location.lat) && angular.isNumber(location.lng);
+        return !(isNaN(lat) || isNaN(lng));
 
       } catch (e) {
         return false;

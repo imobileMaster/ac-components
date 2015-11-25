@@ -137,13 +137,13 @@ angular.module('acComponents.services')
         if (_.isEmpty(ob)) return;
 
         var merged = _.reduce(ob, function (results, value, key) {
-          if (_.isUndefined(results[key]) && angular.isDefined(value)) {
+          if (_.isUndefined(results[key]) && value !== null && angular.isDefined(value)) {
             results[key] = {};
           }
 
           var parsedValue = parseValue(value);
 
-          if (angular.isDefined(value) && !_.isEmpty(parsedValue.toString())) {
+          if (angular.isDefined(value) && value !== null && !_.isEmpty(parsedValue.toString())) {
             results[key] = (fields[key])?fields[key].getDisplayObject():{};
             results[key].value = parsedValue;
           }
