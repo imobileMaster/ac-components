@@ -133,7 +133,7 @@
                         textarea.form-control(rows="3", ng-model="report.obs[key].fields[item].value")
                       .datetime-input.col-xs-12(ng-if="av.type=='datetime'")
                         label(for="datetime")
-                          input(type="datetime", ng-model="report.obs[key].fields[item].value", ac-datetime-picker, placeholder="Click to select date")
+                          input(type="datetime", ng-model="report.obs[key].fields[item].value", ac-datetime-picker, show-only-date="av.showOnlyDate" placeholder="Click to select date")
                       .error.col-xs-12.no-padding(ng-if="acMinForm[item].$invalid") {{::av.errorMessage}}
 
             .return-to-top.col-xs-12.no-padding

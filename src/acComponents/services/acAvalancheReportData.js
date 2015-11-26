@@ -3,8 +3,9 @@ angular.module('acComponents.services')
     var fields = {
 
       avalancheOccurrenceEpoch: {
-        prompt: 'Avalanche Observation Datetime',
+        prompt: 'Avalanche Observation Date',
         type: 'datetime',
+        showOnlyDate: true,
         value: null,
         order: 1
       },
@@ -172,6 +173,7 @@ angular.module('acComponents.services')
       weakLayerBurialDate: {
         prompt: 'Weak Layer Burial Date',
         type: 'datetime',
+        showOnlyDate: true,
         helpText:'Date the weak layer was buried.',
         order: 16
       },

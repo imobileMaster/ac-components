@@ -9,7 +9,6 @@ angular.module('acComponents.services')
         options: ['Point Observation', 'Summary'],
         inline: true,
         value: null,
-        helpText: 'Please add additional information about the snowpack, especially notes about weak layer, how the snow varied by aspect/elevation, and details of any slope testing performed.',
         order: 1
       },
 
@@ -167,6 +166,7 @@ angular.module('acComponents.services')
         type: 'textarea',
         prompt: 'Observation Comment',
         value: null,
+        helpText: 'Please add additional information about the snowpack, especially notes about weak layer, how the snow varied by aspect/elevation, and details of any slope testing performed.',
         order: 15
       }
     };
