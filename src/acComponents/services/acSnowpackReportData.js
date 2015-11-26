@@ -15,7 +15,7 @@ angular.module('acComponents.services')
 
       snowpackSiteElevation: {
         type: 'number',
-        prompt: 'Snowpack Site Elevation (metres above sea level)',
+        prompt: 'Site Elevation (metres above sea level)',
         options: {
           min: 0,
           max: 4000
@@ -27,7 +27,7 @@ angular.module('acComponents.services')
 
       snowpackSiteElevationBand: {
         type: 'radio',
-        prompt: 'Snowpack Site Elevation Band',
+        prompt: 'Site Elevation Band',
         options: ['Alpine', 'Treeline', 'Below Treeline'],
         inline: true,
         value: null,
@@ -36,7 +36,7 @@ angular.module('acComponents.services')
 
       snowpackSiteAspect: {
         type: 'radio',
-        prompt: 'Snowpack Site Aspect',
+        prompt: 'Site Aspect',
         options: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'],
         value: null,
         inline: true,
@@ -45,7 +45,7 @@ angular.module('acComponents.services')
 
       snowpackDepth: {
         type: 'number',
-        prompt: 'Snowpack Depth (centimetres)',
+        prompt: 'Depth (centimetres)',
         options: {
           min: 0,
           max: 10000
@@ -132,7 +132,7 @@ angular.module('acComponents.services')
 
       snowpackTestInitiation: {
         type: 'radio',
-        prompt: 'Snowpack Test Result',
+        prompt: 'Test Result',
         options: ['None', 'Very Easy', 'Easy', 'Moderate', 'Hard'],
         helpText: 'Average if you did a number of tests.',
         value: null,
@@ -142,7 +142,7 @@ angular.module('acComponents.services')
 
       snowpackTestFracture: {
         type: 'radio',
-        prompt: 'Snowpack Test Fracture Character',
+        prompt: 'Test Fracture Character',
         options: ['Sudden ("Pop" or "Drop")', 'Resistant', 'Uneven break'],
         helpText: 'Average if you did a number of tests. Describe further in comments if variable results.',
         value: null,
@@ -152,7 +152,7 @@ angular.module('acComponents.services')
 
       snowpackTestFailure: {
         type: 'number',
-        prompt: 'Snowpack Test Failure Depth',
+        prompt: 'Test Failure Depth',
         options: {
           min: 0,
           max: 200
@@ -165,7 +165,7 @@ angular.module('acComponents.services')
 
       snowpackObsComment: {
         type: 'textarea',
-        prompt: 'Snowpack Observation Comment',
+        prompt: 'Observation Comment',
         value: null,
         order: 15
       }
