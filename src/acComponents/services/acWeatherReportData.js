@@ -135,6 +135,7 @@ angular.module('acComponents.services')
       stormStartDate: {
         type: 'datetime',
         prompt: 'Storm Start Date',
+        showOnlyDate: true,
         value: null,
         helpText: 'The date on which the most recent storm started. Leave blank if there has not been a recent storm.',
         order: 12
