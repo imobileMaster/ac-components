@@ -2,9 +2,5 @@
     div(ng-show="forecast.externalUrl")
       <ac-forecast-mini-external forecast='forecast' />
 
-
-    div(ng-show="forecast.parksUrl")
-      <ac-forecast-mini-parks forecast='forecast' />
-
-    div(ng-hide="forecast.externalUrl || forecast.parksUrl")
+    div(ng-hide="forecast.externalUrl")
       <ac-forecast-mini-avalx forecast='forecast' danger-rating='dangerRating' disclaimer='disclaimer' sponsor='sponsor' />

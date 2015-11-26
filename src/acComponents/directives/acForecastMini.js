@@ -37,6 +37,19 @@ angular.module('acComponents.directives')
                 dangerRating: '=',
                 disclaimer: '=',
                 sponsor: '='
+            },
+            controller: function($scope) {
+                $scope.forecastType = function() {
+                    if(typeof $scope.forecast !== 'undefined') {
+                        if($scope.forecast.parksUrl) {
+                          return 'PARKS';
+                        } else {
+                          return 'AVALX';
+                        } 
+                        
+                    }
+                    
+                };
             }
         };
     })
@@ -45,5 +58,25 @@ angular.module('acComponents.directives')
             restrict: 'E',
             templateUrl: 'wbc-links.html'
         };
-    });
+    })
+    .directive('acForecastMiniParksLinks', function (AC_API_ROOT_URL) {
+        return {
+            restrict: 'E',
+            scope: { 
+                forecast: '=',
+            },
+            resolve: {
+                links: function($scope, $q) {
+                    console.log('Some info for ya:', $scope.forecast);
+                    return $q.resolve($scope.forecast.id);
+                }
+            },
+            link: {
+                pre:  console.log.bind(console, "in pre-link"),
+                post: console.log.bind(console, "in post-link")
+            },
+            controller: console.log.bind(console, 'running controller'),
+            templateUrl: 'forecast-mini-parks-links.html'
+        };
+    })
 ;
