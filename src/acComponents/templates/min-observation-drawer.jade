@@ -20,9 +20,9 @@
         p By <span> {{::sub.user}} </span>
         p On {{::sub.dateFormatted}}
 
-  .panel-body(style="padding-right: 0")
+  .panel-body
     .row-fluid.observation-tabs
-      ul.nav.nav-pills(role="tablist")
+      ul.nav.nav-pills.nav-justified(role="tablist")
         li(ng-repeat="tab in reportTypes",role="presentation", ng-class="[hasReport(tab),{active: tab === sub.requested}]")
           a(ng-click="changeTab(tab)",style="text-transform: uppercase;") {{::tab}}
     .row-fluid
