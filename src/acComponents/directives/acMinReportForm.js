@@ -14,7 +14,7 @@ angular.module('acComponents.directives')
             }
         };
     })
-    .directive('acMinReportForm', function($state, $q, $timeout, acBreakpoint, acQuickReportData, acAvalancheReportData, acIncidentReportData, acSnowpackReportData, acWeatherReportData, acFormUtils, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, store, $anchorScroll, $modal) {
+    .directive('acMinReportForm', function($state, $rootScope, $q, $timeout, acBreakpoint, acQuickReportData, acAvalancheReportData, acIncidentReportData, acSnowpackReportData, acWeatherReportData, acFormUtils, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, store, $anchorScroll, $modal) {
         return {
             templateUrl: 'min-report-form.html',
             replace: true,
@@ -106,10 +106,20 @@ angular.module('acComponents.directives')
 
                 $scope.resetForm = resetForm;
 
-                $scope.goBack = function () {
-                  resetFields();
-                  initReport();
-                  $state.go('ac.map');
+                $scope.goBack = function (formDirty) {
+
+                  //if (formDirty) {
+                  //  var goingBack = shouldDiscard();
+                  //  goingBack.then(exit);
+                  //} else {
+                  //  exit();
+                  //}
+                  //
+                  //function exit() {
+                      resetFields();
+                      initReport();
+                      $state.go('ac.map');
+                  //}
                 };
 
                 $scope.submitForm = function() {
@@ -156,6 +166,22 @@ angular.module('acComponents.directives')
                         return $q.reject('auth-error');
                     }
                 };
+
+
+                function shouldDiscard() {
+                  var modalInstance = $modal.open({
+                    animation: false,
+                    templateUrl: 'min-back-modal.html',
+                    controller: 'acBackModal',
+                    size: 'lg',
+                    windowClass: 'back-modal',
+                    keyboard: false,
+                    backdrop: 'static'
+                  });
+
+                  return modalInstance.result;
+                }
+
 
                 $scope.openMapModal = function () {
                   var modalInstance = $modal.open({

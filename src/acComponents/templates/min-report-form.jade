@@ -81,7 +81,7 @@
                       .checkbox.col-xs-12
                         label
                           input(type="checkbox", name="sound", ng-model="report.obs.quickReport.avalancheConditions.sound")
-                          | Whumphing or drum-like sounds or shooting cracks.
+                          | Whumpfing or drum-like sounds or shooting cracks.
                       .checkbox.col-xs-12
                         label
                           input(type="checkbox", name="snow", ng-model="report.obs.quickReport.avalancheConditions.snow")
@@ -138,7 +138,7 @@
 
             .return-to-top.col-xs-12.no-padding
               input.btn.btn-default(type="button", value="Back to top", ng-click="scrollToTop()")
-        input.btn.btn-default(type="button", value="Back", ng-click="goBack()")
+        input.btn.btn-default(type="button", value="Back", ng-click="goBack(acMinForm.$dirty)")
         .submit-btn
           i.fa.fa-fw.fa-lg.fa-spinner.fa-spin(ng-show="minsubmitting")
           input.btn.btn-default(type="submit", id="submit", value="SUBMIT", ng-disabled="acMinForm.$invalid || minsubmitting")
@@ -146,7 +146,7 @@
     div(ng-if="report.subid")
         .alert.alert-success(role="alert")
             | Your report was successfully submited.
-        input.btn.btn-default(type="button", value="Back", ng-click="goBack()")
+        input.btn.btn-default(type="button", value="Back", ng-click="goBack(false)")
         .well
             H4 Share this report:
             ul.list-inline

@@ -70,7 +70,7 @@ angular.module('acComponents.services')
 
       numberCaughtOnly: {
         type: 'number',
-        prompt: 'Number of people caught and not buried:',
+        prompt: 'Number of people caught but not buried:',
         options: {
           'min': 0,
           'max': 100
@@ -82,7 +82,7 @@ angular.module('acComponents.services')
 
       numberPeopleInjured: {
         type: 'number',
-        prompt: 'Number of people caught only and not fully or partly buried:',
+        prompt: 'Number of people caught, not injured and not buried:',
         options: {
           'min': 0,
           'max': 400

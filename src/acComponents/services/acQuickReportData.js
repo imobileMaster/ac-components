@@ -157,7 +157,7 @@ angular.module('acComponents.services')
             avalanches.push('Slab avalanches today or yesterday.');
           }
           if (av.sound) {
-            avalanches.push('Whumphing or drum-like sounds or shooting cracks.');
+            avalanches.push('Whumpfing or drum-like sounds or shooting cracks.');
           }
           if (av.snow) {
             avalanches.push('30cm + of new snow, or significant drifitng, or rain in the last 48 hours.');
