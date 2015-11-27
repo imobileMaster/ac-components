@@ -15,6 +15,28 @@ angular.module('acComponents.directives')
       link: function ($scope, el, attrs) {
         $scope.device = {};
         $scope.showRegions = $scope.showRegions || true;
+
+        var mapConfig = {
+          maxZoom: 20,
+          cluster:{
+            showCoverageOnHover: false
+          },
+          setFeatureLayer: function (lat, lng, type){
+            return {
+              type: 'Feature',
+              geometry: {
+                type: 'Point',
+                coordinates: [lat, lng]
+              },
+              properties: {
+                'marker-size': 'small',
+                'marker-color': getMarkerColor(type),
+                zIndexOffset: 1000
+              }
+            }
+          }
+        };
+
         var layers = {
           dangerIcons: L.featureGroup()
         };
@@ -49,7 +71,7 @@ angular.module('acComponents.directives')
         var map = L.mapbox.map(el[0].id, MAPBOX_MAP_ID, {
           attributionControl: false,
           center: [52.3, -120.74966],
-          maxZoom: 14,
+          maxZoom: mapConfig.maxZoom,
           minZoom: 4,
           zoom: 6,
           zoomControl: false
@@ -61,7 +83,7 @@ angular.module('acComponents.directives')
         function addMapControls(){
           L.control.locate({
             locateOptions: {
-              maxZoom: 20
+              maxZoom: mapConfig.maxZoom
             },
             position: 'bottomright'
           }).addTo(map);
@@ -261,22 +283,11 @@ angular.module('acComponents.directives')
           clusterOverlays.clearLayers();
 
           if ($scope.obs && $scope.obs.length > 0) {
-            var markers = new L.markerClusterGroup().addTo(clusterOverlays);
+            var markers = new L.markerClusterGroup(mapConfig.cluster).addTo(clusterOverlays);
 
             $scope.obs.map(function (ob) {
 
-              var marker = L.mapbox.featureLayer({
-                type: 'Feature',
-                geometry: {
-                  type: 'Point',
-                  coordinates: [ob.latlng[1], ob.latlng[0]]
-                },
-                properties: {
-                  'marker-size': 'small',
-                  'marker-color': getMarkerColor(ob.obtype),
-                  zIndexOffset: 1000
-                }
-              })
+              var marker = L.mapbox.featureLayer(mapConfig.setFeatureLayer(ob.latlng[1], ob.latlng[0], ob.obtype))
                 .setFilter(function () {
                   if (_.indexOf($scope.minFilters, ob.obtype) !== -1) {
                     return true;
@@ -433,21 +444,10 @@ angular.module('acComponents.directives')
 
           if($stateParams.subid && newVal && newVal.latlng){
             clusterOverlays.clearLayers();
-            var markers = new L.markerClusterGroup().addTo(clusterOverlays);
+            var markers = new L.markerClusterGroup(mapConfig.cluster).addTo(clusterOverlays);
 
             newVal.obs.map(function (ob) {
-              var marker = L.mapbox.featureLayer({
-                type: 'Feature',
-                geometry: {
-                  type: 'Point',
-                  coordinates: [newVal.latlng[1], newVal.latlng[0]]
-                },
-                properties: {
-                  'marker-size': 'small',
-                  'marker-color': getMarkerColor(ob.obtype),
-                  zIndexOffset: 1000
-                }
-              })
+              var marker = L.mapbox.featureLayer(mapConfig.setFeatureLayer(newVal.latlng[1], newVal.latlng[0],ob.obtype))
                 .setFilter(function () {
                   if (_.indexOf($scope.minFilters, ob.obtype) !== -1) {
                     return true;
