@@ -144,24 +144,8 @@
         input.btn.btn-default(type="button", value="Back", ng-click="goBack(acMinForm.$dirty)")
         .submit-btn
           i.fa.fa-fw.fa-lg.fa-spinner.fa-spin(ng-show="minsubmitting")
-          input.btn.btn-default(type="submit", id="submit", value="SUBMIT", ng-disabled="acMinForm.$invalid || minsubmitting")
+          input.btn.btn-default(type="submit", id="submit", value="SUBMIT", ng-disabled="acMinForm.$invalid || report.latlng.length === 0 || minsubmitting")
 
-    div(ng-if="report.subid")
-        .alert.alert-success(role="alert")
-            | Your report was successfully submited.
-        input.btn.btn-default(type="button", value="Back", ng-click="goBack(false)")
-        .well
-            H4 Share this report:
-            ul.list-inline
-                li
-                    a(ng-href="https://twitter.com/intent/tweet?status={{::report.shareUrl}}")
-                        i.fa.fa-twitter.fa-fw.fa-lg
-                li
-                    a(ng-href="https://www.facebook.com/sharer/sharer.php?u={{::report.shareUrl}}")
-                        i.fa.fa-facebook.fa-fw.fa-lg
-                li
-                    a(ng-href="https://plus.google.com/share?url={{::report.shareUrl}}")
-                        i.fa.fa-google-plus.fa-fw.fa-lg
     div(ng-if="minerror")
         .alert.alert-danger(role="alert")
             p There was an error submittting you report.
