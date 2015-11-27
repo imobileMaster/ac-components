@@ -27,7 +27,7 @@ angular.module('acComponents.directives')
             zoomControl: false
           },
           cluster:{
-            showCoverageOnHover: false
+            iconCreateFunction: createClusterIcon
           },
           setFeatureLayer: function (lat, lng, type){
             return {
@@ -507,6 +507,21 @@ angular.module('acComponents.directives')
             });
           }
         });
+
+        function createClusterIcon(cluster){
+          var childMakers = cluster.getAllChildMarkers();
+
+          var markers = _.reduce(childMakers, function (result, marker, key){
+              var latLng = marker.getLatLng();
+              result.push({
+                latLng: latLng.lat+ ' '+ latLng.lng
+              });
+              return result;
+          },[]);
+
+          var uniqMarkers = _.uniq(markers, 'latLng').length;
+            return new L.DivIcon({ html: '<div><span>' + uniqMarkers + '</span></div>', className: 'marker-cluster marker-cluster-sm', iconSize: new L.Point(40, 40) });
+        }
 
       }
     };
