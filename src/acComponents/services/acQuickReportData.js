@@ -160,7 +160,7 @@ angular.module('acComponents.services')
             avalanches.push('Whumpfing or drum-like sounds or shooting cracks.');
           }
           if (av.snow) {
-            avalanches.push('30cm + of new snow, or significant drifitng, or rain in the last 48 hours.');
+            avalanches.push('30cm + of new snow, or significant drifting, or rain in the last 48 hours.');
           }
           if (av.temp) {
             avalanches.push('Rapid temperature rise to near zero degrees or wet surface snow.');

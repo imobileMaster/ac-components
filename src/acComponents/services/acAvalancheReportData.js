@@ -31,7 +31,7 @@ angular.module('acComponents.services')
 
       slabThickness: {
         type: 'number',
-        prompt: 'Slab Thickness (centimetres)',
+        prompt: 'Slab Thickness (cm)',
         value: null,
         options: {
           min: 10,
@@ -43,7 +43,7 @@ angular.module('acComponents.services')
 
       slabWidth: {
         type: 'number',
-        prompt: 'Slab Width (meters)',
+        prompt: 'Slab Width (m)',
         value: null,
         options: {
           min: 1,
@@ -55,7 +55,7 @@ angular.module('acComponents.services')
 
       runLength: {
         type: 'number',
-        prompt: 'Run length (meters)',
+        prompt: 'Run length (m)',
         options: {
           min: 1,
           max: 10000
@@ -104,7 +104,7 @@ angular.module('acComponents.services')
 
       triggerDistance: {
         type: 'number',
-        prompt: 'Remote Trigger Distance (metres)',
+        prompt: 'Remote Trigger Distance (m)',
         options: {
           min: 0,
           max: 2000
@@ -135,7 +135,7 @@ angular.module('acComponents.services')
 
       startZoneElevation: {
         type: 'number',
-        prompt: 'Start Zone Elevation (metres above sea level)',
+        prompt: 'Start Zone Elevation (m)',
         options: {
           min: 0,
           max: 5000
@@ -159,7 +159,7 @@ angular.module('acComponents.services')
 
       runoutZoneElevation: {
         type: 'number',
-        prompt: 'Runout Zone Elevation (metres above sea level)',
+        prompt: 'Runout Zone Elevation (m above sea level)',
         options: {
           min: 0,
           max: 5000

@@ -97,7 +97,7 @@ angular.module('acComponents.services')
 
       newSnow24Hours: {
         type: 'number',
-        prompt: 'Amount of new snow in last 24 hours (centimetres):',
+        prompt: 'Amount of new snow in last 24 hours (cm):',
         options: {
           min: 0,
           max: 100
@@ -109,7 +109,7 @@ angular.module('acComponents.services')
 
       precipitation24Hours: {
         type: 'number',
-        prompt: 'Total rain and snow combined in last 24 hours (millimetres):',
+        prompt: 'Total rain and snow combined in last 24 hours (mm):',
         options: {
           min: 0,
           max: 100
