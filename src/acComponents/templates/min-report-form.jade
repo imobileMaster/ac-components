@@ -3,7 +3,7 @@
         div.form-fields.col-xs-12.no-padding
           div.col-xs-12.col-md-4.form-left-column
             .required-info.clearfix
-              h2.form-subtitle Step 1. Required Info
+              h3.form-subtitle Step 1. Required Info
 
               .required-info-data.col-xs-12
                 .form-group(ng-class="{'has-error': !acMinForm.title.$valid && acMinForm.title.$dirty }")
@@ -26,21 +26,21 @@
                     i.fa.fa-map-marker
                   .error.col-xs-12.no-padding(ng-if="invalidLatLng") Invalid coordinates format
             .uploads
-              h2.form-subtitle Step 2. Uploads
+              h3.form-subtitle Step 2. Uploads
 
               p Add a photo (.jpg or .png) to help tell your story.
 
               .form-group
                 .col-xs-12.no-padding.btn-file
                   .col-xs-3.no-padding
-                      span.btn.btn-default
+                      span.btn.btn-default.btn-styled
                         | Browse
                   input.col-xs-9.no-padding(type="text", readonly="readonly", placeholder=".jpg or .png" value="{{ report.files.length ? report.files.length + ' photos added' : null}}")
                   input(type="file", name="uploads", file-model="report.files", accept=".png,.jpg,.jpeg", multiple)
 
 
           div(class="col-xs-12 col-md-8 form-right-column")
-            h2.form-subtitle#top Step 3. Observations
+            h3.form-subtitle#top Step 3. Observations
 
             .announcement
               | Add information on one, some, or all tabs, then click SUBMIT at the bottom.
@@ -123,27 +123,27 @@
                           | {{ ::option}}
                       .number.col-xs-12(ng-if="av.type=='number'", ng-class="{'inline':av.inline}")
                         label
-                          input(type="number", name="{{::item}}" placeholder="Number between {{ ::av.options.min}} and {{ ::av.options.max}}", ng-model="report.obs[key].fields[item].value", ng-blur="validate(item, av)")
+                          input.form-control(type="number", name="{{::item}}" placeholder="Number between {{ ::av.options.min}} and {{ ::av.options.max}}", ng-model="report.obs[key].fields[item].value", ng-blur="validate(item, av)")
                       .text.col-xs-12(ng-if="av.type=='text'", ng-class="{'inline':av.inline}")
                         label
-                          input(type="text", name="{{::item}}" placeholder="{{ ::av.prompt }}", ng-model="report.obs[key].fields[item].value", ng-required="report.obs[key].fields[av.constraint.field].options[av.constraint.option]" ng-blur="validate(item, av)")
+                          input.form-control(type="text", name="{{::item}}" placeholder="{{ ::av.prompt }}", ng-model="report.obs[key].fields[item].value", ng-required="report.obs[key].fields[av.constraint.field].options[av.constraint.option]" ng-blur="validate(item, av)")
                       .select.col-md-6.col-xs-12.no-padding(ng-if="av.type=='dropdown'", ng-class="{'inline':av.inline, 'column-left':$odd}")
-                        select(ng-options="option for option in av.options", ng-model="report.obs[key].fields[item].value")
+                        select.fomr-control(ng-options="option for option in av.options", ng-model="report.obs[key].fields[item].value")
                           option(value="") Select option
                       .textarea.col-xs-12(ng-if="av.type=='textarea'")
                         textarea.form-control(rows="3", ng-model="report.obs[key].fields[item].value")
                       .datetime-input.col-xs-12(ng-if="av.type=='datetime'")
                         label(for="datetime")
-                          input(type="datetime", ng-model="report.obs[key].fields[item].value", ac-datetime-picker, show-only-date="av.showOnlyDate" placeholder="Click to select date")
+                          input.form-control(type="datetime", ng-model="report.obs[key].fields[item].value", ac-datetime-picker, show-only-date="av.showOnlyDate" placeholder="Click to select date")
                       .error.col-xs-12.no-padding(ng-if="acMinForm[item].$invalid") {{::av.errorMessage}}
                     .options.col-xs-12.col-md-4
 
             .return-to-top.col-xs-12.no-padding
-              input.btn.btn-default(type="button", value="Back to top", ng-click="scrollToTop()")
-        input.btn.btn-default(type="button", value="Back", ng-click="goBack(acMinForm.$dirty)")
+              input.btn.btn-default.btn-styled(type="button", value="Back to top", ng-click="scrollToTop()")
+        input.btn.btn-default.btn-styled(type="button", value="Back", ng-click="goBack(acMinForm.$dirty)")
         .submit-btn
           i.fa.fa-fw.fa-lg.fa-spinner.fa-spin(ng-show="minsubmitting")
-          input.btn.btn-default(type="submit", id="submit", value="SUBMIT", ng-disabled="acMinForm.$invalid || report.latlng.length === 0 || minsubmitting")
+          input.btn.btn-default.btn-styled(type="submit", id="submit", value="SUBMIT", ng-disabled="acMinForm.$invalid || report.latlng.length === 0 || minsubmitting")
 
     div(ng-if="minerror")
         .alert.alert-danger(role="alert")
