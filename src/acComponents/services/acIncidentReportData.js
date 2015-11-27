@@ -16,8 +16,20 @@ angular.module('acComponents.services')
           'Other': false
         },
         inline: true,
-        helpText: 'If other, please describe in Incident Description.',
+        helpText: 'If other, please describe it below.',
         order: 1
+      },
+
+      otherActivityDescription: {
+        type: 'text',
+        prompt: 'Describe Other Activity',
+        value: null,
+        order: 2,
+        errorMessage: 'Please describe what other activity.',
+        constraint: {
+          field: 'groupActivity',
+          option: 'Other'
+        }
       },
 
       groupSize: {
@@ -29,7 +41,7 @@ angular.module('acComponents.services')
         },
         value: null,
         errorMessage: 'Number between 0 and 100 please.',
-        order: 2
+        order: 3
       },
 
       numberFullyBuried: {
@@ -41,7 +53,7 @@ angular.module('acComponents.services')
         },
         value: null,
         errorMessage: 'Number between 0 and 100 please.',
-        order: 3
+        order: 4
       },
 
       numberPartlyBuriedImpairedBreathing: {
@@ -53,7 +65,7 @@ angular.module('acComponents.services')
         },
         value: null,
         errorMessage: 'Number between 0 and 100 please.',
-        order: 4
+        order: 5
       },
 
       numberPartlyBuriedAbleBreathing: {
@@ -65,7 +77,7 @@ angular.module('acComponents.services')
         },
         value: null,
         errorMessage: 'Number between 0 and 100 please.',
-        order: 5
+        order: 6
       },
 
       numberCaughtOnly: {
@@ -77,7 +89,7 @@ angular.module('acComponents.services')
         },
         value: null,
         errorMessage: 'Number between 0 and 100 please.',
-        order: 6
+        order: 7
       },
 
       numberPeopleInjured: {
@@ -89,7 +101,7 @@ angular.module('acComponents.services')
         },
         value: null,
         errorMessage: 'Number between 0 and 400 please.',
-        order: 7
+        order: 8
       },
 
       terrainShapeTriggerPoint: {
@@ -99,7 +111,7 @@ angular.module('acComponents.services')
         options: ['Convex', 'Planar', 'Concave', 'Unsupported'],
         value: null,
         helpText: 'Convex: a roll. Concave: bowl-shaped. Planar: smooth with no significant convexities or concavities. Unsupported: a slope that drops off abruptly at the bottom.',
-        order: 8
+        order: 9
       },
 
       snowDepthTriggerPoint: {
@@ -109,7 +121,7 @@ angular.module('acComponents.services')
         options: ['Shallow', 'Deep', 'Average', 'Variable'],
         helpText: 'The depth of the snowpack compared to the average conditions in the area. Shallow: shallower than average. Deep: deeper than average. Average: about the same as everywhere else. Variable: depth varies significantly in the place where the avalanche started.',
         value: null,
-        order: 9
+        order: 10
       },
 
       terrainTrap: {
@@ -124,7 +136,7 @@ angular.module('acComponents.services')
         },
         inline: true,
         helpText: 'Terrain traps are features that increase the consequences of an avalanche.',
-        order: 10
+        order: 11
       },
 
       incidentDescription: {
@@ -133,7 +145,13 @@ angular.module('acComponents.services')
         value: null,
         helpText: 'No names and no judging please.',
         guidelines: 'http://www.avalanche.ca/fxresources/Submissions+Guidelines.pdf',
-        order: 11
+        order: 12
+      },
+
+      numberInvolved: {
+        type: 'calculated',
+        value: 0,
+        computeFields: ['numberFullyBuried', 'numberPartlyBuriedImpairedBreathing', 'numberPartlyBuriedAbleBreathing', 'numberCaughtOnly', 'numberPeopleInjured']
       }
     };
 

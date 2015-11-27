@@ -165,7 +165,8 @@ angular.module('acComponents.services')
         options: ['None', 'Light', 'Moderate', 'Intense'],
         inline: true,
         helpText: 'How much snow is blowing at ridge crest elevation. Light: localized snow drifting. Moderate: a plume of snow is visible. Intense: a large plume moving snow well down the slope.',
-        order: 15
+        order: 15,
+        value: null
       },
 
       weatherObsComment: {

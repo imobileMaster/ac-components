@@ -65,13 +65,25 @@ angular.module('acComponents.services')
           return (this.value == null) || parseInt(this.value) >= this.options.min && parseInt(this.value) <= this.options.max;
         },
         reset: inputDefault.reset,
-        isCompleted: inputDefault.isCompleted,
+        isCompleted: function () {
+          return this.value !== null;
+        },
         getDisplayObject: inputDefault.getDisplayObject
       },
       dropdown: inputDefault,
       textarea: inputDefault,
       radio: inputDefault,
-      datetime: inputDefault
+      datetime: inputDefault,
+      calculated: {
+        getDTO: inputDefault.getDTO,
+        validate: inputDefault.validate,
+        reset: inputDefault.reset,
+        isCompleted: function () {
+          return false;
+        },
+        getDisplayObject: inputDefault.getDisplayObject
+      },
+      text: inputDefault
     };
 
     return {
@@ -103,9 +115,23 @@ angular.module('acComponents.services')
 
       function getDTO() {
         return _.reduce(fields, function (dtos, field, key) {
-          dtos[key] = field.getDTO();
+
+          if (field.type === 'calculated') {
+            dtos[key] = getCalculatedFieldValue(field, fields);
+          } else {
+            dtos[key] = field.getDTO();
+          }
+
           return dtos;
         }, {});
+      }
+
+      function getCalculatedFieldValue(field, fields) {
+        return _.reduce(field.computeFields, function (total, key) {
+          total += fields[key].value;
+
+          return total;
+        }, 0);
       }
 
       function validateFields() {
