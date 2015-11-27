@@ -22,7 +22,7 @@ angular.module('acComponents.services')
 
       otherActivityDescription: {
         type: 'text',
-        prompt: 'Describe Other Activity',
+        prompt: 'Describe other activity',
         value: null,
         order: 2,
         errorMessage: 'Please describe what other activity.',
@@ -107,7 +107,7 @@ angular.module('acComponents.services')
       terrainShapeTriggerPoint: {
         type: 'radio',
         inline: true,
-        prompt: 'Terrain shape at Trigger Point:',
+        prompt: 'Terrain shape at trigger point:',
         options: ['Convex', 'Planar', 'Concave', 'Unsupported'],
         value: null,
         helpText: 'Convex: a roll. Concave: bowl-shaped. Planar: smooth with no significant convexities or concavities. Unsupported: a slope that drops off abruptly at the bottom.',
@@ -117,7 +117,7 @@ angular.module('acComponents.services')
       snowDepthTriggerPoint: {
         type: 'radio',
         inline: true,
-        prompt: 'Snow depth at Trigger Point:',
+        prompt: 'Snow depth at trigger point:',
         options: ['Shallow', 'Deep', 'Average', 'Variable'],
         helpText: 'The depth of the snowpack compared to the average conditions in the area. Shallow: shallower than average. Deep: deeper than average. Average: about the same as everywhere else. Variable: depth varies significantly in the place where the avalanche started.',
         value: null,
@@ -126,7 +126,7 @@ angular.module('acComponents.services')
 
       terrainTrap: {
         type: 'checkbox',
-        prompt: 'Terrain Trap:',
+        prompt: 'Terrain trap:',
         options: {
           'No obvious terrain trap': false,
           'Gully or depression': false,
@@ -140,7 +140,7 @@ angular.module('acComponents.services')
       },
 
       incidentDescription: {
-        prompt: 'Incident Description:',
+        prompt: 'Incident description',
         type: 'textarea',
         value: null,
         helpText: 'No names and no judging please.',

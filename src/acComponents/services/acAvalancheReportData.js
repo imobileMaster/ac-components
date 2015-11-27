@@ -3,7 +3,7 @@ angular.module('acComponents.services')
     var fields = {
 
       avalancheOccurrenceEpoch: {
-        prompt: 'Avalanche Observation Date',
+        prompt: 'Avalanche observation date:',
         type: 'datetime',
         showOnlyDate: true,
         value: null,
@@ -11,7 +11,7 @@ angular.module('acComponents.services')
       },
 
       avalancheNumber: {
-        prompt: 'Number of avalanches in this report',
+        prompt: 'Number of avalanches in this report:',
         type: 'radio',
         inline: true,
         options: ['1', '2-5', '6-10', '11-50', '51-100'],
@@ -20,7 +20,7 @@ angular.module('acComponents.services')
       },
 
       avalancheSize: {
-        prompt: 'Avalanche Size',
+        prompt: 'Avalanche size:',
         type: 'radio',
         inline: true,
         value: null,
@@ -31,7 +31,7 @@ angular.module('acComponents.services')
 
       slabThickness: {
         type: 'number',
-        prompt: 'Slab Thickness (cm)',
+        prompt: 'Slab thickness (cm):',
         value: null,
         options: {
           min: 10,
@@ -43,7 +43,7 @@ angular.module('acComponents.services')
 
       slabWidth: {
         type: 'number',
-        prompt: 'Slab Width (m)',
+        prompt: 'Slab width (m):',
         value: null,
         options: {
           min: 1,
@@ -55,7 +55,7 @@ angular.module('acComponents.services')
 
       runLength: {
         type: 'number',
-        prompt: 'Run length (m)',
+        prompt: 'Run length (m):',
         options: {
           min: 1,
           max: 10000
@@ -68,7 +68,7 @@ angular.module('acComponents.services')
 
       avalancheCharacter: {
         type: 'checkbox',
-        prompt: 'Avalanche Character',
+        prompt: 'Avalanche character:',
         limit: 3,
         inline: true,
         options: {
@@ -86,16 +86,16 @@ angular.module('acComponents.services')
       },
 
       triggerType: {
-        type: 'dropdown',
-        prompt: 'Trigger Type',
+        type: 'radio',
+        prompt: 'Trigger type:',
         options:['Natural', 'Skier', 'Snowmobile', 'Other Vehicle', 'Helicopter', 'Explosives'],
         value: null,
         order: 8
       },
 
       triggerSubtype: {
-        type: 'dropdown',
-        prompt: 'Trigger Subtype',
+        type: 'radio',
+        prompt: 'Trigger subtype:',
         value: null,
         options: ['Accidental', 'Intentional', 'Remote'],
         helpText: 'A remote trigger is when the avalanche starts some distance away from where the trigger was  applied.',
@@ -104,7 +104,7 @@ angular.module('acComponents.services')
 
       triggerDistance: {
         type: 'number',
-        prompt: 'Remote Trigger Distance (m)',
+        prompt: 'Remote trigger distance (m):',
         options: {
           min: 0,
           max: 2000
@@ -118,14 +118,14 @@ angular.module('acComponents.services')
       startZoneAspect: {
         type: 'radio',
         inline: true,
-        prompt: 'Start Zone Aspect',
+        prompt: 'Start zone aspect:',
         options: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'],
         value: null,
         order: 11
       },
 
       startZoneElevationBand: {
-        prompt: 'Start Zone Elevation Band',
+        prompt: 'Start zone elevation band:',
         type: 'radio',
         inline: true,
         options: ['Alpine', 'Treeline', 'Below Treeline'],
@@ -135,7 +135,7 @@ angular.module('acComponents.services')
 
       startZoneElevation: {
         type: 'number',
-        prompt: 'Start Zone Elevation (m)',
+        prompt: 'Start zone elevation (m):',
         options: {
           min: 0,
           max: 5000
@@ -147,7 +147,7 @@ angular.module('acComponents.services')
 
       startZoneIncline: {
         type: 'number',
-        prompt: 'Start Zone Incline',
+        prompt: 'Start zone incline:',
         options: {
           min: 0,
           max: 90
@@ -159,11 +159,12 @@ angular.module('acComponents.services')
 
       runoutZoneElevation: {
         type: 'number',
-        prompt: 'Runout Zone Elevation (m above sea level)',
+        prompt: 'Runout zone elevation:',
         options: {
           min: 0,
           max: 5000
         },
+        placeholder: 'Metres above sea level',
         helpText: 'The lowest point of the debris.',
         value: null,
         errorMessage: 'Number between 0 and 5000 please.',
@@ -171,7 +172,7 @@ angular.module('acComponents.services')
       },
 
       weakLayerBurialDate: {
-        prompt: 'Weak Layer Burial Date',
+        prompt: 'Weak layer burial date:',
         type: 'datetime',
         showOnlyDate: true,
         helpText:'Date the weak layer was buried.',
@@ -181,7 +182,7 @@ angular.module('acComponents.services')
 
       weakLayerCrystalType: {
         type: 'checkbox',
-        prompt: 'Weak Layer Crystal Type',
+        prompt: 'Weak layer crystal type:',
         limit: 2,
         inline: true,
         options: {
@@ -196,7 +197,7 @@ angular.module('acComponents.services')
       },
 
       crustNearWeakLayer:{
-        prompt: 'Crust Near Weak Layer',
+        prompt: 'Crust near weak layer:',
         type: 'radio',
         inline: true,
         options: ['Yes', 'No'],
@@ -205,23 +206,23 @@ angular.module('acComponents.services')
       },
 
       windExposure: {
-        type: 'dropdown',
-        prompt: 'Wind Exposure',
+        type: 'radio',
+        prompt: 'Wind exposure:',
         options: ['Lee slope', 'Windward slope', 'Down flow', 'Cross-loaded slope', 'Reverse-loaded slope', 'No wind exposure'],
         value: null,
         order: 19
       },
 
       vegetationCover: {
-        type: 'dropdown',
-        prompt: 'Vegetation cover',
+        type: 'radio',
+        prompt: 'Vegetation cover:',
         value: null,
         options: ['Open slope', 'Sparse trees or gladed slope', 'Dense trees'],
         order: 20
       },
 
       avalancheObsComment: {
-        prompt: 'Avalanche Observation Comment',
+        prompt: 'Avalanche observation comment',
         type: 'textarea',
         value: null,
         helpText: 'Please add additional information, for example terrain, aspect, elevation etc. especially if describing many avalanches together.',

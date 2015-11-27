@@ -14,11 +14,12 @@ angular.module('acComponents.services')
 
       snowpackSiteElevation: {
         type: 'number',
-        prompt: 'Site Elevation (m above sea level)',
+        prompt: 'Elevation:',
         options: {
           min: 0,
           max: 4000
         },
+        placeholder: 'Metres above sea level',
         value: null,
         errorMessage: 'Number between 0 and 4000 please.',
         order: 2
@@ -26,7 +27,7 @@ angular.module('acComponents.services')
 
       snowpackSiteElevationBand: {
         type: 'radio',
-        prompt: 'Site Elevation Band',
+        prompt: 'Elevation band:',
         options: ['Alpine', 'Treeline', 'Below Treeline'],
         inline: true,
         value: null,
@@ -35,7 +36,7 @@ angular.module('acComponents.services')
 
       snowpackSiteAspect: {
         type: 'radio',
-        prompt: 'Site Aspect',
+        prompt: 'Aspect:',
         options: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'],
         value: null,
         inline: true,
@@ -44,7 +45,7 @@ angular.module('acComponents.services')
 
       snowpackDepth: {
         type: 'number',
-        prompt: 'Depth (cm)',
+        prompt: 'Snowpack depth (cm):',
         options: {
           min: 0,
           max: 10000
@@ -77,7 +78,7 @@ angular.module('acComponents.services')
 
       snowpackSurfaceCondition: {
         type: 'checkbox',
-        prompt: 'Surface condition',
+        prompt: 'Surface condition:',
         options: {
           'New Snow': false,
           'Crust': false,
@@ -92,7 +93,7 @@ angular.module('acComponents.services')
 
       snowpackFootPenetration: {
         type: 'number',
-        prompt: 'Foot Penetration (cm)',
+        prompt: 'Foot penetration (cm):',
         options: {
           min: 0,
           max: 200
@@ -105,7 +106,7 @@ angular.module('acComponents.services')
 
       snowpackSkiPenetration: {
         type: 'number',
-        prompt: 'Ski Penetration (cm)',
+        prompt: 'Ski penetration (cm):',
         options: {
           min: 0,
           max: 200
@@ -118,7 +119,7 @@ angular.module('acComponents.services')
 
       snowpackSledPenetration: {
         type: 'number',
-        prompt: 'Sled Penetration (cm)',
+        prompt: 'Sled penetration (cm):',
         options: {
           min: 0,
           max: 200
@@ -131,7 +132,7 @@ angular.module('acComponents.services')
 
       snowpackTestInitiation: {
         type: 'radio',
-        prompt: 'Test Result',
+        prompt: 'Test result:',
         options: ['None', 'Very Easy', 'Easy', 'Moderate', 'Hard'],
         helpText: 'Average if you did a number of tests.',
         value: null,
@@ -141,7 +142,7 @@ angular.module('acComponents.services')
 
       snowpackTestFracture: {
         type: 'radio',
-        prompt: 'Test Fracture Character',
+        prompt: 'Test fracture character:',
         options: ['Sudden ("Pop" or "Drop")', 'Resistant', 'Uneven break'],
         helpText: 'Average if you did a number of tests. Describe further in comments if variable results.',
         value: null,
@@ -151,7 +152,7 @@ angular.module('acComponents.services')
 
       snowpackTestFailure: {
         type: 'number',
-        prompt: 'Test Failure Depth',
+        prompt: 'Test failure depth:',
         options: {
           min: 0,
           max: 200
@@ -162,12 +163,28 @@ angular.module('acComponents.services')
         order: 14
       },
 
+      snowpackTestFailureLayerCrystalType: {
+        type: 'checkbox',
+        prompt: 'Test failure layer crystal type:',
+        limit: 2,
+        options: {
+          'Surface hoar': false,
+          'Facets': false,
+          'Depth hoar Hoar': false,
+          'Storm snow': false,
+          'Crust': false,
+          'Other': false
+        },
+        inline: true,
+        order: 15
+      },
+
       snowpackObsComment: {
         type: 'textarea',
-        prompt: 'Observation Comment',
+        prompt: 'Observation comment:',
         value: null,
         helpText: 'Please add additional information about the snowpack, especially notes about weak layer, how the snow varied by aspect/elevation, and details of any slope testing performed.',
-        order: 15
+        order: 16
       }
     };
 

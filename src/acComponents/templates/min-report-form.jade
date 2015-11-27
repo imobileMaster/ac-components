@@ -20,7 +20,7 @@
                   .btn-map(ng-click="openMapModal()")
                     i.fa.fa-map-o
                   h4
-                    | or enter location by Lat Long
+                    | or enter location by lat long
                   input.form-control.latlng(type="text", ng-class="{'modified': tempLatlngModified}", name="tempLatlng", ac-enter="saveLocation()" ng-model="report.tempLatlng", placeholder="e.g. 51.522, -188.883", required)
                   .save-location(role="button", ng-if="tempLatlngModified", ng-click="saveLocation()")
                     i.fa.fa-map-marker
@@ -123,7 +123,7 @@
                           | {{ ::option}}
                       .number.col-xs-12(ng-if="av.type=='number'", ng-class="{'inline':av.inline}")
                         label
-                          input.form-control(type="number", name="{{::item}}" placeholder="Number between {{ ::av.options.min}} and {{ ::av.options.max}}", ng-model="report.obs[key].fields[item].value", ng-blur="validate(item, av)")
+                          input.form-control(type="number", name="{{::item}}" placeholder="{{ av.placeholder ? av.placeholder : 'Number between '+ av.options.min +' and '+av.options.max }}", ng-model="report.obs[key].fields[item].value", ng-blur="validate(item, av)")
                       .text.col-xs-12(ng-if="av.type=='text'", ng-class="{'inline':av.inline}")
                         label
                           input.form-control(type="text", name="{{::item}}" placeholder="{{ ::av.prompt }}", ng-model="report.obs[key].fields[item].value", ng-required="report.obs[key].fields[av.constraint.field].options[av.constraint.option]" ng-blur="validate(item, av)")
