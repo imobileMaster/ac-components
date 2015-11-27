@@ -279,7 +279,8 @@ angular.module('acComponents.directives')
             zoomControl: false
           },
           cluster:{
-            showCoverageOnHover: false
+            showCoverageOnHover: false,
+            iconCreateFunction: createClusterIcon
           },
           setFeatureLayer: function (lat, lng, type){
             return {
@@ -759,6 +760,27 @@ angular.module('acComponents.directives')
             });
           }
         });
+
+        function createClusterIcon(cluster){
+          var childCount = cluster.getChildCount();
+
+
+
+          var c = ' marker-cluster-';
+          if (childCount < 10) {
+            c += 'small';
+          } else if (childCount < 100) {
+            c += 'medium';
+          } else {
+            c += 'large';
+          }
+          if(cluster._zoom == 20){
+            return new L.DivIcon({ html: '<div><img src="http://oi67.tinypic.com/2ryo9ps.jpg"</div>'});
+          }else{
+            return new L.DivIcon({ html: '<div><span>' + childCount + '</span></div>', className: 'marker-cluster' + c, iconSize: new L.Point(40, 40) });
+
+          }
+        }
 
       }
     };
