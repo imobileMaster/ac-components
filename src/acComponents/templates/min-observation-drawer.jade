@@ -9,16 +9,20 @@
         a.pull-right(target='_blank', href='{{sponsor.getText("sponsor.url")}}')
           img(src='{{sponsor.getText("sponsor.image-229")}}')
     .row.submission-header
-      .col-sm-12.section-label
+      .col-sm-6.section-label
         i.fa.fa-clock-o
         span Submitted
+      .col-sm-6.section-label.full-page-link
+        div(class="pull-right", ng-click="viewFullPage(sub.subid)")
+          i.fa.fa-external-link
+          span full page
       .col-sm-12
         p By <span> {{::sub.user}} </span>
         p On {{::sub.dateFormatted}}
 
   .panel-body
     .row-fluid.observation-tabs
-      ul.nav.nav-pills(role="tablist")
+      ul.nav.nav-pills.nav-justified(role="tablist")
         li(ng-repeat="tab in reportTypes",role="presentation", ng-class="[hasReport(tab),{active: tab === sub.requested}]")
           a(ng-click="changeTab(tab)",style="text-transform: uppercase;") {{::tab}}
     .row-fluid
@@ -30,7 +34,7 @@
           div(ng-repeat="ob in sub.obs")
             div.submission-header(ng-if="ob.obtype === sub.requested", ng-repeat="item in activeTab")
               ul.observation-information
-                li.observation-item(ng-if="item.type === 'number' || item.type === 'radio'|| item.type === 'dropdown'")
+                li.observation-item(ng-if="item.type === 'number' || item.type === 'radio' || item.type === 'dropdown' || item.type === 'text' ")
                   | {{::item.prompt}}
                   i.fa.fa-check
                   span.value {{::item.value}}

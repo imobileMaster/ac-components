@@ -1,5 +1,5 @@
 angular.module('acComponents.directives')
-  .directive('acMapboxMap', function ($rootScope, $window, $location, $timeout, acBreakpoint, acObservation, acForecast, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, $stateParams) {
+  .directive('acMapboxMap', function ($rootScope, $window, $location, $timeout, acBreakpoint, acObservation, acForecast, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, $stateParams, acConfig) {
     return {
       template: '<div id="map"></div>',
       replace: true,
@@ -15,6 +15,36 @@ angular.module('acComponents.directives')
       link: function ($scope, el, attrs) {
         $scope.device = {};
         $scope.showRegions = $scope.showRegions || true;
+
+        var mapConfig = {
+          maxZoom: acConfig.maxZoom,
+          mapSetup: {
+            attributionControl: false,
+            center: [52.3, -120.74966],
+            maxZoom: acConfig.maxZoom,
+            minZoom: 4,
+            zoom: 6,
+            zoomControl: false
+          },
+          cluster:{
+            iconCreateFunction: createClusterIcon
+          },
+          setFeatureLayer: function (lat, lng, type){
+            return {
+              type: 'Feature',
+              geometry: {
+                type: 'Point',
+                coordinates: [lat, lng]
+              },
+              properties: {
+                'marker-size': 'small',
+                'marker-color': getMarkerColor(type),
+                zIndexOffset: 1000
+              }
+            }
+          }
+        };
+
         var layers = {
           dangerIcons: L.featureGroup()
         };
@@ -46,14 +76,7 @@ angular.module('acComponents.directives')
         };
 
         L.mapbox.accessToken = MAPBOX_ACCESS_TOKEN;
-        var map = L.mapbox.map(el[0].id, MAPBOX_MAP_ID, {
-          attributionControl: false,
-          center: [52.3, -120.74966],
-          maxZoom: 10,
-          minZoom: 4,
-          zoom: 6,
-          zoomControl: false
-        });
+        var map = L.mapbox.map(el[0].id, MAPBOX_MAP_ID, mapConfig.mapSetup);
         var clusterOverlays = L.layerGroup().addTo(map);
 
         addMapControls();
@@ -61,7 +84,7 @@ angular.module('acComponents.directives')
         function addMapControls(){
           L.control.locate({
             locateOptions: {
-              maxZoom: 14
+              maxZoom: mapConfig.maxZoom
             },
             position: 'bottomright'
           }).addTo(map);
@@ -261,22 +284,11 @@ angular.module('acComponents.directives')
           clusterOverlays.clearLayers();
 
           if ($scope.obs && $scope.obs.length > 0) {
-            var markers = new L.markerClusterGroup().addTo(clusterOverlays);
+            var markers = new L.markerClusterGroup(mapConfig.cluster).addTo(clusterOverlays);
 
             $scope.obs.map(function (ob) {
 
-              var marker = L.mapbox.featureLayer({
-                type: 'Feature',
-                geometry: {
-                  type: 'Point',
-                  coordinates: [ob.latlng[1], ob.latlng[0]]
-                },
-                properties: {
-                  'marker-size': 'small',
-                  'marker-color': getMarkerColor(ob.obtype),
-                  zIndexOffset: 1000
-                }
-              })
+              var marker = L.mapbox.featureLayer(mapConfig.setFeatureLayer(ob.latlng[1], ob.latlng[0], ob.obtype))
                 .setFilter(function () {
                   if (_.indexOf($scope.minFilters, ob.obtype) !== -1) {
                     return true;
@@ -293,6 +305,8 @@ angular.module('acComponents.directives')
                   $scope.currentReport = results;
                   $rootScope.requestInProgress = false;
                 });
+
+                map.setView(ob.latlng, map.getZoom());
               });
 
               marker.eachLayer(function (layer) {
@@ -431,21 +445,10 @@ angular.module('acComponents.directives')
 
           if($stateParams.subid && newVal && newVal.latlng){
             clusterOverlays.clearLayers();
-            var markers = new L.markerClusterGroup().addTo(clusterOverlays);
+            var markers = new L.markerClusterGroup(mapConfig.cluster).addTo(clusterOverlays);
 
             newVal.obs.map(function (ob) {
-              var marker = L.mapbox.featureLayer({
-                type: 'Feature',
-                geometry: {
-                  type: 'Point',
-                  coordinates: [newVal.latlng[1], newVal.latlng[0]]
-                },
-                properties: {
-                  'marker-size': 'small',
-                  'marker-color': getMarkerColor(ob.obtype),
-                  zIndexOffset: 1000
-                }
-              })
+              var marker = L.mapbox.featureLayer(mapConfig.setFeatureLayer(newVal.latlng[1], newVal.latlng[0],ob.obtype))
                 .setFilter(function () {
                   if (_.indexOf($scope.minFilters, ob.obtype) !== -1) {
                     return true;
@@ -504,6 +507,21 @@ angular.module('acComponents.directives')
             });
           }
         });
+
+        function createClusterIcon(cluster){
+          var childMakers = cluster.getAllChildMarkers();
+
+          var markers = _.reduce(childMakers, function (result, marker, key){
+              var latLng = marker.getLatLng();
+              result.push({
+                latLng: latLng.lat+ ' '+ latLng.lng
+              });
+              return result;
+          },[]);
+
+          var uniqMarkers = _.uniq(markers, 'latLng').length;
+            return new L.DivIcon({ html: '<div><span>' + uniqMarkers + '</span></div>', className: 'marker-cluster marker-cluster-sm', iconSize: new L.Point(40, 40) });
+        }
 
       }
     };

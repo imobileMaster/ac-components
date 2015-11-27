@@ -16,8 +16,20 @@ angular.module('acComponents.services')
           'Other': false
         },
         inline: true,
-        helpText: 'If other, please describe in Incident Description.',
+        helpText: 'If other, please describe it below.',
         order: 1
+      },
+
+      otherActivityDescription: {
+        type: 'text',
+        prompt: 'Describe other activity',
+        value: null,
+        order: 2,
+        errorMessage: 'Please describe what other activity.',
+        constraint: {
+          field: 'groupActivity',
+          option: 'Other'
+        }
       },
 
       groupSize: {
@@ -29,7 +41,7 @@ angular.module('acComponents.services')
         },
         value: null,
         errorMessage: 'Number between 0 and 100 please.',
-        order: 2
+        order: 3
       },
 
       numberFullyBuried: {
@@ -41,7 +53,7 @@ angular.module('acComponents.services')
         },
         value: null,
         errorMessage: 'Number between 0 and 100 please.',
-        order: 3
+        order: 4
       },
 
       numberPartlyBuriedImpairedBreathing: {
@@ -53,7 +65,7 @@ angular.module('acComponents.services')
         },
         value: null,
         errorMessage: 'Number between 0 and 100 please.',
-        order: 4
+        order: 5
       },
 
       numberPartlyBuriedAbleBreathing: {
@@ -65,56 +77,56 @@ angular.module('acComponents.services')
         },
         value: null,
         errorMessage: 'Number between 0 and 100 please.',
-        order: 5
+        order: 6
       },
 
       numberCaughtOnly: {
         type: 'number',
-        prompt: 'Number of people caught and not buried:',
+        prompt: 'Number of people caught but not buried:',
         options: {
           'min': 0,
           'max': 100
         },
         value: null,
         errorMessage: 'Number between 0 and 100 please.',
-        order: 6
+        order: 7
       },
 
       numberPeopleInjured: {
         type: 'number',
-        prompt: 'Number of people caught only and not fully or partly buried:',
+        prompt: 'Number of people caught, not injured and not buried:',
         options: {
           'min': 0,
           'max': 400
         },
         value: null,
         errorMessage: 'Number between 0 and 400 please.',
-        order: 7
+        order: 8
       },
 
       terrainShapeTriggerPoint: {
         type: 'radio',
         inline: true,
-        prompt: 'Terrain shape at Trigger Point:',
+        prompt: 'Terrain shape at trigger point:',
         options: ['Convex', 'Planar', 'Concave', 'Unsupported'],
         value: null,
         helpText: 'Convex: a roll. Concave: bowl-shaped. Planar: smooth with no significant convexities or concavities. Unsupported: a slope that drops off abruptly at the bottom.',
-        order: 8
+        order: 9
       },
 
       snowDepthTriggerPoint: {
         type: 'radio',
         inline: true,
-        prompt: 'Snow depth at Trigger Point:',
+        prompt: 'Snow depth at trigger point:',
         options: ['Shallow', 'Deep', 'Average', 'Variable'],
         helpText: 'The depth of the snowpack compared to the average conditions in the area. Shallow: shallower than average. Deep: deeper than average. Average: about the same as everywhere else. Variable: depth varies significantly in the place where the avalanche started.',
         value: null,
-        order: 9
+        order: 10
       },
 
       terrainTrap: {
         type: 'checkbox',
-        prompt: 'Terrain Trap:',
+        prompt: 'Terrain trap:',
         options: {
           'No obvious terrain trap': false,
           'Gully or depression': false,
@@ -124,16 +136,22 @@ angular.module('acComponents.services')
         },
         inline: true,
         helpText: 'Terrain traps are features that increase the consequences of an avalanche.',
-        order: 10
+        order: 11
       },
 
       incidentDescription: {
-        prompt: 'Incident Description:',
+        prompt: 'Incident description',
         type: 'textarea',
         value: null,
         helpText: 'No names and no judging please.',
         guidelines: 'http://www.avalanche.ca/fxresources/Submissions+Guidelines.pdf',
-        order: 11
+        order: 12
+      },
+
+      numberInvolved: {
+        type: 'calculated',
+        value: 0,
+        computeFields: ['numberFullyBuried', 'numberPartlyBuriedImpairedBreathing', 'numberPartlyBuriedAbleBreathing', 'numberCaughtOnly', 'numberPeopleInjured']
       }
     };
 

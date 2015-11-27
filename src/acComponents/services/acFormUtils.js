@@ -60,20 +60,30 @@ angular.module('acComponents.services')
         getDisplayObject: inputDefault.getDisplayObject
       },
       number:{
-        getDTO: function (){
-          return this.value;
-        },
+        getDTO: inputDefault.getDTO,
         validate: function(){
           return (this.value == null) || parseInt(this.value) >= this.options.min && parseInt(this.value) <= this.options.max;
         },
         reset: inputDefault.reset,
-        isCompleted: inputDefault.isCompleted,
+        isCompleted: function () {
+          return this.value !== null;
+        },
         getDisplayObject: inputDefault.getDisplayObject
       },
       dropdown: inputDefault,
       textarea: inputDefault,
       radio: inputDefault,
-      datetime: inputDefault
+      datetime: inputDefault,
+      calculated: {
+        getDTO: inputDefault.getDTO,
+        validate: inputDefault.validate,
+        reset: inputDefault.reset,
+        isCompleted: function () {
+          return false;
+        },
+        getDisplayObject: inputDefault.getDisplayObject
+      },
+      text: inputDefault
     };
 
     return {
@@ -105,20 +115,34 @@ angular.module('acComponents.services')
 
       function getDTO() {
         return _.reduce(fields, function (dtos, field, key) {
-          dtos[key] = field.getDTO();
+
+          if (field.type === 'calculated') {
+            dtos[key] = getCalculatedFieldValue(field, fields);
+          } else {
+            dtos[key] = field.getDTO();
+          }
+
           return dtos;
         }, {});
+      }
+
+      function getCalculatedFieldValue(field, fields) {
+        return _.reduce(field.computeFields, function (total, key) {
+          total += fields[key].value;
+
+          return total;
+        }, 0);
       }
 
       function validateFields() {
         return _.reduce(fields, function (errors, field, key) {
           var err = field.validate();
-          if (err) {
-            errors[key].push(err);
+          if (!err) {
+            errors[key] = true;
           }
 
           return errors;
-        });
+        }, {});
       }
 
       function resetFields() {
@@ -139,13 +163,15 @@ angular.module('acComponents.services')
         if (_.isEmpty(ob)) return;
 
         var merged = _.reduce(ob, function (results, value, key) {
-          if (_.isUndefined(results[key]) && value) {
+          if (_.isUndefined(results[key]) && value !== null && angular.isDefined(value)) {
             results[key] = {};
           }
 
-          if (value && !_.isEmpty(parseValue(value))) {
+          var parsedValue = parseValue(value);
+
+          if (angular.isDefined(value) && value !== null && !_.isEmpty(parsedValue.toString())) {
             results[key] = (fields[key])?fields[key].getDisplayObject():{};
-            results[key].value = parseValue(value);
+            results[key].value = parsedValue;
           }
 
           return results;
@@ -165,7 +191,7 @@ angular.module('acComponents.services')
         } else {
           return field;
         }
-      };
+      }
     }
 
     function validateLocation (locationString) {
@@ -181,9 +207,10 @@ angular.module('acComponents.services')
           return false;
         }
 
-        var location = L.latLng(latLng[0], latLng[1]);
+        var lat = parseFloat(latLng[0]),
+          lng = parseFloat(latLng[1]);
 
-        return angular.isNumber(location.lat) && angular.isNumber(location.lng);
+        return !(isNaN(lat) || isNaN(lng));
 
       } catch (e) {
         return false;

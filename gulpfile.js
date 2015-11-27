@@ -14,6 +14,7 @@ var rename = require("gulp-rename");
 var sourceFiles = [
     'src/acComponents/acComponents.prefix',
     'src/acComponents/acComponents.js',
+    'src/acComponents/controllers/**/*.js',
     'src/acComponents/directives/**/*.js',
     'src/acComponents/filters/**/*.js',
     'src/acComponents/services/**/*.js',

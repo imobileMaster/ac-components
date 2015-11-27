@@ -9,17 +9,17 @@ angular.module('acComponents.services')
         options: ['Point Observation', 'Summary'],
         inline: true,
         value: null,
-        helpText: 'Please add additional information about the snowpack, especially notes about weak layer, how the snow varied by aspect/elevation, and details of any slope testing performed.',
         order: 1
       },
 
       snowpackSiteElevation: {
         type: 'number',
-        prompt: 'Snowpack Site Elevation (metres above sea level)',
+        prompt: 'Elevation:',
         options: {
           min: 0,
           max: 4000
         },
+        placeholder: 'Metres above sea level',
         value: null,
         errorMessage: 'Number between 0 and 4000 please.',
         order: 2
@@ -27,7 +27,7 @@ angular.module('acComponents.services')
 
       snowpackSiteElevationBand: {
         type: 'radio',
-        prompt: 'Snowpack Site Elevation Band',
+        prompt: 'Elevation band:',
         options: ['Alpine', 'Treeline', 'Below Treeline'],
         inline: true,
         value: null,
@@ -36,7 +36,7 @@ angular.module('acComponents.services')
 
       snowpackSiteAspect: {
         type: 'radio',
-        prompt: 'Snowpack Site Aspect',
+        prompt: 'Aspect:',
         options: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'],
         value: null,
         inline: true,
@@ -45,7 +45,7 @@ angular.module('acComponents.services')
 
       snowpackDepth: {
         type: 'number',
-        prompt: 'Snowpack Depth (centimetres)',
+        prompt: 'Snowpack depth (cm):',
         options: {
           min: 0,
           max: 10000
@@ -78,7 +78,7 @@ angular.module('acComponents.services')
 
       snowpackSurfaceCondition: {
         type: 'checkbox',
-        prompt: 'Surface condition',
+        prompt: 'Surface condition:',
         options: {
           'New Snow': false,
           'Crust': false,
@@ -93,7 +93,7 @@ angular.module('acComponents.services')
 
       snowpackFootPenetration: {
         type: 'number',
-        prompt: 'Foot Penetration (centimeters)',
+        prompt: 'Foot penetration (cm):',
         options: {
           min: 0,
           max: 200
@@ -106,7 +106,7 @@ angular.module('acComponents.services')
 
       snowpackSkiPenetration: {
         type: 'number',
-        prompt: 'Ski Penetration (centimeters)',
+        prompt: 'Ski penetration (cm):',
         options: {
           min: 0,
           max: 200
@@ -119,7 +119,7 @@ angular.module('acComponents.services')
 
       snowpackSledPenetration: {
         type: 'number',
-        prompt: 'Sled Penetration (centimeters)',
+        prompt: 'Sled penetration (cm):',
         options: {
           min: 0,
           max: 200
@@ -132,7 +132,7 @@ angular.module('acComponents.services')
 
       snowpackTestInitiation: {
         type: 'radio',
-        prompt: 'Snowpack Test Result',
+        prompt: 'Test result:',
         options: ['None', 'Very Easy', 'Easy', 'Moderate', 'Hard'],
         helpText: 'Average if you did a number of tests.',
         value: null,
@@ -142,7 +142,7 @@ angular.module('acComponents.services')
 
       snowpackTestFracture: {
         type: 'radio',
-        prompt: 'Snowpack Test Fracture Character',
+        prompt: 'Test fracture character:',
         options: ['Sudden ("Pop" or "Drop")', 'Resistant', 'Uneven break'],
         helpText: 'Average if you did a number of tests. Describe further in comments if variable results.',
         value: null,
@@ -152,7 +152,7 @@ angular.module('acComponents.services')
 
       snowpackTestFailure: {
         type: 'number',
-        prompt: 'Snowpack Test Failure Depth',
+        prompt: 'Test failure depth:',
         options: {
           min: 0,
           max: 200
@@ -163,11 +163,28 @@ angular.module('acComponents.services')
         order: 14
       },
 
+      snowpackTestFailureLayerCrystalType: {
+        type: 'checkbox',
+        prompt: 'Test failure layer crystal type:',
+        limit: 2,
+        options: {
+          'Surface hoar': false,
+          'Facets': false,
+          'Depth hoar Hoar': false,
+          'Storm snow': false,
+          'Crust': false,
+          'Other': false
+        },
+        inline: true,
+        order: 15
+      },
+
       snowpackObsComment: {
         type: 'textarea',
-        prompt: 'Snowpack Observation Comment',
+        prompt: 'Observation comment:',
         value: null,
-        order: 15
+        helpText: 'Please add additional information about the snowpack, especially notes about weak layer, how the snow varied by aspect/elevation, and details of any slope testing performed.',
+        order: 16
       }
     };
 

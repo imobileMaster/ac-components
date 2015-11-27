@@ -13,10 +13,11 @@ angular.module('acComponents.config', [])
     .value('acConfig',{
         reportTypes : ['quick', 'avalanche', 'snowpack', 'weather', 'incident'],
         minFilters: ['avalanche', 'quick', 'snowpack', 'incident', 'weather'],
-        dateFilters : ['7-days','1-days','3-days', '14-days', '30-days']
+        dateFilters : ['1-days','3-days', '7-days','14-days', '30-days'],
+        maxZoom: 20
   })
-    //.constant('AC_API_ROOT_URL', 'http://avalanche-canada-dev.elasticbeanstalk.com');
-    .constant('AC_API_ROOT_URL', 'http://localhost:9000');
+    .constant('AC_API_ROOT_URL', 'http://avalanche-canada-min.elasticbeanstalk.com');
+    //.constant('AC_API_ROOT_URL', 'http://localhost:9000');
 
 // Modules
 angular.module('acComponents.controllers', []);
@@ -33,6 +34,41 @@ angular.module('acComponents',
         'acComponents.templates',
         'ngSanitize'
     ]);
+
+'use strict';
+
+angular.module('acComponents.controllers')
+  .controller('acBackModal', ["$scope", "$modalInstance", function ($scope, $modalInstance) {
+
+    $scope.discardAndExit = function () {
+      $modalInstance.close(true);
+    };
+
+    $scope.stayOnThePage = function () {
+      $modalInstance.dismiss();
+    };
+
+  }]);
+
+'use strict';
+
+angular.module('acComponents.controllers')
+  .controller('acMapModal', ["$scope", "$modalInstance", "latlng", "$timeout", function ($scope, $modalInstance, latlng, $timeout) {
+
+    $scope.params = {
+      latlng: latlng
+    };
+
+    $scope.save = function () {
+      $modalInstance.close($scope.params.latlng);
+    };
+
+    $modalInstance.opened.then(function () {
+      $timeout( function () {
+        $scope.show = true;
+      }, 0);
+    })
+  }]);
 
 angular.module('acComponents.directives')
   .directive('acAllminIcon', function () {
@@ -57,15 +93,22 @@ angular.module('acComponents.directives')
     });
 angular.module('acComponents.directives')
     .directive('acDatetimePicker', function () {
-        return function () {
+        return {
+          scope: {
+            showOnlyDate: '='
+          },
+          link: function (scope, el) {
             if(jQuery().datetimepicker) {
-                var options = {
-                    format: "YYYY-MM-DD hh:mm A"
-                };
-                $('.min-form').first().find('[type="datetime"]').datetimepicker(options);
+              var options = {
+                pickTime: !scope.showOnlyDate,
+                format: scope.showOnlyDate ? "YYYY-MM-DD" : "YYYY-MM-DD hh:mm A"
+              };
+              el.datetimepicker(options);
             }
+          }
         }
     });
+
 angular.module('acComponents.directives')
     .directive('acDrawer', function () {
         return {
@@ -78,6 +121,21 @@ angular.module('acComponents.directives')
             }
         };
     });
+
+angular.module('acComponents.directives')
+  .directive('acEnter', function () {
+    return function (scope, element, attrs) {
+      element.bind("keydown keypress", function (event) {
+        if(event.which === 13) {
+          scope.$apply(function (){
+            scope.$eval(attrs.acEnter);
+          });
+
+          event.preventDefault();
+        }
+      });
+    };
+});
 
 angular.module('acComponents.directives')
     .directive('acForecastMini', ["AC_API_ROOT_URL", function (AC_API_ROOT_URL) {
@@ -145,41 +203,55 @@ angular.module('acComponents.directives')
 
                 map.setView([52.3, -120.74966], 5);
 
-                $scope.$watch('latlng', function (latlng) {
+                var watch = $scope.$watch('latlng', function (latlng) {
+                    var location;
                     if (marker && latlng.length === 0) {
                         map.removeLayer(marker);
                     } else if (!marker && latlng.length > 0) {
-                        createMarker(L.latLng(latlng[0], latlng[1]));
+                        location = L.latLng(latlng[0], latlng[1]);
+                        createMarker(location);
+                        map.panTo(location);
+                    } else if (marker && latlng.length > 0) {
+                        location = L.latLng(latlng[0], latlng[1]);
+                        marker.setLatLng(location);
+                        setPopupContent(location);
+                        map.panTo(location);
                     }
                 });
 
+                $scope.$on('$destroy', function () {
+                  watch();
+                });
+
+                function setPopupContent(location) {
+                  marker.setPopupContent('Position: ' + location.toString().substr(6) + '<br/>(drag to relocate)');
+                  marker.openPopup();
+                }
 
                 function createMarker (latlng) {
-                  marker = L.marker(latlng, {
-                    icon: L.mapbox.marker.icon({
-                      'marker-color': 'f79118'
-                    }),
-                    draggable: true
-                  });
+                    marker = L.marker(latlng, {
+                      icon: L.mapbox.marker.icon({
+                        'marker-color': 'f79118'
+                      }),
+                      draggable: true
+                    });
 
-                  marker.bindPopup('Position: ' + latlng.toString().substr(6) + '<br/>(drag to relocate)')
-                    .addTo(map)
-                    .openPopup();
+                    marker.bindPopup('Position: ' + latlng.toString().substr(6) + '<br/>(drag to relocate)')
+                      .addTo(map)
+                      .openPopup();
 
-                  marker.on('dragend', function(e) {
-                    var location = marker.getLatLng();
-                    marker.setPopupContent('Position: ' + location.toString().substr(6) + '<br/>(drag to relocate)');
-                    marker.openPopup();
-
-                    setLatlng(location);
-                  });
-                }
+                    marker.on('dragend', function(e) {
+                      var location = marker.getLatLng();
+                      setPopupContent(location);
+                      setLatlng(location);
+                    });
+                  }
             }
         };
     }]);
 
 angular.module('acComponents.directives')
-  .directive('acMapboxMap', ["$rootScope", "$window", "$location", "$timeout", "acBreakpoint", "acObservation", "acForecast", "acSubmission", "MAPBOX_ACCESS_TOKEN", "MAPBOX_MAP_ID", "$stateParams", function ($rootScope, $window, $location, $timeout, acBreakpoint, acObservation, acForecast, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, $stateParams) {
+  .directive('acMapboxMap', ["$rootScope", "$window", "$location", "$timeout", "acBreakpoint", "acObservation", "acForecast", "acSubmission", "MAPBOX_ACCESS_TOKEN", "MAPBOX_MAP_ID", "$stateParams", "acConfig", function ($rootScope, $window, $location, $timeout, acBreakpoint, acObservation, acForecast, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, $stateParams, acConfig) {
     return {
       template: '<div id="map"></div>',
       replace: true,
@@ -195,6 +267,36 @@ angular.module('acComponents.directives')
       link: function ($scope, el, attrs) {
         $scope.device = {};
         $scope.showRegions = $scope.showRegions || true;
+
+        var mapConfig = {
+          maxZoom: acConfig.maxZoom,
+          mapSetup: {
+            attributionControl: false,
+            center: [52.3, -120.74966],
+            maxZoom: acConfig.maxZoom,
+            minZoom: 4,
+            zoom: 6,
+            zoomControl: false
+          },
+          cluster:{
+            iconCreateFunction: createClusterIcon
+          },
+          setFeatureLayer: function (lat, lng, type){
+            return {
+              type: 'Feature',
+              geometry: {
+                type: 'Point',
+                coordinates: [lat, lng]
+              },
+              properties: {
+                'marker-size': 'small',
+                'marker-color': getMarkerColor(type),
+                zIndexOffset: 1000
+              }
+            }
+          }
+        };
+
         var layers = {
           dangerIcons: L.featureGroup()
         };
@@ -226,14 +328,7 @@ angular.module('acComponents.directives')
         };
 
         L.mapbox.accessToken = MAPBOX_ACCESS_TOKEN;
-        var map = L.mapbox.map(el[0].id, MAPBOX_MAP_ID, {
-          attributionControl: false,
-          center: [52.3, -120.74966],
-          maxZoom: 10,
-          minZoom: 4,
-          zoom: 6,
-          zoomControl: false
-        });
+        var map = L.mapbox.map(el[0].id, MAPBOX_MAP_ID, mapConfig.mapSetup);
         var clusterOverlays = L.layerGroup().addTo(map);
 
         addMapControls();
@@ -241,7 +336,7 @@ angular.module('acComponents.directives')
         function addMapControls(){
           L.control.locate({
             locateOptions: {
-              maxZoom: 14
+              maxZoom: mapConfig.maxZoom
             },
             position: 'bottomright'
           }).addTo(map);
@@ -441,22 +536,11 @@ angular.module('acComponents.directives')
           clusterOverlays.clearLayers();
 
           if ($scope.obs && $scope.obs.length > 0) {
-            var markers = new L.markerClusterGroup().addTo(clusterOverlays);
+            var markers = new L.markerClusterGroup(mapConfig.cluster).addTo(clusterOverlays);
 
             $scope.obs.map(function (ob) {
 
-              var marker = L.mapbox.featureLayer({
-                type: 'Feature',
-                geometry: {
-                  type: 'Point',
-                  coordinates: [ob.latlng[1], ob.latlng[0]]
-                },
-                properties: {
-                  'marker-size': 'small',
-                  'marker-color': getMarkerColor(ob.obtype),
-                  zIndexOffset: 1000
-                }
-              })
+              var marker = L.mapbox.featureLayer(mapConfig.setFeatureLayer(ob.latlng[1], ob.latlng[0], ob.obtype))
                 .setFilter(function () {
                   if (_.indexOf($scope.minFilters, ob.obtype) !== -1) {
                     return true;
@@ -473,6 +557,8 @@ angular.module('acComponents.directives')
                   $scope.currentReport = results;
                   $rootScope.requestInProgress = false;
                 });
+
+                map.setView(ob.latlng, map.getZoom());
               });
 
               marker.eachLayer(function (layer) {
@@ -611,21 +697,10 @@ angular.module('acComponents.directives')
 
           if($stateParams.subid && newVal && newVal.latlng){
             clusterOverlays.clearLayers();
-            var markers = new L.markerClusterGroup().addTo(clusterOverlays);
+            var markers = new L.markerClusterGroup(mapConfig.cluster).addTo(clusterOverlays);
 
             newVal.obs.map(function (ob) {
-              var marker = L.mapbox.featureLayer({
-                type: 'Feature',
-                geometry: {
-                  type: 'Point',
-                  coordinates: [newVal.latlng[1], newVal.latlng[0]]
-                },
-                properties: {
-                  'marker-size': 'small',
-                  'marker-color': getMarkerColor(ob.obtype),
-                  zIndexOffset: 1000
-                }
-              })
+              var marker = L.mapbox.featureLayer(mapConfig.setFeatureLayer(newVal.latlng[1], newVal.latlng[0],ob.obtype))
                 .setFilter(function () {
                   if (_.indexOf($scope.minFilters, ob.obtype) !== -1) {
                     return true;
@@ -685,6 +760,21 @@ angular.module('acComponents.directives')
           }
         });
 
+        function createClusterIcon(cluster){
+          var childMakers = cluster.getAllChildMarkers();
+
+          var markers = _.reduce(childMakers, function (result, marker, key){
+              var latLng = marker.getLatLng();
+              result.push({
+                latLng: latLng.lat+ ' '+ latLng.lng
+              });
+              return result;
+          },[]);
+
+          var uniqMarkers = _.uniq(markers, 'latLng').length;
+            return new L.DivIcon({ html: '<div><span>' + uniqMarkers + '</span></div>', className: 'marker-cluster marker-cluster-sm', iconSize: new L.Point(40, 40) });
+        }
+
       }
     };
   }]);
@@ -705,7 +795,7 @@ angular.module('acComponents.directives')
             }
         };
     }])
-    .directive('acMinReportForm', ["$state", "$q", "$timeout", "acBreakpoint", "acQuickReportData", "acAvalancheReportData", "acIncidentReportData", "acSnowpackReportData", "acWeatherReportData", "acFormUtils", "acSubmission", "MAPBOX_ACCESS_TOKEN", "MAPBOX_MAP_ID", "store", "$anchorScroll", "$modal", function($state, $q, $timeout, acBreakpoint, acQuickReportData, acAvalancheReportData, acIncidentReportData, acSnowpackReportData, acWeatherReportData, acFormUtils, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, store, $anchorScroll, $modal) {
+    .directive('acMinReportForm', ["$state", "$rootScope", "$q", "$timeout", "acBreakpoint", "acReportData", "acFormUtils", "acSubmission", "MAPBOX_ACCESS_TOKEN", "MAPBOX_MAP_ID", "store", "$anchorScroll", "$modal", "ngToast", function($state, $rootScope, $q, $timeout, acBreakpoint, acReportData, acFormUtils, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, store, $anchorScroll, $modal, ngToast) {
         return {
             templateUrl: 'min-report-form.html',
             replace: true,
@@ -713,30 +803,45 @@ angular.module('acComponents.directives')
 
                 var submissionGuidelinesLink = 'http://www.avalanche.ca/fxresources/Submissions+Guidelines.pdf';
 
+                resetFields();
                 initReport();
 
                 $scope.additionalFields = {
                   avalancheReport : {
-                    name: 'Avalanche',
+                    name: 'avalanche',
                     text: 'Share information about a single, notable avalanche or tell us about overall avalanche conditions by describing many avalanches in a general sense. Aspect, elevation, trigger, dimensions/size are key data.'
                   },
                   snowpackReport : {
-                    name: 'Snowpack',
+                    name: 'snowpack',
                     text: 'Snowpack depth, layering, and bonding are key data. Test results are very useful.'
                   },
                   weatherReport : {
-                    name: 'Weather',
+                    name: 'weather',
                     text: 'Key data includes information about current and accumulated precipitation, wind speed and direction, temperatures, and cloud cover.'
                   },
                   incidentReport : {
-                    name: 'Incident',
+                    name: 'incident',
                     text: 'Sharing incidents can help us all learn. Describe close calls and accidents here. Be sensitive to the privacy of others. Before reporting serious accidents check our <a href="'+submissionGuidelinesLink+'" target="_blank">submission guidelines</a>.'
                   }
                 };
 
+                $scope.tabs = {
+                  quickReport: true,
+                  avalancheReport: false,
+                  snowpackReport: false,
+                  weatherReport: false,
+                  incidentReport: false
+                };
+
+                $scope.atleastOneTabCompleted = false;
+
                 $scope.getTabExtraClasses = function (tab) {
+                  var completed = tabCompleted(tab);
+
+                  $scope.atleastOneTabCompleted = $scope.atleastOneTabCompleted || completed;
+
                   return {
-                    completed: tabCompleted(tab)
+                    completed: completed
                   }
                 };
 
@@ -747,7 +852,7 @@ angular.module('acComponents.directives')
 
                 function tabCompleted (tab) {
                   if (tab === 'quickReport') {
-                    return acQuickReportData.isCompleted($scope.report.obs.quickReport);
+                    return acReportData.quick.isCompleted($scope.report.obs.quickReport);
                   } else {
                     return $scope.report.obs[tab].isCompleted();
                   }
@@ -755,20 +860,20 @@ angular.module('acComponents.directives')
 
                 function initReport() {
                   $scope.report = {
-                    title: 'auto: Quick Report',
+                    title: '',
                     datetime: moment().format('YYYY-MM-DD hh:mm A'),
                     latlng: [],
                     files: [],
                     obs: {
                       quickReport: {
-                        ridingConditions: angular.copy(acQuickReportData.ridingConditions),
-                        avalancheConditions: angular.copy(acQuickReportData.avalancheConditions),
+                        ridingConditions: angular.copy(acReportData.quick.ridingConditions),
+                        avalancheConditions: angular.copy(acReportData.quick.avalancheConditions),
                         comment: null
                       },
-                      avalancheReport: acAvalancheReportData,
-                      incidentReport: acIncidentReportData,
-                      snowpackReport: acSnowpackReportData,
-                      weatherReport: acWeatherReportData
+                      avalancheReport: acReportData.avalanche,
+                      incidentReport: acReportData.incident,
+                      snowpackReport: acReportData.snowpack,
+                      weatherReport: acReportData.weather
                     }
                   };
                 }
@@ -783,17 +888,28 @@ angular.module('acComponents.directives')
                 }
 
                 function resetFields() {
-                  acAvalancheReportData.reset();
-                  acIncidentReportData.reset();
-                  acSnowpackReportData.reset();
-                  acWeatherReportData.reset();
+                  acReportData.avalanche.reset();
+                  acReportData.incident.reset();
+                  acReportData.snowpack.reset();
+                  acReportData.weather.reset();
                 }
 
                 $scope.resetForm = resetForm;
 
-                $scope.goBack = function () {
-                  resetForm();
-                  $state.go('ac.map');
+                $scope.goBack = function (formDirty) {
+
+                  //if (formDirty) {
+                  //  var goingBack = shouldDiscard();
+                  //  goingBack.then(exit);
+                  //} else {
+                  //  exit();
+                  //}
+                  //
+                  //function exit() {
+                      resetFields();
+                      initReport();
+                      $state.go('ac.map');
+                  //}
                 };
 
                 $scope.submitForm = function() {
@@ -802,7 +918,7 @@ angular.module('acComponents.directives')
 
                     reqObj.obs = _.reduce($scope.report.obs, function(total, item, key){
                         if (key === 'quickReport') {
-                          if (acQuickReportData.isCompleted(item)) {
+                          if (acReportData.quick.isCompleted(item)) {
                             total.quickReport = item;
                           }
                         } else if (item.isCompleted()){
@@ -811,17 +927,25 @@ angular.module('acComponents.directives')
                         return total;
                     }, {});
 
-                    //console.log('to be sent: ', reqObj.obs);
-//return;
+                    if (_.keys(reqObj.obs).length === 0) {
+                      return $q.reject('incomplete-form');
+                    }
+
                     var token = store.get('token');
                     if (token) {
                         $scope.minsubmitting = true;
                         return acSubmission.submit(reqObj, token).then(function(result) {
                             if (result.data && !('error' in result.data)) {
-                                $scope.minsubmitting = false;
-                                $scope.report.subid = result.data.subid;
-                                $scope.report.shareUrl = result.data.obs[0].shareUrl;
-                                console.log('submission: ' + result.data.subid);
+                                $state.go('ac.map');
+                                ngToast.create({
+                                  content: 'Your report was successfully submitted.',
+                                  class: 'alert alert-success',
+                                  dismissOnTimeout: true,
+                                  dismissButton: true,
+                                  dismissButtonHtml: '&times;'
+                                });
+
+
                                 return result;
                             } else {
                                 $scope.minsubmitting = false;
@@ -838,6 +962,22 @@ angular.module('acComponents.directives')
                         return $q.reject('auth-error');
                     }
                 };
+
+
+                function shouldDiscard() {
+                  var modalInstance = $modal.open({
+                    animation: false,
+                    templateUrl: 'min-back-modal.html',
+                    controller: 'acBackModal',
+                    size: 'lg',
+                    windowClass: 'back-modal',
+                    keyboard: false,
+                    backdrop: 'static'
+                  });
+
+                  return modalInstance.result;
+                }
+
 
                 $scope.openMapModal = function () {
                   var modalInstance = $modal.open({
@@ -856,10 +996,71 @@ angular.module('acComponents.directives')
                   modalInstance.result.then(function (latlng) {
                     $scope.report.latlng = latlng;
                   });
-                }
+                };
+
+                var watch = $scope.$watchCollection(function () { return [$scope.report.latlng, $scope.report.tempLatlng]; }, function (newVal, oldVal) {
+                  if (newVal) {
+                    if (newVal[0] !== oldVal[0]) {
+                      $scope.report.tempLatlng = $scope.report.latlng.join(',');
+                      newVal[1] = $scope.report.tempLatlng;
+                      $scope.tempLatlngModified = false;
+                    }
+                    if (newVal[1] && newVal[1] !== newVal[0].join(',')) {
+                      $scope.tempLatlngModified = true;
+                    }
+                  }
+                });
+
+                $scope.$on('$destroy', function () {
+                  watch();
+                });
+
+                $scope.saveLocation = function () {
+                  if (acFormUtils.validateLocationString($scope.report.tempLatlng)) {
+                    $scope.report.latlng = $scope.report.tempLatlng.split(',');
+                    $scope.tempLatlngModified = false;
+                    $scope.invalidLatLng = false;
+                  } else {
+                    $scope.invalidLatLng = true;
+                  }
+                };
             }
         };
     }]);
+
+angular.module('acComponents.directives')
+  .directive('acMinReportFullPage', ["acReportData", function (acReportData) {
+    return {
+      templateUrl: 'min-report-fullpage.html',
+      scope: {
+        sub: '=report',
+        sponsor: '=sponsor'
+      },
+      link: function (scope, el, attrs) {
+        el.addClass('ac-observation-drawer');
+
+        scope.print = print;
+        scope.activeReports = [];
+
+        processReportInfo();
+
+        function processReportInfo() {
+          scope.activeReports = _.reduce(scope.sub.obs, function (results, item, key){
+                results.push({
+                  obtype: item.obtype,
+                  ob: acReportData[item.obtype].mapDisplayResponse(item.ob)
+                });
+              return results;
+          },[]);
+        }
+
+        function print(){
+          window.print();
+        }
+
+      }
+    };
+  }]);
 
 angular.module('acComponents.directives')
     .directive('acMinReportModal', function () {
@@ -887,6 +1088,7 @@ angular.module('acComponents.directives')
         scope.hasReport = hasReport;
         scope.changeTab = changeTab;
         scope.closeDrawer = closeDrawer;
+        scope.viewFullPage = viewFullPage;
 
         function hasReport(type) {
           if (!scope.sub) return;
@@ -932,14 +1134,6 @@ angular.module('acComponents.directives')
             return newObj.requested === ob.obtype;
           });
 
-          if (newObj.requested === 'quick') {
-            requestedObj = _.filter(newObj.obs, function (ob) {
-              return newObj.requested === ob.obtype;
-            });
-            scope.activeTab = mapQuickObject(requestedObj[0].ob);
-            return;
-          }
-
           if (requestedObj[0].ob) {
             scope.activeTab = acReportData[newObj.requested].mapDisplayResponse(requestedObj[0].ob);
           }
@@ -949,99 +1143,24 @@ angular.module('acComponents.directives')
           if(newObj.requested){
             return newObj.requested;
           } else {
-            return newObj.obs[0].obtype;
-          }
-        }
-
-        function mapQuickObject(ob) {
-          var quickTab = [];
-
-          if (ob.avalancheConditions && mapAvalancheConditions(ob.avalancheConditions).length > 0) {
-            quickTab.push({
-              prompt: 'Avalanche conditions',
-              type: 'checkbox',
-              order: 2,
-              value: mapAvalancheConditions(ob.avalancheConditions)
+            var requested = null;
+            _.forEach(scope.reportTypes, function (item){
+              if(_.some(newObj.obs, {obtype:item})){
+                requested = item;
+                return false;
+              }
             });
+            return requested;
           }
-
-          _.forEach(ob.ridingConditions, function (item, key) {
-            if (item.type === 'single' && item.selected) {
-              if (item.selected) {
-                quickTab.push({
-                  prompt: item.prompt,
-                  type: 'radio',
-                  order: 1,
-                  value: item.selected
-                });
-              }
-            }
-
-            if (item.type === 'multiple' && item.options) {
-              var selected = _.reduce(item.options, function (select, it, key) {
-                if (it) {
-                  select.push(key);
-                }
-                return select;
-              },[]);
-
-              if (!_.isEmpty(selected)){
-                quickTab.push({
-                  prompt: item.prompt,
-                  type: 'checkbox',
-                  order: 1,
-                  value: selected
-                });
-              }
-            }
-          });
-
-          return quickTab;
         }
 
-        function mapAvalancheConditions(av) {
-          var avalanches = [];
-          if (av.slab) {
-            avalanches.push('Slab avalanches today or yesterday.');
-          }
-          if (av.sound) {
-            avalanches.push('Whumphing or drum-like sounds or shooting cracks.');
-          }
-          if (av.snow) {
-            avalanches.push('30cm + of new snow, or significant drifitng, or rain in the last 48 hours.');
-          }
-          if (av.temp) {
-            avalanches.push('Rapid temperature rise to near zero degrees or wet surface snow.');
-          }
-          return avalanches;
+        function viewFullPage(id){
+          $state.go('ac.reports', { subid:id });
         }
 
       }
     };
-  }])
-  .filter('dateformat', function(){
-    return function formatDate(datetimeString){
-      var datetime = moment(datetimeString);
-      var offset = moment.parseZone(datetimeString).zone();
-      var prefixes = {
-        480: 'P',
-        420: 'M',
-        360: 'C',
-        300: 'E',
-        240: 'A',
-        180: 'N'
-      };
-      var suffix = datetime.isDST() ? 'DT' : 'ST';
-      var zoneAbbr = 'UTC';
-
-      if(offset in prefixes) {
-        zoneAbbr = prefixes[offset] + suffix;
-        datetime.subtract(offset, 'minutes');
-      }
-
-      return datetime.format('MMM Do, YYYY [at] HH:mm [' + zoneAbbr + ']')
-    }
-  });
+  }]);
 
 angular.module('acComponents.directives')
     .directive('acSocialShare', function () {
@@ -1071,6 +1190,12 @@ angular.module('acComponents.directives')
             ctrl[fieldName].$setValidity(fieldName, state);
           }
         }
+
+        $scope.$watch('atleastOneTabCompleted', function (newVal) {
+          if (angular.isDefined(newVal)) {
+            ctrl.$setValidity('atleastOneTab', newVal);
+          }
+        });
       }
     };
   });
@@ -1112,21 +1237,45 @@ angular.module('acComponents.filters')
                 return moment.utc(datePST).format(format) ;
             }
         };
-    });
+    })
+  .filter('dateformat', function(){
+    return function formatDate(datetimeString){
+      var datetime = moment(datetimeString);
+      var offset = moment.parseZone(datetimeString).zone();
+      var prefixes = {
+        480: 'P',
+        420: 'M',
+        360: 'C',
+        300: 'E',
+        240: 'A',
+        180: 'N'
+      };
+      var suffix = datetime.isDST() ? 'DT' : 'ST';
+      var zoneAbbr = 'UTC';
+
+      if(offset in prefixes) {
+        zoneAbbr = prefixes[offset] + suffix;
+        datetime.subtract(offset, 'minutes');
+      }
+
+      return datetime.format('MMM Do, YYYY [at] HH:mm [' + zoneAbbr + ']')
+    }
+  });
 
 angular.module('acComponents.services')
   .factory('acAvalancheReportData', ["acFormUtils", function(acFormUtils) {
     var fields = {
 
       avalancheOccurrenceEpoch: {
-        prompt: 'Avalanche Observation Datetime',
+        prompt: 'Avalanche observation date:',
         type: 'datetime',
+        showOnlyDate: true,
         value: null,
         order: 1
       },
 
       avalancheNumber: {
-        prompt: 'Number of avalanches in this report',
+        prompt: 'Number of avalanches in this report:',
         type: 'radio',
         inline: true,
         options: ['1', '2-5', '6-10', '11-50', '51-100'],
@@ -1135,7 +1284,7 @@ angular.module('acComponents.services')
       },
 
       avalancheSize: {
-        prompt: 'Avalanche Size',
+        prompt: 'Avalanche size:',
         type: 'radio',
         inline: true,
         value: null,
@@ -1146,7 +1295,7 @@ angular.module('acComponents.services')
 
       slabThickness: {
         type: 'number',
-        prompt: 'Slab Thickness (centimetres)',
+        prompt: 'Slab thickness (cm):',
         value: null,
         options: {
           min: 10,
@@ -1158,7 +1307,7 @@ angular.module('acComponents.services')
 
       slabWidth: {
         type: 'number',
-        prompt: 'Slab Width (meters)',
+        prompt: 'Slab width (m):',
         value: null,
         options: {
           min: 1,
@@ -1170,7 +1319,7 @@ angular.module('acComponents.services')
 
       runLength: {
         type: 'number',
-        prompt: 'Run length (meters)',
+        prompt: 'Run length (m):',
         options: {
           min: 1,
           max: 10000
@@ -1183,7 +1332,7 @@ angular.module('acComponents.services')
 
       avalancheCharacter: {
         type: 'checkbox',
-        prompt: 'Avalanche Character',
+        prompt: 'Avalanche character:',
         limit: 3,
         inline: true,
         options: {
@@ -1201,16 +1350,16 @@ angular.module('acComponents.services')
       },
 
       triggerType: {
-        type: 'dropdown',
-        prompt: 'Trigger Type',
+        type: 'radio',
+        prompt: 'Trigger type:',
         options:['Natural', 'Skier', 'Snowmobile', 'Other Vehicle', 'Helicopter', 'Explosives'],
         value: null,
         order: 8
       },
 
       triggerSubtype: {
-        type: 'dropdown',
-        prompt: 'Trigger Subtype',
+        type: 'radio',
+        prompt: 'Trigger subtype:',
         value: null,
         options: ['Accidental', 'Intentional', 'Remote'],
         helpText: 'A remote trigger is when the avalanche starts some distance away from where the trigger was  applied.',
@@ -1219,7 +1368,7 @@ angular.module('acComponents.services')
 
       triggerDistance: {
         type: 'number',
-        prompt: 'Remote Trigger Distance (metres)',
+        prompt: 'Remote trigger distance (m):',
         options: {
           min: 0,
           max: 2000
@@ -1233,14 +1382,14 @@ angular.module('acComponents.services')
       startZoneAspect: {
         type: 'radio',
         inline: true,
-        prompt: 'Start Zone Aspect',
+        prompt: 'Start zone aspect:',
         options: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'],
         value: null,
         order: 11
       },
 
       startZoneElevationBand: {
-        prompt: 'Start Zone Elevation Band',
+        prompt: 'Start zone elevation band:',
         type: 'radio',
         inline: true,
         options: ['Alpine', 'Treeline', 'Below Treeline'],
@@ -1250,7 +1399,7 @@ angular.module('acComponents.services')
 
       startZoneElevation: {
         type: 'number',
-        prompt: 'Start Zone Elevation (metres above sea level)',
+        prompt: 'Start zone elevation (m):',
         options: {
           min: 0,
           max: 5000
@@ -1262,7 +1411,7 @@ angular.module('acComponents.services')
 
       startZoneIncline: {
         type: 'number',
-        prompt: 'Start Zone Incline',
+        prompt: 'Start zone incline:',
         options: {
           min: 0,
           max: 90
@@ -1274,11 +1423,12 @@ angular.module('acComponents.services')
 
       runoutZoneElevation: {
         type: 'number',
-        prompt: 'Runout Zone Elevation (metres above sea level)',
+        prompt: 'Runout zone elevation:',
         options: {
           min: 0,
           max: 5000
         },
+        placeholder: 'Metres above sea level',
         helpText: 'The lowest point of the debris.',
         value: null,
         errorMessage: 'Number between 0 and 5000 please.',
@@ -1286,15 +1436,17 @@ angular.module('acComponents.services')
       },
 
       weakLayerBurialDate: {
-        prompt: 'Weak Layer Burial Date',
+        prompt: 'Weak layer burial date:',
         type: 'datetime',
+        showOnlyDate: true,
         helpText:'Date the weak layer was buried.',
-        order: 16
+        order: 16,
+        value: null
       },
 
       weakLayerCrystalType: {
         type: 'checkbox',
-        prompt: 'Weak Layer Crystal Type',
+        prompt: 'Weak layer crystal type:',
         limit: 2,
         inline: true,
         options: {
@@ -1309,7 +1461,7 @@ angular.module('acComponents.services')
       },
 
       crustNearWeakLayer:{
-        prompt: 'Crust Near Weak Layer',
+        prompt: 'Crust near weak layer:',
         type: 'radio',
         inline: true,
         options: ['Yes', 'No'],
@@ -1318,23 +1470,23 @@ angular.module('acComponents.services')
       },
 
       windExposure: {
-        type: 'dropdown',
-        prompt: 'Wind Exposure',
+        type: 'radio',
+        prompt: 'Wind exposure:',
         options: ['Lee slope', 'Windward slope', 'Down flow', 'Cross-loaded slope', 'Reverse-loaded slope', 'No wind exposure'],
         value: null,
         order: 19
       },
 
       vegetationCover: {
-        type: 'dropdown',
-        prompt: 'Vegetation cover',
+        type: 'radio',
+        prompt: 'Vegetation cover:',
         value: null,
         options: ['Open slope', 'Sparse trees or gladed slope', 'Dense trees'],
         order: 20
       },
 
       avalancheObsComment: {
-        prompt: 'Avalanche Observation Comment',
+        prompt: 'Avalanche observation comment',
         type: 'textarea',
         value: null,
         helpText: 'Please add additional information, for example terrain, aspect, elevation etc. especially if describing many avalanches together.',
@@ -1486,24 +1638,35 @@ angular.module('acComponents.services')
         getDisplayObject: inputDefault.getDisplayObject
       },
       number:{
-        getDTO: function (){
-          return this.value;
-        },
+        getDTO: inputDefault.getDTO,
         validate: function(){
           return (this.value == null) || parseInt(this.value) >= this.options.min && parseInt(this.value) <= this.options.max;
         },
         reset: inputDefault.reset,
-        isCompleted: inputDefault.isCompleted,
+        isCompleted: function () {
+          return this.value !== null;
+        },
         getDisplayObject: inputDefault.getDisplayObject
       },
       dropdown: inputDefault,
       textarea: inputDefault,
       radio: inputDefault,
-      datetime: inputDefault
+      datetime: inputDefault,
+      calculated: {
+        getDTO: inputDefault.getDTO,
+        validate: inputDefault.validate,
+        reset: inputDefault.reset,
+        isCompleted: function () {
+          return false;
+        },
+        getDisplayObject: inputDefault.getDisplayObject
+      },
+      text: inputDefault
     };
 
     return {
-      buildReport: buildReport
+      buildReport: buildReport,
+      validateLocationString: validateLocation
     };
 
     function buildReport(fields) {
@@ -1530,20 +1693,34 @@ angular.module('acComponents.services')
 
       function getDTO() {
         return _.reduce(fields, function (dtos, field, key) {
-          dtos[key] = field.getDTO();
+
+          if (field.type === 'calculated') {
+            dtos[key] = getCalculatedFieldValue(field, fields);
+          } else {
+            dtos[key] = field.getDTO();
+          }
+
           return dtos;
         }, {});
+      }
+
+      function getCalculatedFieldValue(field, fields) {
+        return _.reduce(field.computeFields, function (total, key) {
+          total += fields[key].value;
+
+          return total;
+        }, 0);
       }
 
       function validateFields() {
         return _.reduce(fields, function (errors, field, key) {
           var err = field.validate();
-          if (err) {
-            errors[key].push(err);
+          if (!err) {
+            errors[key] = true;
           }
 
           return errors;
-        });
+        }, {});
       }
 
       function resetFields() {
@@ -1564,13 +1741,15 @@ angular.module('acComponents.services')
         if (_.isEmpty(ob)) return;
 
         var merged = _.reduce(ob, function (results, value, key) {
-          if (_.isUndefined(results[key]) && value) {
+          if (_.isUndefined(results[key]) && value !== null && angular.isDefined(value)) {
             results[key] = {};
           }
 
-          if (value && !_.isEmpty(parseValue(value))) {
+          var parsedValue = parseValue(value);
+
+          if (angular.isDefined(value) && value !== null && !_.isEmpty(parsedValue.toString())) {
             results[key] = (fields[key])?fields[key].getDisplayObject():{};
-            results[key].value = parseValue(value);
+            results[key].value = parsedValue;
           }
 
           return results;
@@ -1590,10 +1769,31 @@ angular.module('acComponents.services')
         } else {
           return field;
         }
-      };
+      }
     }
 
+    function validateLocation (locationString) {
+      try {
 
+        if (locationString.indexOf(',') === -1) {
+          return false;
+        }
+
+        var latLng = locationString.split(',');
+
+        if (latLng.length !== 2) {
+          return false;
+        }
+
+        var lat = parseFloat(latLng[0]),
+          lng = parseFloat(latLng[1]);
+
+        return !(isNaN(lat) || isNaN(lng));
+
+      } catch (e) {
+        return false;
+      }
+    }
 
   });
 
@@ -1625,8 +1825,20 @@ angular.module('acComponents.services')
           'Other': false
         },
         inline: true,
-        helpText: 'If other, please describe in Incident Description.',
+        helpText: 'If other, please describe it below.',
         order: 1
+      },
+
+      otherActivityDescription: {
+        type: 'text',
+        prompt: 'Describe other activity',
+        value: null,
+        order: 2,
+        errorMessage: 'Please describe what other activity.',
+        constraint: {
+          field: 'groupActivity',
+          option: 'Other'
+        }
       },
 
       groupSize: {
@@ -1638,7 +1850,7 @@ angular.module('acComponents.services')
         },
         value: null,
         errorMessage: 'Number between 0 and 100 please.',
-        order: 2
+        order: 3
       },
 
       numberFullyBuried: {
@@ -1650,7 +1862,7 @@ angular.module('acComponents.services')
         },
         value: null,
         errorMessage: 'Number between 0 and 100 please.',
-        order: 3
+        order: 4
       },
 
       numberPartlyBuriedImpairedBreathing: {
@@ -1662,7 +1874,7 @@ angular.module('acComponents.services')
         },
         value: null,
         errorMessage: 'Number between 0 and 100 please.',
-        order: 4
+        order: 5
       },
 
       numberPartlyBuriedAbleBreathing: {
@@ -1674,56 +1886,56 @@ angular.module('acComponents.services')
         },
         value: null,
         errorMessage: 'Number between 0 and 100 please.',
-        order: 5
+        order: 6
       },
 
       numberCaughtOnly: {
         type: 'number',
-        prompt: 'Number of people caught and not buried:',
+        prompt: 'Number of people caught but not buried:',
         options: {
           'min': 0,
           'max': 100
         },
         value: null,
         errorMessage: 'Number between 0 and 100 please.',
-        order: 6
+        order: 7
       },
 
       numberPeopleInjured: {
         type: 'number',
-        prompt: 'Number of people caught only and not fully or partly buried:',
+        prompt: 'Number of people caught, not injured and not buried:',
         options: {
           'min': 0,
           'max': 400
         },
         value: null,
         errorMessage: 'Number between 0 and 400 please.',
-        order: 7
+        order: 8
       },
 
       terrainShapeTriggerPoint: {
         type: 'radio',
         inline: true,
-        prompt: 'Terrain shape at Trigger Point:',
+        prompt: 'Terrain shape at trigger point:',
         options: ['Convex', 'Planar', 'Concave', 'Unsupported'],
         value: null,
         helpText: 'Convex: a roll. Concave: bowl-shaped. Planar: smooth with no significant convexities or concavities. Unsupported: a slope that drops off abruptly at the bottom.',
-        order: 8
+        order: 9
       },
 
       snowDepthTriggerPoint: {
         type: 'radio',
         inline: true,
-        prompt: 'Snow depth at Trigger Point:',
+        prompt: 'Snow depth at trigger point:',
         options: ['Shallow', 'Deep', 'Average', 'Variable'],
         helpText: 'The depth of the snowpack compared to the average conditions in the area. Shallow: shallower than average. Deep: deeper than average. Average: about the same as everywhere else. Variable: depth varies significantly in the place where the avalanche started.',
         value: null,
-        order: 9
+        order: 10
       },
 
       terrainTrap: {
         type: 'checkbox',
-        prompt: 'Terrain Trap:',
+        prompt: 'Terrain trap:',
         options: {
           'No obvious terrain trap': false,
           'Gully or depression': false,
@@ -1733,16 +1945,22 @@ angular.module('acComponents.services')
         },
         inline: true,
         helpText: 'Terrain traps are features that increase the consequences of an avalanche.',
-        order: 10
+        order: 11
       },
 
       incidentDescription: {
-        prompt: 'Incident Description:',
+        prompt: 'Incident description',
         type: 'textarea',
         value: null,
         helpText: 'No names and no judging please.',
         guidelines: 'http://www.avalanche.ca/fxresources/Submissions+Guidelines.pdf',
-        order: 11
+        order: 12
+      },
+
+      numberInvolved: {
+        type: 'calculated',
+        value: 0,
+        computeFields: ['numberFullyBuried', 'numberPartlyBuriedImpairedBreathing', 'numberPartlyBuriedAbleBreathing', 'numberCaughtOnly', 'numberPeopleInjured']
       }
     };
 
@@ -1878,6 +2096,69 @@ angular.module('acComponents.services')
             }, 0);
           }
         };
+
+        this.mapDisplayResponse = function(ob) {
+          var quickTab = [];
+
+          if (ob.avalancheConditions && mapAvalancheConditions(ob.avalancheConditions).length > 0) {
+            quickTab.push({
+              prompt: 'Avalanche conditions',
+              type: 'checkbox',
+              order: 2,
+              value: mapAvalancheConditions(ob.avalancheConditions)
+            });
+          }
+
+          _.forEach(ob.ridingConditions, function (item, key) {
+            if (item.type === 'single' && item.selected) {
+              if (item.selected) {
+                quickTab.push({
+                  prompt: item.prompt,
+                  type: 'radio',
+                  order: 1,
+                  value: item.selected
+                });
+              }
+            }
+
+            if (item.type === 'multiple' && item.options) {
+              var selected = _.reduce(item.options, function (select, it, key) {
+                if (it) {
+                  select.push(key);
+                }
+                return select;
+              },[]);
+
+              if (!_.isEmpty(selected)){
+                quickTab.push({
+                  prompt: item.prompt,
+                  type: 'checkbox',
+                  order: 1,
+                  value: selected
+                });
+              }
+            }
+          });
+
+          return quickTab;
+        }
+
+        function mapAvalancheConditions(av) {
+          var avalanches = [];
+          if (av.slab) {
+            avalanches.push('Slab avalanches today or yesterday.');
+          }
+          if (av.sound) {
+            avalanches.push('Whumpfing or drum-like sounds or shooting cracks.');
+          }
+          if (av.snow) {
+            avalanches.push('30cm + of new snow, or significant drifting, or rain in the last 48 hours.');
+          }
+          if (av.temp) {
+            avalanches.push('Rapid temperature rise to near zero degrees or wet surface snow.');
+          }
+          return avalanches;
+        }
   }
     );
 
@@ -1905,17 +2186,17 @@ angular.module('acComponents.services')
         options: ['Point Observation', 'Summary'],
         inline: true,
         value: null,
-        helpText: 'Please add additional information about the snowpack, especially notes about weak layer, how the snow varied by aspect/elevation, and details of any slope testing performed.',
         order: 1
       },
 
       snowpackSiteElevation: {
         type: 'number',
-        prompt: 'Snowpack Site Elevation (metres above sea level)',
+        prompt: 'Elevation:',
         options: {
           min: 0,
           max: 4000
         },
+        placeholder: 'Metres above sea level',
         value: null,
         errorMessage: 'Number between 0 and 4000 please.',
         order: 2
@@ -1923,7 +2204,7 @@ angular.module('acComponents.services')
 
       snowpackSiteElevationBand: {
         type: 'radio',
-        prompt: 'Snowpack Site Elevation Band',
+        prompt: 'Elevation band:',
         options: ['Alpine', 'Treeline', 'Below Treeline'],
         inline: true,
         value: null,
@@ -1932,7 +2213,7 @@ angular.module('acComponents.services')
 
       snowpackSiteAspect: {
         type: 'radio',
-        prompt: 'Snowpack Site Aspect',
+        prompt: 'Aspect:',
         options: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'],
         value: null,
         inline: true,
@@ -1941,7 +2222,7 @@ angular.module('acComponents.services')
 
       snowpackDepth: {
         type: 'number',
-        prompt: 'Snowpack Depth (centimetres)',
+        prompt: 'Snowpack depth (cm):',
         options: {
           min: 0,
           max: 10000
@@ -1974,7 +2255,7 @@ angular.module('acComponents.services')
 
       snowpackSurfaceCondition: {
         type: 'checkbox',
-        prompt: 'Surface condition',
+        prompt: 'Surface condition:',
         options: {
           'New Snow': false,
           'Crust': false,
@@ -1989,7 +2270,7 @@ angular.module('acComponents.services')
 
       snowpackFootPenetration: {
         type: 'number',
-        prompt: 'Foot Penetration (centimeters)',
+        prompt: 'Foot penetration (cm):',
         options: {
           min: 0,
           max: 200
@@ -2002,7 +2283,7 @@ angular.module('acComponents.services')
 
       snowpackSkiPenetration: {
         type: 'number',
-        prompt: 'Ski Penetration (centimeters)',
+        prompt: 'Ski penetration (cm):',
         options: {
           min: 0,
           max: 200
@@ -2015,7 +2296,7 @@ angular.module('acComponents.services')
 
       snowpackSledPenetration: {
         type: 'number',
-        prompt: 'Sled Penetration (centimeters)',
+        prompt: 'Sled penetration (cm):',
         options: {
           min: 0,
           max: 200
@@ -2028,7 +2309,7 @@ angular.module('acComponents.services')
 
       snowpackTestInitiation: {
         type: 'radio',
-        prompt: 'Snowpack Test Result',
+        prompt: 'Test result:',
         options: ['None', 'Very Easy', 'Easy', 'Moderate', 'Hard'],
         helpText: 'Average if you did a number of tests.',
         value: null,
@@ -2038,7 +2319,7 @@ angular.module('acComponents.services')
 
       snowpackTestFracture: {
         type: 'radio',
-        prompt: 'Snowpack Test Fracture Character',
+        prompt: 'Test fracture character:',
         options: ['Sudden ("Pop" or "Drop")', 'Resistant', 'Uneven break'],
         helpText: 'Average if you did a number of tests. Describe further in comments if variable results.',
         value: null,
@@ -2048,7 +2329,7 @@ angular.module('acComponents.services')
 
       snowpackTestFailure: {
         type: 'number',
-        prompt: 'Snowpack Test Failure Depth',
+        prompt: 'Test failure depth:',
         options: {
           min: 0,
           max: 200
@@ -2059,11 +2340,28 @@ angular.module('acComponents.services')
         order: 14
       },
 
+      snowpackTestFailureLayerCrystalType: {
+        type: 'checkbox',
+        prompt: 'Test failure layer crystal type:',
+        limit: 2,
+        options: {
+          'Surface hoar': false,
+          'Facets': false,
+          'Depth hoar Hoar': false,
+          'Storm snow': false,
+          'Crust': false,
+          'Other': false
+        },
+        inline: true,
+        order: 15
+      },
+
       snowpackObsComment: {
         type: 'textarea',
-        prompt: 'Snowpack Observation Comment',
+        prompt: 'Observation comment:',
         value: null,
-        order: 15
+        helpText: 'Please add additional information about the snowpack, especially notes about weak layer, how the snow varied by aspect/elevation, and details of any slope testing performed.',
+        order: 16
       }
     };
 
@@ -2152,16 +2450,9 @@ angular.module('acComponents.services')
   .factory('acWeatherReportData', ["acFormUtils", function(acFormUtils) {
     var fields = {
       skyCondition: {
-        type: 'checkbox',
-        prompt: 'Cloud Cover:',
-        options: {
-          'Clear': false,
-          'Few clouds (<2/8)': false,
-          'Scattered clouds (2/8-4/8)': false,
-          'Broken clouds (5/8-7/8)': false,
-          'Overcast (8/8)': false,
-          'Fog': false
-        },
+        type: 'radio',
+        prompt: 'Cloud cover:',
+        options: ['Clear', 'Few clouds (<2/8)', 'Scattered clouds (2/8-4/8)', 'Broken clouds (5/8-7/8)', 'Overcast (8/8)', 'Fog'],
         inline: true,
         helpText: 'Values expressed in eighths refer to the proportion of the sky that was covered with clouds. E.g. 2/8 refers to a sky approximately one quarter covered with cloud.',
         order: 1
@@ -2169,7 +2460,7 @@ angular.module('acComponents.services')
 
       precipitationType: {
         type: 'radio',
-        prompt: 'Precipitation Type:',
+        prompt: 'Precipitation type:',
         options: ['Snow', 'Rain', 'None'],
         value: null,
         inline: true,
@@ -2178,7 +2469,7 @@ angular.module('acComponents.services')
 
       snowfallRate: {
         type: 'number',
-        prompt: 'Snowfall Rate (cm/hour):',
+        prompt: 'Snowfall rate (cm/hour):',
         options: {
           min: 1,
           max: 20
@@ -2247,7 +2538,7 @@ angular.module('acComponents.services')
 
       newSnow24Hours: {
         type: 'number',
-        prompt: 'Amount of new snow in last 24 hours (centimetres):',
+        prompt: 'Amount of new snow in last 24 hours (cm):',
         options: {
           min: 0,
           max: 100
@@ -2259,7 +2550,7 @@ angular.module('acComponents.services')
 
       precipitation24Hours: {
         type: 'number',
-        prompt: 'Total rain and snow combined in last 24 hours (millimetres):',
+        prompt: 'Total rain and snow combined in last 24 hours (mm):',
         options: {
           min: 0,
           max: 100
@@ -2284,15 +2575,16 @@ angular.module('acComponents.services')
 
       stormStartDate: {
         type: 'datetime',
-        prompt: 'Storm Start Date',
+        prompt: 'Storm start date:',
+        showOnlyDate: true,
         value: null,
         helpText: 'The date on which the most recent storm started. Leave blank if there has not been a recent storm.',
         order: 12
       },
 
       windSpeed: {
-        type: 'dropdown',
-        prompt: 'Wind Speed',
+        type: 'radio',
+        prompt: 'Wind speed:',
         options: ['Calm', 'Light (1-25 km/h)', 'Moderate (26-40 km/h)', 'Strong (41-60 km/h)', 'Extreme (>60 km/h)'],
         value: null,
         helpText: 'Calm: smoke rises. Light: flags and twigs move. Moderate: snow begins to drift. Strong: whole tress in motion. Extreme: difficulty walking.',
@@ -2301,7 +2593,7 @@ angular.module('acComponents.services')
 
       windDirection: {
         type: 'radio',
-        prompt: 'Wind Direction',
+        prompt: 'Wind direction:',
         options: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'],
         inline: true,
         value: null,
@@ -2310,16 +2602,17 @@ angular.module('acComponents.services')
 
       blowingSnow: {
         type: 'radio',
-        prompt: 'Blowing Snow',
+        prompt: 'Blowing snow:',
         options: ['None', 'Light', 'Moderate', 'Intense'],
         inline: true,
         helpText: 'How much snow is blowing at ridge crest elevation. Light: localized snow drifting. Moderate: a plume of snow is visible. Intense: a large plume moving snow well down the slope.',
-        order: 15
+        order: 15,
+        value: null
       },
 
       weatherObsComment: {
         type: 'textarea',
-        prompt: 'Weather Observation Comment',
+        prompt: 'Weather observation comment',
         value: null,
         order: 16
       }
@@ -2331,13 +2624,14 @@ angular.module('acComponents.services')
 
 angular.module("acComponents.templates", []).run(["$templateCache", function($templateCache) {$templateCache.put("allmin-icon.html","<svg width=\"28px\" height=\"28px\" viewbox=\"0 0 28 28\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:sketch=\"http://www.bohemiancoding.com/sketch/ns\"><title>all_min</title><g id=\"Styleguide\" stroke=\"none\" stroke-width=\"1\" fill=\"none\" fill-rule=\"evenodd\" sketch:type=\"MSPage\"><g id=\"02_01_Second-proposal-#2\" sketch:type=\"MSArtboardGroup\" transform=\"translate(-30.000000, -101.000000)\" stroke=\"#FFFFFF\"><g id=\"all_min\" sketch:type=\"MSLayerGroup\" transform=\"translate(31.000000, 102.000000)\"><circle id=\"Oval-6\" fill=\"#FFFFFF\" sketch:type=\"MSShapeGroup\" cx=\"13\" cy=\"13\" r=\"13\"></circle><path id=\"Oval-5\" d=\"M20.6424365,23.5174622 C18.4973383,25.078868 15.8562401,26 13,26 C10.1408573,26 7.49729401,25.0769949 5.35102528,23.5126999 C5.35616485,23.5157039 5.35879172,23.5172209 5.35879172,23.5172209 L12.9999995,13 L20.6412083,23.5172209 C20.6412083,23.5172209 20.6416198,23.5173052 20.6424365,23.5174622 Z\" fill=\"#F44336\" sketch:type=\"MSShapeGroup\"></path><path id=\"Oval-1\" d=\"M13,0 C7.1843333,0 2.26060446,3.81883989 0.599648246,9.08568486 C0.623290506,9.01855468 0.636265288,8.98277907 0.636265288,8.98277907 L12.9999995,13 L13,0 Z\" fill=\"#03A9F4\" sketch:type=\"MSShapeGroup\"></path><path id=\"Oval-1\" d=\"M13,0 C18.8156667,0 23.7393955,3.81883989 25.4003518,9.08568486 C25.3767095,9.01855468 25.3637347,8.98277907 25.3637347,8.98277907 L13.0000005,13 L13,0 Z\" fill=\"#3F51B5\" sketch:type=\"MSShapeGroup\"></path><path id=\"Oval-3\" d=\"M7.63867216,23.5467443 C10.8878189,21.1834812 13.0000005,17.3516752 13.0000005,13.0265428 C13.0000005,11.6211191 12.7769788,10.2677848 12.3643955,9 L12.3637352,9.00932187 L0,13.0265428 L7.64120875,23.5437637 C7.64120875,23.5437637 7.64035873,23.5447686 7.63867216,23.5467443 Z\" fill=\"#4CAF50\" sketch:type=\"MSShapeGroup\" transform=\"translate(6.500000, 16.273372) scale(-1, 1) translate(-6.500000, -16.273372) \"></path><path id=\"Oval-3\" d=\"M20.6386717,23.5202015 C23.8878184,21.1569384 26,17.3251324 26,13 C26,11.5945763 25.7769784,10.241242 25.364395,8.97345721 L25.3637347,8.98277907 L12.9999995,13 L20.6412083,23.5172209 C20.6412083,23.5172209 20.6403583,23.5182258 20.6386717,23.5202015 Z\" fill=\"#FFC107\" sketch:type=\"MSShapeGroup\"></path></g></g></g></svg>");
 $templateCache.put("danger-icon.html","<div class=\"danger-icon\"><svg version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" x=\"0px\" y=\"0px\" viewBox=\"398.5 12.1 555 560\" enable-background=\"new 398.5 12.1 555 560\" xml:space=\"preserve\"><polygon id=\"alp\" points=\"747.7,218.1 623.1,197.6 678.8,109.8\"></polygon><polygon id=\"tln\" points=\"794.2,291 542.8,323.6 616.7,207.4 755.5,230.3\"></polygon><polygon id=\"btl\" points=\"858.3,391.8 499.4,391.8 535.1,335.5 800.6,301.1\"></polygon></svg><span>FORECAST</span></div>");
-$templateCache.put("drawer.html","<div class=\"ac-drawer\"><a ng-click=\"drawer.right.visible = false\" ng-if=\"drawerPosition === \'right\'\" class=\"ac-drawer-close visible-xs\"><i class=\"fa fa-close fa-lg\"></i></a><div class=\"ac-drawer-tools\"><ul><li ng-if=\"drawerPosition === \'right\'\" ng-click=\"toggleForecast()\" ng-class=\"{on: drawer.right.visible &amp;&amp; drawer.right.enabled}\" style=\"margin-bottom: 50px;\"><div ac-danger-icon=\"ac-danger-icon\" style=\"height: 60px; width:60px;\"></div></li><li ng-if=\"drawerPosition === \'left\'\" ng-click=\"goToSubmitReport()\" style=\"margin-bottom: 50px;\" class=\"ac-submit-report-tab on\"><i class=\"fa fa-plus fa-2x\"></i><i class=\"fa fa-tasks fa-inverse fa-2x\"></i><span>New report</span></li><li ng-if=\"drawerPosition === \'left\'\" class=\"ac-filters ac-min-filters\"><ul ng-init=\"expandedMin = false\" ng-class=\"{opened: expandedMin}\" class=\"list-inline\"><li ng-click=\"expandedMin = !expandedMin\" class=\"ac-minfilter-button\"><i class=\"fa fa-map-marker fa-inverse fa-2x\"></i><span>MIN Filter</span></li><li ng-repeat=\"minFilter in minFilters\" ng-if=\"expandedMin\" ng-click=\"toggleFilter(\'minFilter:\'+ minFilter)\" ng-class=\"{on: getMinFilters(minFilter)}\"><div ac-allmin-icon=\"ac-allmin-icon\" ng-if=\"minFilter === \'all min\'\" class=\"report-allmin\"></div><i ng-class=\"\'report-\'+ minFilter\" ng-if=\"minFilter !== \'all min\'\" class=\"fa fa-map-marker fa-inverse fa-2x\"></i><span>{{ minFilter }}</span></li></ul></li><li ng-if=\"drawerPosition === \'left\'\" class=\"ac-filters ac-date-filters\"><ul ng-class=\"{opened: expandedDate}\" class=\"list-inline\"><li ng-click=\"toggleDateFilters()\" class=\"on\"><i class=\"fa fa-calendar fa-inverse fa-2x\"></i><span>{{ filters.obsPeriod }}</span></li><li ng-repeat=\"dateFilter in dateFilters\" ng-if=\"expandedDate\" ng-click=\"toggleFilter(\'obsPeriod:\'+dateFilter);\" ng-class=\"{hidden: filters.obsPeriod === dateFilter}\"><i class=\"fa fa-calendar fa-inverse fa-2x\"></i><span>{{ dateFilter }}</span></li></ul></li></ul></div><div ng-transclude=\"ng-transclude\" class=\"ac-drawer-body\"></div></div>");
-$templateCache.put("forecast-mini.html","<div class=\"panel\"><div ng-show=\"forecast.externalUrl\" style=\"min-height: 500px;\" class=\"panel-body\"><div class=\"row\"><div class=\"col-xs-12\"><h3 class=\"ac-forecast-region\">{{ forecast.name }}</h3></div></div><div class=\"row\"><div class=\"col-xs-12\"><p>Avalanche information for this region is available &nbsp;<a ng-href=\"{{forecast.externalUrl}}\" target=\"_blank\"><i class=\"fa fa-external-link\">here.</i></a></p></div></div></div><div ng-show=\"forecast.parksUrl\" style=\"min-height: 500px;\" class=\"panel-body\"><div class=\"row\"><div class=\"col-xs-12\"><h3 class=\"ac-forecast-region\">{{ forecast.name }}</h3></div></div><div class=\"row\"><div class=\"col-xs-12\"><p>Avalanche information for this region is available &nbsp;<a ng-href=\"{{forecast.parksUrl}}\" target=\"_blank\"><i class=\"fa fa-external-link\">here.</i></a></p></div></div></div><div ng-hide=\"forecast.externalUrl || forecast.parksUrl\" class=\"panel-body ac-forecast-mini-body\"><div class=\"row\"><div class=\"col-xs-6\"><h4 class=\"ac-forecast-region\">{{ forecast.bulletinTitle | acNormalizeForecastTitle }}</h4></div><div ng-if=\"forecast.region == &quot;kananaskis&quot;\" class=\"col-xs-6\"><a target=\"_blank\" href=\"\" class=\"pull-right\"><img style=\"width:75px;\" src=\"http://www.avalanche.ca/assets/images/kananaskis.jpg\"/></a></div><div ng-if=\"!(forecast.region == &quot;kananaskis&quot;)\" class=\"col-xs-6\"><a target=\"_blank\" href=\"{{sponsor.getText(&quot;sponsor.url&quot;)}}\" class=\"pull-right\"><img src=\"{{sponsor.getText(&quot;sponsor.image-229&quot;)}}\"/></a></div></div><div class=\"row ac-forecast-dates\"><div class=\"col-md-6\"><dl><dd class=\"small\"><strong class=\"ac-text-primary\">DATE ISSUED</strong></dd><dt class=\"small\"><span class=\"ac-text-default\">{{ forecast.dateIssued | date:\'EEEE MMMM d, y h:mm a\'  | uppercase }}</span></dt></dl></div><div class=\"col-md-6\"><dl><dd class=\"small\"><strong class=\"ac-text-primary\">VALID UNTIL</strong></dd><dt class=\"small\"><span class=\"ac-text-default\">{{ forecast.validUntil | date:\'EEEE MMMM d, y h:mm a\' | uppercase }}</span></dt></dl></div></div><div class=\"row\"><div class=\"col-xs-12\"><p class=\"ac-forecast-highlights\"><strong ng-bind-html=\"forecast.highlights\"></strong></p></div></div><div class=\"row\"><div class=\"col-xs-12 observation-tabs\"><ul role=\"tablist\" style=\"text-transform: uppercase;\" class=\"nav nav-pills\"><li class=\"active\"><a href=\"\" role=\"tab\" data-target=\"#forecast\" data-toggle=\"tab\">Forecast</a></li><li><a href=\"\" role=\"tab\" data-target=\"#problems\" data-toggle=\"tab\">Problems</a></li><li><a href=\"\" role=\"tab\" data-target=\"#details\" data-toggle=\"tab\">Details</a></li><li><a href=\"/forecasts/{{forecast.region}}\" role=\"tab\">Full Page</a></li><li><a href=\"/weather\" role=\"tab\">Weather</a></li></ul><div class=\"tab-content\"><div id=\"forecast\" class=\"tab-pane active\"><div class=\"row\"><div class=\"col-xs-12\"><div class=\"panel panel-primary\"><div class=\"panel-heading\">{{ forecast.dangerRatings[0].date | dateUtc:\'dddd\' }}</div><div class=\"panel-body ac-forecast-nowcast\"><img ng-show=\"forecast.region\" ng-src=\"{{forecast.region &amp;&amp; apiUrl+\'/api/forecasts/\' + forecast.region  + \'/nowcast.svg\' || \'\'}}\" class=\"ac-nowcast\"/></div><table class=\"table table-condensed ac-forecast-days\"><thead class=\"ac-thead-dark\"><tr><th></th><th>{{ forecast.dangerRatings[1].date | dateUtc:\'dddd\' }}</th><th>{{ forecast.dangerRatings[2].date | dateUtc:\'dddd\' }}</th></tr></thead><tbody><tr><td class=\"ac-veg-zone--alp\"><strong>Alpine</strong></td><td class=\"ac-danger-rating--{{ forecast.dangerRatings[1].dangerRating.alp.split(\':\')[1].toLowerCase()}}\"><strong>{{ forecast.dangerRatings[1].dangerRating.alp.replace(\':\', \' \') }}</strong></td><td class=\"ac-danger-rating--{{ forecast.dangerRatings[2].dangerRating.alp.split(\':\')[1].toLowerCase()}}\"><strong>{{ forecast.dangerRatings[2].dangerRating.alp.replace(\':\', \' \') }}</strong></td></tr><tr><td class=\"ac-veg-zone--tln\"><strong>Treeline</strong></td><td class=\"ac-danger-rating--{{ forecast.dangerRatings[1].dangerRating.tln.split(\':\')[1].toLowerCase()}}\"><strong>{{ forecast.dangerRatings[1].dangerRating.tln.replace(\':\', \' \') }}</strong></td><td class=\"ac-danger-rating--{{ forecast.dangerRatings[2].dangerRating.tln.split(\':\')[1].toLowerCase()}}\"><strong>{{ forecast.dangerRatings[2].dangerRating.tln.replace(\':\', \' \') }}</strong></td></tr><tr><td class=\"ac-veg-zone--btl\"><strong>Below Treeline</strong></td><td class=\"ac-danger-rating--{{ forecast.dangerRatings[1].dangerRating.btl.split(\':\')[1].toLowerCase()}}\"><strong>{{ forecast.dangerRatings[1].dangerRating.btl.replace(\':\', \' \') }}</strong></td><td class=\"ac-danger-rating--{{ forecast.dangerRatings[2].dangerRating.btl.split(\':\')[1].toLowerCase()}}\"><strong>{{ forecast.dangerRatings[2].dangerRating.btl.replace(\':\', \' \') }}</strong></td></tr><tr><td><strong>Confidence:</strong></td><td colspan=\"2\"><span class=\"ac-text-default\">{{ forecast.confidence }}</span></td></tr></tbody></table><footer id=\"forecast-bulletin\" class=\"col-xs-12\"></footer><div class=\"panel-group\"><div class=\"panel panel-default first\"><h4 class=\"panel-title\"><a href=\"\" data-target=\"#collapseTwo\" data-parent=\"#accordion\" data-toggle=\"collapse\" class=\"collapsed\">{{dangerRating.getText(\'generic.title\')}}</a></h4><div id=\"collapseTwo\" class=\"collapse\"><div ng-bind-html=\"dangerRating.getStructuredText(\'generic.body\').asHtml(ctx)\" class=\"panel-body\"></div></div></div><div class=\"panel panel-default last\"><h4 class=\"panel-title\"><a href=\"\" data-target=\"#collapseOne\" data-parent=\"#accordion\" data-toggle=\"collapse\" class=\"collapsed\">{{disclaimer.getText(\'generic.title\')}}</a></h4><div id=\"collapseOne\" class=\"collapse\"><div ng-bind-html=\"disclaimer.getStructuredText(\'generic.body\').asHtml(ctx)\" class=\"panel-body\"></div></div></div></div></div></div></div></div><div id=\"problems\" class=\"tab-pane\"><div id=\"problemsAccordion\" class=\"panel-group\"><div ng-repeat=\"problem in forecast.problems\" class=\"panel panel-primary\"><div class=\"panel-heading\"><h4 class=\"panel-title\"><a href=\"\" data-target=\"#problem{{$index}}\" data-toggle=\"collapse\" data-parent=\"#problemsAccordion\">{{ problem.type }}<i class=\"fa fa-fw fa-level-down pull-right\"></i><small class=\"pull-right\">click to expand</small></a></h4></div><div id=\"problem{{$index}}\" class=\"panel-collapse collapse\"><div class=\"panel-body\"><div class=\"row\"><div class=\"col-md-6\"><div class=\"panel panel-default\"><div class=\"panel-heading\"><strong class=\"small\">What Elevations?</strong></div><div class=\"panel-body ac-problem-icon ac-problem-icon--elevations\"><img ng-src=\"{{problem.icons.elevations}}\" class=\"center-block\"/></div></div></div><div class=\"col-md-6\"><div class=\"panel panel-default\"><div class=\"panel-heading\"><strong class=\"small\">What Aspects?</strong></div><div class=\"panel-body ac-problem-icon ac-problem-icon--aspects\"><img ng-src=\"{{problem.icons.aspects}}\" class=\"center-block\"/></div></div></div></div><div class=\"row\"><div class=\"col-md-6\"><div class=\"panel panel-default\"><div class=\"panel-heading\"><strong class=\"small\">Chances of Avalanches?</strong></div><div class=\"panel-body ac-problem-icon ac-problem-icon--likelihood\"><img ng-src=\"{{problem.icons.likelihood}}\" class=\"center-block\"/></div></div></div><div class=\"col-md-6\"><div class=\"panel panel-default\"><div class=\"panel-heading\"><strong class=\"small\">Expected Size?</strong></div><div class=\"panel-body ac-problem-icon ac-problem-icon--expected-size\"><img ng-src=\"{{problem.icons.expectedSize}}\" class=\"center-block\"/></div></div></div></div><div class=\"row\"><div class=\"col-md-12\"><p ng-bind-html=\"problem.comment\" class=\"ac-problem narative\"></p><div class=\"panel panel-default ac-problem-travel-advice\"><div class=\"panel-heading\"><strong class=\"small\">Travel and Terrain Advice</strong></div><div class=\"panel-body\"><p ng-bind-html=\"problem.travelAndTerrainAdvice\"></p></div></div></div></div></div></div></div></div></div><div id=\"details\" class=\"tab-pane\"><div id=\"detailsAccordion\" class=\"panel-group\"><div class=\"panel panel-primary\"><div class=\"panel-heading\"><h4 class=\"panel-title\"><a href=\"\" data-target=\"#avalancheSummary\" data-toggle=\"collapse\" data-parent=\"#detailsAccordion\">Avalanche Summary<i class=\"fa fa-fw fa-level-down fa-lg pull-right\"></i><small class=\"pull-right\">click to expand</small></a></h4></div><div id=\"avalancheSummary\" class=\"panel-collapse collapse\"><div ng-bind-html=\"forecast.avalancheSummary\" class=\"panel-body\"></div></div></div><div class=\"panel panel-primary\"><div class=\"panel-heading\"><h4 class=\"panel-title\"><a href=\"\" data-target=\"#snowpackSummary\" data-toggle=\"collapse\" data-parent=\"#detailsAccordion\">Snowpack Summary<i class=\"fa fa-fw fa-level-down fa-lg pull-right\"></i><small class=\"pull-right\">click to expand</small></a></h4></div><div id=\"snowpackSummary\" class=\"panel-collapse collapse\"><div ng-bind-html=\"forecast.snowpackSummary\" class=\"panel-body\"></div></div></div><div class=\"panel panel-primary\"><div class=\"panel-heading\"><h4 class=\"panel-title\"><a href=\"\" data-target=\"#weatherForecast\" data-toggle=\"collapse\" data-parent=\"#detailsAccordion\">Weather Forecast<i class=\"fa fa-fw fa-level-down fa-lg pull-right\"></i><small class=\"pull-right\">click to expand</small></a></h4></div><div id=\"weatherForecast\" class=\"panel-collapse collapse\"><div ng-bind-html=\"forecast.weatherForecast\" class=\"panel-body\"></div></div></div></div></div></div></div></div></div></div>");
+$templateCache.put("drawer.html","<div class=\"ac-drawer\"><a ng-click=\"drawer.right.visible = false\" ng-if=\"drawerPosition === \'right\'\" class=\"ac-drawer-close visible-xs\"><i class=\"fa fa-close fa-lg\"></i></a><div class=\"ac-drawer-tools\"><ul><li ng-if=\"drawerPosition === \'right\'\" ng-click=\"toggleForecast()\" ng-class=\"{on: drawer.right.visible &amp;&amp; drawer.right.enabled}\" style=\"margin-bottom: 50px;\"><div ac-danger-icon=\"ac-danger-icon\" style=\"height: 60px; width:60px;\"></div></li><li ng-if=\"drawerPosition === \'left\'\" ng-click=\"goToSubmitReport()\" class=\"ac-submit-report-tab on\"><i class=\"fa fa-plus fa-2x\"></i><i class=\"fa fa-tasks fa-inverse fa-2x\"></i><span>Create report</span></li><li ng-if=\"drawerPosition === \'left\'\" class=\"ac-filters ac-min-filters\"><ul ng-init=\"expandedMin = false\" ng-class=\"{opened: expandedMin}\" class=\"list-inline\"><li ng-click=\"expandedMin = !expandedMin\" class=\"ac-default-button on\"><i class=\"fa fa-map-marker fa-inverse fa-2x\"></i><span>MIN Filters</span></li><li ng-repeat=\"minFilter in minFilters\" ng-if=\"expandedMin\" ng-click=\"toggleFilter(\'minFilter:\'+ minFilter)\" ng-class=\"{on: getMinFilters(minFilter)}\"><div ac-allmin-icon=\"ac-allmin-icon\" ng-if=\"minFilter === \'all min\'\" class=\"report-allmin\"></div><i ng-class=\"\'report-\'+ minFilter\" ng-if=\"minFilter !== \'all min\'\" class=\"fa fa-map-marker fa-inverse fa-2x\"></i><span ng-class=\"{\'no-top\': minFilter == \'all min\' }\">{{ minFilter }}</span></li></ul></li><li ng-if=\"drawerPosition === \'left\'\" class=\"ac-filters ac-default-filters\"><ul ng-class=\"{opened: expandedDate}\" class=\"list-inline\"><li ng-click=\"toggleDateFilters()\" class=\"ac-default-button on\"><i class=\"fa fa-calendar fa-inverse fa-2x\"></i><span>Date filter</span></li><li ng-repeat=\"dateFilter in dateFilters\" ng-if=\"expandedDate\" ng-click=\"toggleFilter(\'obsPeriod:\'+dateFilter);\" ng-class=\"{on: filters.obsPeriod === dateFilter}\"><i class=\"fa fa-calendar fa-inverse fa-2x\"></i><span>{{ dateFilter }}</span></li></ul></li><!--Previous behaviour where date filter selected is visible--><!--li.ac-filters.ac-date-filters(ng-if=\"drawerPosition === \'left\'\")--><!--  ul.list-inline(ng-class=\"{opened: expandedDate}\")--><!--    li.on(ng-click=\"toggleDateFilters()\")--><!--      i.fa.fa-calendar.fa-inverse.fa-2x--><!--      span {{ filters.obsPeriod }}--><!--    li(ng-repeat=\"dateFilter in dateFilters\", ng-if=\"expandedDate\", ng-click=\"toggleFilter(\'obsPeriod:\'+dateFilter);\", ng-class=\"{hidden: filters.obsPeriod === dateFilter}\")--><!--      i.fa.fa-calendar.fa-inverse.fa-2x--><!--      span {{ dateFilter }}--></ul></div><div ng-transclude=\"ng-transclude\" class=\"ac-drawer-body\"></div></div>");
+$templateCache.put("forecast-mini.html","<div class=\"panel\"><div ng-show=\"forecast.externalUrl\" style=\"min-height: 500px;\" class=\"panel-body\"><div class=\"row\"><div class=\"col-xs-12\"><h3 class=\"ac-forecast-region\">{{ forecast.name }}</h3></div></div><div class=\"row\"><div class=\"col-xs-12\"><p>Avalanche information for this region is available &nbsp;<a ng-href=\"{{forecast.externalUrl}}\" target=\"_blank\"><i class=\"fa fa-external-link\">here.</i></a></p></div></div></div><div ng-show=\"forecast.parksUrl\" style=\"min-height: 500px;\" class=\"panel-body\"><div class=\"row\"><div class=\"col-xs-12\"><h3 class=\"ac-forecast-region\">{{ forecast.name }}</h3></div></div><div class=\"row\"><div class=\"col-xs-12\"><p>Avalanche information for this region is available &nbsp;<a ng-href=\"{{forecast.parksUrl}}\" target=\"_blank\"><i class=\"fa fa-external-link\">here.</i></a></p></div></div></div><div ng-hide=\"forecast.externalUrl || forecast.parksUrl\" class=\"panel-body ac-forecast-mini-body\"><div class=\"row\"><div class=\"col-xs-6\"><h4 class=\"ac-forecast-region\">{{ forecast.bulletinTitle | acNormalizeForecastTitle }}</h4></div><div ng-if=\"forecast.region == &quot;kananaskis&quot;\" class=\"col-xs-6\"><a target=\"_blank\" href=\"\" class=\"pull-right\"><img style=\"width:75px;\" src=\"http://www.avalanche.ca/assets/images/kananaskis.jpg\"/></a></div><div ng-if=\"!(forecast.region == &quot;kananaskis&quot;)\" class=\"col-xs-6\"><a target=\"_blank\" href=\"{{sponsor.getText(&quot;sponsor.url&quot;)}}\" class=\"pull-right\"><img src=\"{{sponsor.getText(&quot;sponsor.image-229&quot;)}}\"/></a></div></div><div class=\"row ac-forecast-dates\"><div class=\"col-md-6\"><dl><dd class=\"small\"><strong class=\"ac-text-primary\">DATE ISSUED</strong></dd><dt class=\"small\"><span class=\"ac-text-default\">{{ forecast.dateIssued | date:\'EEEE MMMM d, y h:mm a\'  | uppercase }}</span></dt></dl></div><div class=\"col-md-6\"><dl><dd class=\"small\"><strong class=\"ac-text-primary\">VALID UNTIL</strong></dd><dt class=\"small\"><span class=\"ac-text-default\">{{ forecast.validUntil | date:\'EEEE MMMM d, y h:mm a\' | uppercase }}</span></dt></dl></div></div><div class=\"row\"><div class=\"col-xs-12\"><p class=\"ac-forecast-highlights\"><strong ng-bind-html=\"forecast.highlights\"></strong></p></div></div><div class=\"row\"><div style=\"padding-right:0\" class=\"col-xs-12 observation-tabs\"><ul role=\"tablist\" style=\"text-transform: uppercase;\" class=\"nav nav-pills\"><li class=\"active\"><a href=\"\" role=\"tab\" data-target=\"#forecast\" data-toggle=\"tab\">Forecast</a></li><li><a href=\"\" role=\"tab\" data-target=\"#problems\" data-toggle=\"tab\">Problems</a></li><li><a href=\"\" role=\"tab\" data-target=\"#details\" data-toggle=\"tab\">Details</a></li><li><a href=\"/forecasts/{{forecast.region}}\" role=\"tab\">Full Page</a></li><li><a href=\"/weather\" role=\"tab\">Weather</a></li></ul><div class=\"tab-content\"><div id=\"forecast\" class=\"tab-pane active\"><div class=\"row\"><div class=\"col-xs-12\"><div class=\"panel panel-primary\"><div class=\"panel-heading\">{{ forecast.dangerRatings[0].date | dateUtc:\'dddd\' }}</div><div class=\"panel-body ac-forecast-nowcast\"><img ng-show=\"forecast.region\" ng-src=\"{{forecast.region &amp;&amp; apiUrl+\'/api/forecasts/\' + forecast.region  + \'/nowcast.svg\' || \'\'}}\" class=\"ac-nowcast\"/></div><table class=\"table table-condensed ac-forecast-days\"><thead class=\"ac-thead-dark\"><tr><th></th><th>{{ forecast.dangerRatings[1].date | dateUtc:\'dddd\' }}</th><th>{{ forecast.dangerRatings[2].date | dateUtc:\'dddd\' }}</th></tr></thead><tbody><tr><td class=\"ac-veg-zone--alp\"><strong>Alpine</strong></td><td class=\"ac-danger-rating--{{ forecast.dangerRatings[1].dangerRating.alp.split(\':\')[1].toLowerCase()}}\"><strong>{{ forecast.dangerRatings[1].dangerRating.alp.replace(\':\', \' \') }}</strong></td><td class=\"ac-danger-rating--{{ forecast.dangerRatings[2].dangerRating.alp.split(\':\')[1].toLowerCase()}}\"><strong>{{ forecast.dangerRatings[2].dangerRating.alp.replace(\':\', \' \') }}</strong></td></tr><tr><td class=\"ac-veg-zone--tln\"><strong>Treeline</strong></td><td class=\"ac-danger-rating--{{ forecast.dangerRatings[1].dangerRating.tln.split(\':\')[1].toLowerCase()}}\"><strong>{{ forecast.dangerRatings[1].dangerRating.tln.replace(\':\', \' \') }}</strong></td><td class=\"ac-danger-rating--{{ forecast.dangerRatings[2].dangerRating.tln.split(\':\')[1].toLowerCase()}}\"><strong>{{ forecast.dangerRatings[2].dangerRating.tln.replace(\':\', \' \') }}</strong></td></tr><tr><td class=\"ac-veg-zone--btl\"><strong>Below Treeline</strong></td><td class=\"ac-danger-rating--{{ forecast.dangerRatings[1].dangerRating.btl.split(\':\')[1].toLowerCase()}}\"><strong>{{ forecast.dangerRatings[1].dangerRating.btl.replace(\':\', \' \') }}</strong></td><td class=\"ac-danger-rating--{{ forecast.dangerRatings[2].dangerRating.btl.split(\':\')[1].toLowerCase()}}\"><strong>{{ forecast.dangerRatings[2].dangerRating.btl.replace(\':\', \' \') }}</strong></td></tr><tr><td><strong>Confidence:</strong></td><td colspan=\"2\"><span class=\"ac-text-default\">{{ forecast.confidence }}</span></td></tr></tbody></table><footer id=\"forecast-bulletin\" class=\"col-xs-12\"></footer><div class=\"panel-group\"><div class=\"panel panel-default first\"><h4 class=\"panel-title\"><a href=\"\" data-target=\"#collapseTwo\" data-parent=\"#accordion\" data-toggle=\"collapse\" class=\"collapsed\">{{dangerRating.getText(\'generic.title\')}}</a></h4><div id=\"collapseTwo\" class=\"collapse\"><div ng-bind-html=\"dangerRating.getStructuredText(\'generic.body\').asHtml(ctx)\" class=\"panel-body\"></div></div></div><div class=\"panel panel-default last\"><h4 class=\"panel-title\"><a href=\"\" data-target=\"#collapseOne\" data-parent=\"#accordion\" data-toggle=\"collapse\" class=\"collapsed\">{{disclaimer.getText(\'generic.title\')}}</a></h4><div id=\"collapseOne\" class=\"collapse\"><div ng-bind-html=\"disclaimer.getStructuredText(\'generic.body\').asHtml(ctx)\" class=\"panel-body\"></div></div></div></div></div></div></div></div><div id=\"problems\" class=\"tab-pane\"><div id=\"problemsAccordion\" class=\"panel-group\"><div ng-repeat=\"problem in forecast.problems\" class=\"panel panel-primary\"><div class=\"panel-heading\"><h4 class=\"panel-title\"><a href=\"\" data-target=\"#problem{{$index}}\" data-toggle=\"collapse\" data-parent=\"#problemsAccordion\">{{ problem.type }}<i class=\"fa fa-fw fa-level-down pull-right\"></i><small class=\"pull-right\">click to expand</small></a></h4></div><div id=\"problem{{$index}}\" class=\"panel-collapse collapse\"><div class=\"panel-body\"><div class=\"row\"><div class=\"col-md-6\"><div class=\"panel panel-default\"><div class=\"panel-heading\"><strong class=\"small\">What Elevations?</strong></div><div class=\"panel-body ac-problem-icon ac-problem-icon--elevations\"><img ng-src=\"{{problem.icons.elevations}}\" class=\"center-block\"/></div></div></div><div class=\"col-md-6\"><div class=\"panel panel-default\"><div class=\"panel-heading\"><strong class=\"small\">What Aspects?</strong></div><div class=\"panel-body ac-problem-icon ac-problem-icon--aspects\"><img ng-src=\"{{problem.icons.aspects}}\" class=\"center-block\"/></div></div></div></div><div class=\"row\"><div class=\"col-md-6\"><div class=\"panel panel-default\"><div class=\"panel-heading\"><strong class=\"small\">Chances of Avalanches?</strong></div><div class=\"panel-body ac-problem-icon ac-problem-icon--likelihood\"><img ng-src=\"{{problem.icons.likelihood}}\" class=\"center-block\"/></div></div></div><div class=\"col-md-6\"><div class=\"panel panel-default\"><div class=\"panel-heading\"><strong class=\"small\">Expected Size?</strong></div><div class=\"panel-body ac-problem-icon ac-problem-icon--expected-size\"><img ng-src=\"{{problem.icons.expectedSize}}\" class=\"center-block\"/></div></div></div></div><div class=\"row\"><div class=\"col-md-12\"><p ng-bind-html=\"problem.comment\" class=\"ac-problem narative\"></p><div class=\"panel panel-default ac-problem-travel-advice\"><div class=\"panel-heading\"><strong class=\"small\">Travel and Terrain Advice</strong></div><div class=\"panel-body\"><p ng-bind-html=\"problem.travelAndTerrainAdvice\"></p></div></div></div></div></div></div></div></div></div><div id=\"details\" class=\"tab-pane\"><div id=\"detailsAccordion\" class=\"panel-group\"><div class=\"panel panel-primary\"><div class=\"panel-heading\"><h4 class=\"panel-title\"><a href=\"\" data-target=\"#avalancheSummary\" data-toggle=\"collapse\" data-parent=\"#detailsAccordion\">Avalanche Summary<i class=\"fa fa-fw fa-level-down fa-lg pull-right\"></i><small class=\"pull-right\">click to expand</small></a></h4></div><div id=\"avalancheSummary\" class=\"panel-collapse collapse\"><div ng-bind-html=\"forecast.avalancheSummary\" class=\"panel-body\"></div></div></div><div class=\"panel panel-primary\"><div class=\"panel-heading\"><h4 class=\"panel-title\"><a href=\"\" data-target=\"#snowpackSummary\" data-toggle=\"collapse\" data-parent=\"#detailsAccordion\">Snowpack Summary<i class=\"fa fa-fw fa-level-down fa-lg pull-right\"></i><small class=\"pull-right\">click to expand</small></a></h4></div><div id=\"snowpackSummary\" class=\"panel-collapse collapse\"><div ng-bind-html=\"forecast.snowpackSummary\" class=\"panel-body\"></div></div></div><div class=\"panel panel-primary\"><div class=\"panel-heading\"><h4 class=\"panel-title\"><a href=\"\" data-target=\"#weatherForecast\" data-toggle=\"collapse\" data-parent=\"#detailsAccordion\">Weather Forecast<i class=\"fa fa-fw fa-level-down fa-lg pull-right\"></i><small class=\"pull-right\">click to expand</small></a></h4></div><div id=\"weatherForecast\" class=\"panel-collapse collapse\"><div ng-bind-html=\"forecast.weatherForecast\" class=\"panel-body\"></div></div></div></div></div></div></div></div></div></div>");
 $templateCache.put("loading-indicator.html","<div class=\"ac-loading-indicator\"><div class=\"rect1\"></div><div class=\"rect2\"></div><div class=\"rect3\"></div><div class=\"rect4\"></div><div class=\"rect5\"></div></div>");
+$templateCache.put("min-back-modal.html","<div class=\"modal-body\"><p>Are you sure you want to exit?</p><p>You will lose all your data!</p></div><div class=\"modal-footer\"><button type=\"button\" ng-click=\"discardAndExit()\" class=\"btn btn-default\">Yes</button><button type=\"button\" ng-click=\"stayOnThePage()\" class=\"btn btn-primary\">No</button></div>");
 $templateCache.put("min-map-modal.html","<div class=\"modal-body\"><input type=\"button\" value=\"Save and close\" ng-click=\"save()\" class=\"btn btn-default save-button\"/><div ac-location-select=\"ac-location-select\" latlng=\"params.latlng\" style=\"height: 100%; width: 100%;\" ng-if=\"show\"></div></div>");
-$templateCache.put("min-observation-drawer.html","<div class=\"panel\"><div class=\"panel-body\"><div class=\"row\"><div ng-click=\"closeDrawer()\" class=\"pull-right close-drawer\"><i class=\"fa fa-close\"></i></div><div class=\"col-sm-8 col-xs-12\"><h3>{{::sub.title}}</h3></div><div class=\"col-sm-3 col-xs-12\"><a target=\"_blank\" href=\"{{sponsor.getText(&quot;sponsor.url&quot;)}}\" class=\"pull-right\"><img src=\"{{sponsor.getText(&quot;sponsor.image-229&quot;)}}\"/></a></div></div><div class=\"row submission-header\"><div class=\"col-sm-12 section-label\"><i class=\"fa fa-clock-o\"></i><span>Submitted</span></div><div class=\"col-sm-12\"><p>By <span> {{::sub.user}} </span></p><p>On {{::sub.dateFormatted}}</p></div></div></div><div class=\"panel-body\"><div class=\"row-fluid observation-tabs\"><ul role=\"tablist\" class=\"nav nav-pills\"><li ng-repeat=\"tab in reportTypes\" role=\"presentation\" ng-class=\"[hasReport(tab),{active: tab === sub.requested}]\"><a ng-click=\"changeTab(tab)\" style=\"text-transform: uppercase;\">{{::tab}}</a></li></ul></div><div class=\"row-fluid\"><div class=\"tab-content\"><div ng-repeat=\"tab in reportTypes\" role=\"tabpanel\" id=\"{{tab}}\" ng-class=\"{active: tab === sub.requested}\" class=\"tab-pane\"><div class=\"row-fluid section-label\"><i class=\"fa fa-info-circle\"></i><span>Information</span></div><div ng-repeat=\"ob in sub.obs\"><div ng-if=\"ob.obtype === sub.requested\" ng-repeat=\"item in activeTab\" class=\"submission-header\"><ul class=\"observation-information\"><li ng-if=\"item.type === \'number\' || item.type === \'radio\'|| item.type === \'dropdown\'\" class=\"observation-item\">{{::item.prompt}}<i class=\"fa fa-check\"></i><span class=\"value\">{{::item.value}}</span></li><li ng-if=\"item.type === \'checkbox\'\" class=\"observation-item\">{{::item.prompt}}<ul><li ng-repeat=\"op in item.value track by $index\"><i class=\"fa fa-check\"></i><span class=\"value\">{{op}}</span></li></ul></li><li ng-if=\"item.type === \'datetime\'\" class=\"observation-item\">{{::item.prompt}}<span>&nbsp; {{::item.value | dateformat}}</span></li></ul><div ng-if=\"item.type === \'textarea\'\" class=\"observation-item comments\"><div class=\"row-fluid section-label\"><i class=\"fa fa-comment\"></i><span>Comments</span></div><div class=\"row-fluid\"><div class=\"col-sm-12\">{{::item.value}}</div></div></div></div></div></div></div></div></div><div class=\"panel-body upload-n-share\"><div ng-if=\"sub.uploads.length &gt; 0\" class=\"row\"><div class=\"col-sm-12 section-label\"><i class=\"fa fa-camera\"></i><span>Uploads (click/tap to enlarge)</span></div><div class=\"col-sm-12\"><ul class=\"list-inline\"><li ng-repeat=\"url in sub.thumbs\"><a ng-href=\"{{::url}}\" target=\"_blank\"><img ng-src=\"{{::url}}\" width=\"75\" alt=\"{{::sub.title}}\"/></a></li></ul></div></div><div class=\"row\"><div class=\"col-sm-12 section-label\"><i class=\"fa fa-share-square-o\"></i><span>Share this report</span></div><div class=\"col-sm-12\"><div class=\"col-sm-12\"><ul class=\"list-inline\"><li><a ng-href=\"https://twitter.com/intent/tweet?status={{::sub.shareUrl}}\"><i class=\"fa fa-twitter fa-fw fa-lg\"></i></a></li><li><a ng-href=\"https://www.facebook.com/sharer/sharer.php?u={{::sub.shareUrl}}\"><i class=\"fa fa-facebook fa-fw fa-lg\"></i></a></li><li><a ng-href=\"https://plus.google.com/share?url={{::sub.shareUrl}}\"><i class=\"fa fa-google-plus fa-fw fa-lg\"></i></a></li></ul></div></div></div></div></div>");
-$templateCache.put("min-report-form.html","<div class=\"min-form\"><form name=\"acMinForm\" ng-submit=\"submitForm()\" novalidate=\"novalidate\" ng-if=\"!report.subid\" role=\"form\" ac-submission-form-validator=\"ac-submission-form-validator\"><div class=\"form-fields col-xs-12 no-padding\"><div class=\"col-xs-12 col-md-4 form-left-column\"><div class=\"required-info clearfix\"><h2 class=\"form-subtitle\">1. Required Info</h2><p>Complete all required information: report title, submission, date/time and location.</p><div class=\"required-info-data col-xs-12\"><div ng-class=\"{\'has-error\': !acMinForm.title.$valid}\" class=\"form-group\"><label for=\"title\"><i class=\"fa fa-newspaper-o\"></i> Report title</label><input type=\"text\" name=\"title\" ng-model=\"report.title\" required=\"required\" class=\"form-control\"/></div><div ng-class=\"{\'has-error\': !acMinForm.datetime.$valid}\" class=\"form-group\"><label for=\"datetime\"><i class=\"fa fa-clock-o\"></i> Submitted On</label><input type=\"datetime\" name=\"datetime\" ng-model=\"report.datetime\" ac-datetime-picker=\"ac-datetime-picker\" class=\"form-control\"/></div><div ng-class=\"{\'has-error\': !acMinForm.latlng.$valid}\" class=\"form-group\"><label for=\"latlng\"><i class=\"fa fa-map-marker\"></i> Location</label><div ac-location-select=\"ac-location-select\" latlng=\"report.latlng\" style=\"height: 300px; width: 100%; margin: 10px 0;\"></div><input type=\"text\" name=\"latlng\" ng-model=\"report.latlng\" placeholder=\"Drop pin on map to set location\" required=\"required\" class=\"form-control\"/></div></div></div><div class=\"uploads\"><h2 class=\"form-subtitle\">2. Uploads</h2><p>Do you have a photo/video of your trip or observation? Add it here.</p><div class=\"form-group\"><label for=\"uploads\"><i class=\"fa fa-image\"></i> Add photo<small> .jpg or .png</small></label><input type=\"file\" name=\"uploads\" file-model=\"report.files\" accept=\".png,.jpg,.jpeg\" multiple=\"multiple\" class=\"form-control\"/><div>{{ report.files.length }} photos added</div></div></div></div><div class=\"col-xs-12 col-md-8 form-right-column\"><h2 id=\"top\" class=\"form-subtitle\">3. Observations</h2><div class=\"announcement\">Add information on one, many, or all tabs, then click SUBMIT at the bottom.</div><tabset type=\"pills\" class=\"observation-tabs\"><!--Quick report--><tab ac-tab-style=\"{{getTabExtraClasses(\'quickReport\')}}\"><tab-heading class=\"tab-head\">Quick</tab-heading><div class=\"tab-text\">Use the Quick Report to quickly share information about your trip. You can create a comprehensive\nreport by adding more details in the Avalanche, Snowpack, Weather, and/or Incident tabs.</div><div class=\"fields-group\"><div ng-repeat=\"(item, ridingCondition) in report.obs.quickReport.ridingConditions\" class=\"field col-xs-12\"><h4 class=\"field-title col-xs-12 no-padding\"><strong>{{ ::ridingCondition.prompt }}</strong></h4><div class=\"options col-xs-12 col-md-4 col-md-push-8\"></div><div class=\"options col-xs-12 col-md-8 col-md-pull-4\"><div ng-if=\"ridingCondition.type==\'multiple\'\" ng-repeat=\"(option, enabled) in ridingCondition.options\" ng-class=\"{\'column-left\':$odd}\" class=\"checkbox col-xs-12 col-md-6 inline\"><label><input type=\"checkbox\" name=\"{{ ::item}}\" ng-model=\"ridingCondition.options[option]\"/>{{ ::option}}</label></div><div ng-if=\"ridingCondition.type==\'single\'\" ng-repeat=\"option in ridingCondition.options\" class=\"radio col-xs-12 col-md-6 inline\"><label><input type=\"radio\" name=\"{{ ::item}}\" ng-model=\"ridingCondition.selected\" ng-value=\"option\"/>{{ ::option}}</label></div></div></div><div class=\"field col-xs-12\"><h4 class=\"field-title col-xs-12 no-padding\"><strong>Avalanche conditions</strong></h4><div class=\"options col-xs-12 col-md-4 col-md-push-8\"></div><div class=\"options col-xs-12 col-md-8 col-md-pull-4\"><div class=\"checkbox col-xs-12\"><label><input type=\"checkbox\" name=\"slab\" ng-model=\"report.obs.quickReport.avalancheConditions.slab\"/>Slab avalanches today or yesterday.</label></div><div class=\"checkbox col-xs-12\"><label><input type=\"checkbox\" name=\"sound\" ng-model=\"report.obs.quickReport.avalancheConditions.sound\"/>Whumphing or drum-like sounds or shooting cracks.</label></div><div class=\"checkbox col-xs-12\"><label><input type=\"checkbox\" name=\"snow\" ng-model=\"report.obs.quickReport.avalancheConditions.snow\"/>30cm + of new snow, or significant drifitng, or rain in the last 48 hours.</label></div><div class=\"checkbox col-xs-12\"><label><input type=\"checkbox\" name=\"temp\" ng-model=\"report.obs.quickReport.avalancheConditions.temp\"/>Rapid temperature rise to near zero degrees or wet surface snow.</label></div></div></div><div class=\"field col-xs-12\"><h4 class=\"field-title col-xs-12 no-padding\"><strong>Comments</strong></h4><div class=\"options col-xs-12 col-md-4 col-md-push-8\"></div><div class=\"options col-xs-12 col-md-8 col-md-pull-4\"><div class=\"textarea col-xs-12\"><textarea rows=\"3\" name=\"comment\" ng-model=\"report.obs.quickReport.comment\" style=\"resize: vertical;\" class=\"form-control\"></textarea></div></div></div></div></tab><tab ng-repeat=\"(key, tab) in additionalFields\" ac-tab-style=\"{{getTabExtraClasses(key)}}\"><tab-heading class=\"tab-head\">{{ ::tab.name}}</tab-heading><div ng-bind-html=\"tab.text\" class=\"tab-text\"></div><div class=\"fields-group\"><div ng-repeat=\"(item, av) in report.obs[key].fields\" class=\"field col-xs-12\"><h4 class=\"field-title col-xs-12 no-padding\"><strong>{{ ::av.prompt }}</strong></h4><div class=\"options col-xs-12 col-md-4 col-md-push-8\"><div ng-if=\"av.helpText\" class=\"help-text\"><p><i class=\"fa fa-question-circle\"></i><span>{{ ::av.helpText}}</span></p><span ng-if=\"av.guidelines\"><a href=\"{{ ::av.guidelines}}\" target=\"_blank\">Submission guidelines</a></span></div></div><div class=\"options col-xs-12 col-md-8 col-md-pull-4\"><div ng-if=\"av.type==\'checkbox\'\" ng-repeat=\"(option, enabled) in av.options\" ng-class=\"{\'inline\':av.inline, \'column-left\':$odd}\" class=\"checkbox col-md-6 col-xs-12\"><label><input type=\"checkbox\" name=\"{{::item}}\" ng-model=\"av.options[option]\" ng-click=\"validate(item, av)\"/>{{ ::option}}</label></div><div ng-if=\"av.type==\'radio\'\" ng-repeat=\"option in av.options\" ng-class=\"{\'inline\':av.inline, \'column-left\':$odd}\" class=\"radio col-md-6 col-xs-12\"><label><input type=\"radio\" ng-model=\"report.obs[key].fields[item].value\" value=\"{{ ::option}}\"/>{{ ::option}}</label></div><div ng-if=\"av.type==\'number\'\" ng-class=\"{\'inline\':av.inline}\" class=\"number col-xs-12\"><label><input type=\"number\" name=\"{{::item}}\" placeholder=\"Number between {{ ::av.options.min}} and {{ ::av.options.max}}\" ng-model=\"report.obs[key].fields[item].value\" ng-blur=\"validate(item, av)\"/></label></div><div ng-if=\"av.type==\'dropdown\'\" ng-class=\"{\'inline\':av.inline, \'column-left\':$odd}\" class=\"select col-md-6 col-xs-12 no-padding\"><select ng-options=\"option for option in av.options\" ng-model=\"report.obs[key].fields[item].value\"><option value=\"\">Select option</option></select></div><div ng-if=\"av.type==\'textarea\'\" class=\"textarea col-xs-12\"><textarea rows=\"3\" ng-model=\"report.obs[key].fields[item].value\" class=\"form-control\"></textarea></div><div ng-if=\"av.type==\'datetime\'\" class=\"datetime-input col-xs-12\"><label for=\"datetime\"><input type=\"datetime\" ng-model=\"report.obs[key].fields[item].value\" ac-datetime-picker=\"ac-datetime-picker\" placeholder=\"Click to select date\"/></label></div><div ng-if=\"acMinForm[item].$invalid\" class=\"error col-xs-12 no-padding\">{{::av.errorMessage}}</div></div></div></div></tab></tabset><div class=\"return-to-top col-xs-12 no-padding\"><input type=\"button\" value=\"Back to top\" ng-click=\"scrollToTop()\" class=\"btn btn-default\"/></div></div></div><input type=\"button\" value=\"Back\" ng-click=\"goBack()\" class=\"btn btn-default\"/><div class=\"submit-btn\"><i ng-show=\"minsubmitting\" class=\"fa fa-fw fa-lg fa-spinner fa-spin\"></i><input type=\"submit\" id=\"submit\" value=\"Submit\" ng-disabled=\"acMinForm.$invalid || minsubmitting\" class=\"btn btn-default\"/></div></form><div ng-if=\"report.subid\"><div role=\"alert\" class=\"alert alert-success\">Your report was successfully submited.</div><input type=\"button\" value=\"Back\" ng-click=\"goBack()\" class=\"btn btn-default\"/><div class=\"well\"><H4>Share this report:</H4><ul class=\"list-inline\"><li><a ng-href=\"https://twitter.com/intent/tweet?status={{::report.shareUrl}}\"><i class=\"fa fa-twitter fa-fw fa-lg\"></i></a></li><li><a ng-href=\"https://www.facebook.com/sharer/sharer.php?u={{::report.shareUrl}}\"><i class=\"fa fa-facebook fa-fw fa-lg\"></i></a></li><li><a ng-href=\"https://plus.google.com/share?url={{::report.shareUrl}}\"><i class=\"fa fa-google-plus fa-fw fa-lg\"></i></a></li></ul></div></div><div ng-if=\"minerror\"><div role=\"alert\" class=\"alert alert-danger\"><p>There was an error submittting you report.</p><p ng-if=\"minerrormsg\">{{minerrormsg}}</p><div ng-if=\"validationErrors\">Please checkout the following fields:<p ng-repeat=\"(tab, fields) in validationErrors\"><span class=\"firstCapital\">{{::tab}} - {{::fields}}</span></p></div></div></div></div>");
-$templateCache.put("min-report-form2.html","<div class=\"min-form\"><form name=\"acMinForm\" ng-submit=\"submitForm()\" ng-show=\"!report.subid &amp;&amp; !minerror\" role=\"form\"><div ng-class=\"{\'has-error\': !acMinForm.title.$valid}\" class=\"form-group\"><label for=\"title\"><i class=\"fa fa-newspaper-o\"></i>Report title</label><input type=\"text\" name=\"title\" ng-model=\"report.title\" required=\"required\" class=\"form-control\"/></div><div ng-class=\"{\'has-error\': !acMinForm.datetime.$valid}\" class=\"form-group\"><label for=\"datetime\"><i class=\"fa fa-clock-o\"></i>Date and Time</label><input type=\"datetime\" name=\"datetime\" ng-model=\"report.datetime\" ac-datetime-picker=\"ac-datetime-picker\" class=\"form-control\"/></div><div ng-class=\"{\'has-error\': !acMinForm.latlng.$valid}\" class=\"form-group\"><label for=\"latlng\"><i class=\"fa fa-map-marker\"></i>Location</label><div ac-location-select=\"ac-location-select\" latlng=\"report.latlng\" style=\"height: 300px; width: 100%; margin: 10px 0;\"></div><input type=\"text\" name=\"latlng\" ng-model=\"report.latlng\" placeholder=\"Drop pin on map to set location\" required=\"required\" class=\"form-control\"/></div><div class=\"form-group\"><label for=\"uploads\"><i class=\"fa fa-image\"></i>Add photo<small style=\"font-weight: normal;\"> .jpg or .png</small></label><input type=\"file\" name=\"uploads\" file-model=\"report.files\" accept=\".png,.jpg,.jpeg\" multiple=\"multiple\" class=\"form-control\"/><div>{{ report.files.length }} photos added</div></div><div class=\"panel-group\"><div class=\"panel panel-default\"><div style=\"background-color: black; color: white;\" class=\"panel-heading\"><h4 class=\"panel-title\">Avalanche Report</h4></div><div class=\"panel-body\"><div class=\"panel-group\"><div ng-repeat=\"(item, av) in report.obs.avalancheReport\" class=\"panel panel-default\"><div class=\"panel-heading\"><h4 class=\"panel-title\"><strong>{{ av.prompt }}</strong></h4></div><div class=\"panel-body\"><div class=\"form-group\"></div><div ng-if=\"av.type==\'checkbox\'\" ng-repeat=\"(option, enabled) in av.options\" class=\"checkbox\">{{option}}<label><input type=\"checkbox\" ng-model=\"report.avs[item].options[option]\"/>{{option}}</label></div><div ng-if=\"av.type==\'single\'\" ng-repeat=\"option in av.options\" class=\"radio\"><label><input type=\"radio\" ng-model=\"report.avs[item].selected\" ng-value=\"option\"/>{{option}}</label></div></div></div></div></div></div></div><div class=\"panel-group\"><div class=\"panel panel-default\"><div style=\"background-color: black; color: white;\" class=\"panel-heading\"><h4 class=\"panel-title\">Riding\nconditions</h4></div><div class=\"panel-body\"><div class=\"panel-group\"><div ng-repeat=\"(item, ridingCondition) in report.obs.quickReport.ridingConditions\" class=\"panel panel-default\"><div class=\"panel-heading\"><h4 class=\"panel-title\"><strong>{{ ridingCondition.prompt }}</strong></h4></div><div class=\"panel-body\"><div class=\"form-group\"></div><div ng-if=\"ridingCondition.type==\'multiple\'\" ng-repeat=\"(option, enabled) in ridingCondition.options\" class=\"checkbox\"><label><input type=\"checkbox\" ng-model=\"report.obs.quickReport.ridingConditions[item].options[option]\"/>{{option}}</label></div><div ng-if=\"ridingCondition.type==\'single\'\" ng-repeat=\"option in ridingCondition.options\" class=\"radio\"><label><input type=\"radio\" ng-model=\"report.obs.quickReport.ridingConditions[item].selected\" ng-value=\"option\"/>{{option}}</label></div></div></div></div></div></div><div class=\"panel panel-default\"><div style=\"background-color: black; color: white;\" class=\"panel-heading\"><h4 class=\"panel-title\"><strong>Avalanche conditions</strong></h4></div><div class=\"panel-body\"><div class=\"form-group\"><div class=\"checkbox\"><label><input type=\"checkbox\" ng-model=\"report.obs.quickReport.avalancheConditions.slab\"/>Slab\navalanches today or yesterday.</label></div><div class=\"checkbox\"><label><input type=\"checkbox\" ng-model=\"report.obs.quickReport.avalancheConditions.sound\"/>Whumphing or\ndrum-like sounds or shooting cracks.</label></div><div class=\"checkbox\"><label><input type=\"checkbox\" ng-model=\"report.obs.quickReport.avalancheConditions.snow\"/>30cm\n+ of new snow, or significant drifitng, or rain in the last 48 hours.</label></div><div class=\"checkbox\"><label><input type=\"checkbox\" ng-model=\"report.obs.quickReport.avalancheConditions.temp\"/>Rapid\ntemperature rise to near zero degrees or wet surface snow.</label></div></div></div></div></div><div class=\"form-group\"><label>Comments</label><textarea rows=\"3\" ng-model=\"report.comment\" class=\"form-control\"></textarea></div><input id=\"submit\" type=\"submit\" value=\"Submit\" ng-disabled=\"minsubmitting\" style=\"border-radius:0; background-color: rgb(0, 86, 183); color: white;\" class=\"btn btn-default\"/><i ng-show=\"minsubmitting\" class=\"fa fa-fw fa-lg fa-spinner fa-spin\"></i></form><div ng-show=\"report.subid\"><div role=\"alert\" class=\"alert alert-success\">Your report was successfully submited.</div><div class=\"well\"><h4>Share this report:</h4><ul class=\"list-inline\"><li><a ng-href=\"https://twitter.com/intent/tweet?status={{report.shareUrl}}\"><i class=\"fa fa-twitter fa-fw fa-lg\"></i></a></li><li><a ng-href=\"https://www.facebook.com/sharer/sharer.php?u={{report.shareUrl}}\"><i class=\"fa fa-facebook fa-fw fa-lg\"></i></a></li><li><a ng-href=\"https://plus.google.com/share?url={{report.shareUrl}}\"><i class=\"fa fa-google-plus fa-fw fa-lg\"></i></a></li></ul></div></div><div ng-show=\"minerror\"><div role=\"alert\" class=\"alert alert-danger\"><p>There was an error submittting you report.</p><p>{{minerrormsg}}</p></div></div></div>");
+$templateCache.put("min-observation-drawer.html","<div class=\"panel\"><div class=\"panel-body\"><div class=\"row\"><div ng-click=\"closeDrawer()\" class=\"pull-right close-drawer\"><i class=\"fa fa-close\"></i></div><div class=\"col-sm-8 col-xs-12\"><h3>{{::sub.title}}</h3></div><div class=\"col-sm-3 col-xs-12\"><a target=\"_blank\" href=\"{{sponsor.getText(&quot;sponsor.url&quot;)}}\" class=\"pull-right\"><img src=\"{{sponsor.getText(&quot;sponsor.image-229&quot;)}}\"/></a></div></div><div class=\"row submission-header\"><div class=\"col-sm-6 section-label\"><i class=\"fa fa-clock-o\"></i><span>Submitted</span></div><div class=\"col-sm-6 section-label full-page-link\"><div ng-click=\"viewFullPage(sub.subid)\" class=\"pull-right\"><i class=\"fa fa-external-link\"></i><span>full page</span></div></div><div class=\"col-sm-12\"><p>By <span> {{::sub.user}} </span></p><p>On {{::sub.dateFormatted}}</p></div></div></div><div class=\"panel-body\"><div class=\"row-fluid observation-tabs\"><ul role=\"tablist\" class=\"nav nav-pills nav-justified\"><li ng-repeat=\"tab in reportTypes\" role=\"presentation\" ng-class=\"[hasReport(tab),{active: tab === sub.requested}]\"><a ng-click=\"changeTab(tab)\" style=\"text-transform: uppercase;\">{{::tab}}</a></li></ul></div><div class=\"row-fluid\"><div class=\"tab-content\"><div ng-repeat=\"tab in reportTypes\" role=\"tabpanel\" id=\"{{tab}}\" ng-class=\"{active: tab === sub.requested}\" class=\"tab-pane\"><div class=\"row-fluid section-label\"><i class=\"fa fa-info-circle\"></i><span>Information</span></div><div ng-repeat=\"ob in sub.obs\"><div ng-if=\"ob.obtype === sub.requested\" ng-repeat=\"item in activeTab\" class=\"submission-header\"><ul class=\"observation-information\"><li ng-if=\"item.type === \'number\' || item.type === \'radio\' || item.type === \'dropdown\' || item.type === \'text\' \" class=\"observation-item\">{{::item.prompt}}<i class=\"fa fa-check\"></i><span class=\"value\">{{::item.value}}</span></li><li ng-if=\"item.type === \'checkbox\'\" class=\"observation-item\">{{::item.prompt}}<ul><li ng-repeat=\"op in item.value track by $index\"><i class=\"fa fa-check\"></i><span class=\"value\">{{op}}</span></li></ul></li><li ng-if=\"item.type === \'datetime\'\" class=\"observation-item\">{{::item.prompt}}<span>&nbsp; {{::item.value | dateformat}}</span></li></ul><div ng-if=\"item.type === \'textarea\'\" class=\"observation-item comments\"><div class=\"row-fluid section-label\"><i class=\"fa fa-comment\"></i><span>Comments</span></div><div class=\"row-fluid\"><div class=\"col-sm-12\">{{::item.value}}</div></div></div></div></div></div></div></div></div><div class=\"panel-body upload-n-share\"><div ng-if=\"sub.uploads.length &gt; 0\" class=\"row\"><div class=\"col-sm-12 section-label\"><i class=\"fa fa-camera\"></i><span>Uploads (click/tap to enlarge)</span></div><div class=\"col-sm-12\"><ul class=\"list-inline\"><li ng-repeat=\"url in sub.thumbs\"><a ng-href=\"{{::url}}\" target=\"_blank\"><img ng-src=\"{{::url}}\" width=\"75\" alt=\"{{::sub.title}}\"/></a></li></ul></div></div><div class=\"row\"><div class=\"col-sm-12 section-label\"><i class=\"fa fa-share-square-o\"></i><span>Share this report</span></div><div class=\"col-sm-12\"><div class=\"col-sm-12\"><ul class=\"list-inline\"><li><a ng-href=\"https://twitter.com/intent/tweet?status={{::sub.shareUrl}}\"><i class=\"fa fa-twitter fa-fw fa-lg\"></i></a></li><li><a ng-href=\"https://www.facebook.com/sharer/sharer.php?u={{::sub.shareUrl}}\"><i class=\"fa fa-facebook fa-fw fa-lg\"></i></a></li><li><a ng-href=\"https://plus.google.com/share?url={{::sub.shareUrl}}\"><i class=\"fa fa-google-plus fa-fw fa-lg\"></i></a></li></ul></div></div></div></div></div>");
+$templateCache.put("min-report-form.html","<div class=\"min-form\"><form name=\"acMinForm\" ng-submit=\"submitForm()\" novalidate=\"novalidate\" ng-if=\"!report.subid\" role=\"form\" ac-submission-form-validator=\"ac-submission-form-validator\"><div class=\"form-fields col-xs-12 no-padding\"><div class=\"col-xs-12 col-md-4 form-left-column\"><div class=\"required-info clearfix\"><h3 class=\"form-subtitle\">Step 1. Required Info</h3><div class=\"required-info-data col-xs-12\"><div ng-class=\"{\'has-error\': !acMinForm.title.$valid &amp;&amp; acMinForm.title.$dirty }\" class=\"form-group\"><h4>Name your report</h4><input type=\"text\" name=\"title\" ng-model=\"report.title\" placeholder=\"e.g. Upper Raft River\" required=\"required\" class=\"form-control\"/></div><div ng-class=\"{\'has-error\': !acMinForm.datetime.$valid}\" class=\"form-group\"><h4> Submission date and time</h4><input type=\"datetime\" name=\"datetime\" ng-model=\"report.datetime\" ac-datetime-picker=\"ac-datetime-picker\" class=\"form-control\"/></div><div ng-class=\"{\'has-error\': invalidLatLng}\" class=\"form-group\"><h4> Enter location by map</h4><div ng-click=\"openMapModal()\" class=\"btn-map\"><i class=\"fa fa-map-o\"></i></div><h4>or enter location by lat long</h4><input type=\"text\" ng-class=\"{\'modified\': tempLatlngModified}\" name=\"tempLatlng\" ac-enter=\"saveLocation()\" ng-model=\"report.tempLatlng\" placeholder=\"e.g. 51.522, -188.883\" required=\"required\" class=\"form-control latlng\"/><div role=\"button\" ng-if=\"tempLatlngModified\" ng-click=\"saveLocation()\" class=\"save-location\"><i class=\"fa fa-map-marker\"></i></div><div ng-if=\"invalidLatLng\" class=\"error col-xs-12 no-padding\">Invalid coordinates format</div></div></div></div><div class=\"uploads\"><h3 class=\"form-subtitle\">Step 2. Uploads</h3><p>Add a photo (.jpg or .png) to help tell your story.</p><div class=\"form-group\"><div class=\"col-xs-12 no-padding btn-file\"><div class=\"col-xs-3 no-padding\"><span class=\"btn btn-default btn-styled\">Browse</span></div><input type=\"text\" readonly=\"readonly\" placeholder=\".jpg or .png\" value=\"{{ report.files.length ? report.files.length + \' photos added\' : null}}\" class=\"col-xs-9 no-padding\"/><input type=\"file\" name=\"uploads\" file-model=\"report.files\" accept=\".png,.jpg,.jpeg\" multiple=\"multiple\"/></div></div></div></div><div class=\"col-xs-12 col-md-8 form-right-column\"><h3 id=\"top\" class=\"form-subtitle\">Step 3. Observations</h3><div class=\"announcement\">Add information on one, some, or all tabs, then click SUBMIT at the bottom.</div><tabset type=\"pills\" class=\"observation-tabs\"><!--Quick report--><tab ac-tab-style=\"{{getTabExtraClasses(\'quickReport\')}}\" active=\"tabs[\'quickReport\']\"><tab-heading class=\"tab-head\">Quick</tab-heading><div class=\"tab-text col-xs-12 col-md-8 no-padding\">Use the Quick Report to quickly share information about your trip. You can create a comprehensive\nreport by adding more details in the Avalanche, Snowpack, Weather, and/or Incident tabs.</div><div class=\"fields-group col-xs-12 no-padding\"><div ng-repeat=\"(item, ridingCondition) in report.obs.quickReport.ridingConditions\" class=\"field col-xs-12\"><h4 class=\"field-title col-xs-12 no-padding\"><strong>{{ ::ridingCondition.prompt }}</strong></h4><div class=\"options col-xs-12 col-md-8\"><div ng-if=\"ridingCondition.type==\'multiple\'\" ng-repeat=\"(option, enabled) in ridingCondition.options\" ng-class=\"{\'column-left\':$odd}\" class=\"checkbox col-xs-12 col-md-6 inline\"><label><input type=\"checkbox\" name=\"{{ ::item}}\" ng-model=\"ridingCondition.options[option]\"/>{{ ::option}}</label></div><div ng-if=\"ridingCondition.type==\'single\'\" ng-repeat=\"option in ridingCondition.options\" class=\"radio col-xs-12 col-md-6 inline\"><label><input type=\"radio\" name=\"{{ ::item}}\" ng-model=\"ridingCondition.selected\" ng-value=\"option\"/>{{ ::option}}</label></div></div><div class=\"options col-xs-12 col-md-4\"></div></div><div class=\"field col-xs-12\"><h4 class=\"field-title col-xs-12 no-padding\"><strong>Avalanche conditions</strong></h4><div class=\"options col-xs-12 col-md-8\"><div class=\"checkbox col-xs-12\"><label><input type=\"checkbox\" name=\"slab\" ng-model=\"report.obs.quickReport.avalancheConditions.slab\"/>Slab avalanches today or yesterday.</label></div><div class=\"checkbox col-xs-12\"><label><input type=\"checkbox\" name=\"sound\" ng-model=\"report.obs.quickReport.avalancheConditions.sound\"/>Whumpfing or drum-like sounds or shooting cracks.</label></div><div class=\"checkbox col-xs-12\"><label><input type=\"checkbox\" name=\"snow\" ng-model=\"report.obs.quickReport.avalancheConditions.snow\"/>30cm + of new snow, or significant drifitng, or rain in the last 48 hours.</label></div><div class=\"checkbox col-xs-12\"><label><input type=\"checkbox\" name=\"temp\" ng-model=\"report.obs.quickReport.avalancheConditions.temp\"/>Rapid temperature rise to near zero degrees or wet surface snow.</label></div></div><div class=\"options col-xs-12 col-md-4\"></div></div><div class=\"field col-xs-12\"><h4 class=\"field-title col-xs-12 no-padding\"><strong>Comments</strong></h4><div class=\"options col-xs-12 col-md-8\"><div class=\"textarea col-xs-12\"><textarea rows=\"3\" name=\"comment\" ng-model=\"report.obs.quickReport.comment\" style=\"resize: vertical;\" class=\"form-control\"></textarea></div></div><div class=\"options col-xs-12 col-md-4\"></div></div></div></tab><tab ng-repeat=\"(key, tab) in additionalFields\" ac-tab-style=\"{{getTabExtraClasses(key)}}\" active=\"tabs[key]\"><tab-heading class=\"tab-head\">{{ ::tab.name}}</tab-heading><div ng-bind-html=\"tab.text\" class=\"tab-text col-xs-12 col-md-8 no-padding\"></div><div class=\"fields-group col-xs-12 no-padding\"><div ng-repeat=\"(item, av) in report.obs[key].fields\" ng-if=\"av.type!==\'calculated\'\" class=\"field col-xs-12\"><h4 class=\"field-title col-xs-12 no-padding\"><strong>{{ ::av.prompt }}</strong></h4><div class=\"options col-xs-12 col-md-8\"><div ng-if=\"av.helpText\" class=\"help-text\"><p><i class=\"fa fa-question-circle\"></i><span>{{ ::av.helpText}}</span></p><span ng-if=\"av.guidelines\"><a href=\"{{ ::av.guidelines}}\" target=\"_blank\">Submission guidelines</a></span></div><div ng-if=\"av.type==\'checkbox\'\" ng-repeat=\"(option, enabled) in av.options\" ng-class=\"{\'inline\':av.inline, \'column-left\':$odd}\" class=\"checkbox col-md-6 col-xs-12\"><label><input type=\"checkbox\" name=\"{{::item}}\" ng-model=\"av.options[option]\" ng-click=\"validate(item, av)\"/>{{ ::option}}</label></div><div ng-if=\"av.type==\'radio\'\" ng-repeat=\"option in av.options\" ng-class=\"{\'inline\':av.inline, \'column-left\':$odd}\" class=\"radio col-md-6 col-xs-12\"><label><input type=\"radio\" ng-model=\"report.obs[key].fields[item].value\" value=\"{{ ::option}}\"/>{{ ::option}}</label></div><div ng-if=\"av.type==\'number\'\" ng-class=\"{\'inline\':av.inline}\" class=\"number col-xs-12\"><label><input type=\"number\" name=\"{{::item}}\" placeholder=\"{{ av.placeholder ? av.placeholder : \'Number between \'+ av.options.min +\' and \'+av.options.max }}\" ng-model=\"report.obs[key].fields[item].value\" ng-blur=\"validate(item, av)\" class=\"form-control\"/></label></div><div ng-if=\"av.type==\'text\'\" ng-class=\"{\'inline\':av.inline}\" class=\"text col-xs-12\"><label><input type=\"text\" name=\"{{::item}}\" placeholder=\"{{ ::av.prompt }}\" ng-model=\"report.obs[key].fields[item].value\" ng-required=\"report.obs[key].fields[av.constraint.field].options[av.constraint.option]\" ng-blur=\"validate(item, av)\" class=\"form-control\"/></label></div><div ng-if=\"av.type==\'dropdown\'\" ng-class=\"{\'inline\':av.inline, \'column-left\':$odd}\" class=\"select col-md-6 col-xs-12 no-padding\"><select ng-options=\"option for option in av.options\" ng-model=\"report.obs[key].fields[item].value\" class=\"fomr-control\"><option value=\"\">Select option</option></select></div><div ng-if=\"av.type==\'textarea\'\" class=\"textarea col-xs-12\"><textarea rows=\"3\" ng-model=\"report.obs[key].fields[item].value\" class=\"form-control\"></textarea></div><div ng-if=\"av.type==\'datetime\'\" class=\"datetime-input col-xs-12\"><label for=\"datetime\"><input type=\"datetime\" ng-model=\"report.obs[key].fields[item].value\" ac-datetime-picker=\"ac-datetime-picker\" show-only-date=\"av.showOnlyDate\" placeholder=\"Click to select date\" class=\"form-control\"/></label></div><div ng-if=\"acMinForm[item].$invalid\" class=\"error col-xs-12 no-padding\">{{::av.errorMessage}}</div></div><div class=\"options col-xs-12 col-md-4\"></div></div></div></tab></tabset><tabset type=\"pills\" class=\"observation-tabs bottom col-xs-12 no-padding\"><!--Quick report--><tab ac-tab-style=\"{{getTabExtraClasses(\'quickReport\')}}\" active=\"tabs[\'quickReport\']\" ng-click=\"scrollToTop()\"><tab-heading class=\"tab-head\">Quick</tab-heading></tab><tab ng-repeat=\"(key, tab) in additionalFields\" ac-tab-style=\"{{getTabExtraClasses(key)}}\" active=\"tabs[key]\" ng-click=\"scrollToTop()\"><tab-heading class=\"tab-head\">{{ ::tab.name}}</tab-heading></tab></tabset></div></div><div class=\"footer-buttons col-xs-12 no-padding\"><input type=\"button\" value=\"Back\" ng-click=\"goBack(acMinForm.$dirty)\" class=\"btn btn-default btn-styled\"/><div class=\"submit-btn\"><i ng-show=\"minsubmitting\" class=\"fa fa-fw fa-lg fa-spinner fa-spin\"></i><input type=\"submit\" id=\"submit\" value=\"SUBMIT\" ng-disabled=\"acMinForm.$invalid || report.latlng.length === 0 || minsubmitting\" class=\"btn btn-default btn-styled\"/></div></div></form><div ng-if=\"minerror\"><div role=\"alert\" class=\"alert alert-danger\"><p>There was an error submittting you report.</p><p ng-if=\"minerrormsg\">{{minerrormsg}}</p></div></div></div>");
+$templateCache.put("min-report-fullpage.html","<div class=\"panel\"><div class=\"panel-body\"><div class=\"row\"><div ng-click=\"closeDrawer()\" class=\"pull-right close-drawer\"><i class=\"fa fa-close\"></i></div><div class=\"col-sm-8 col-xs-12\"><h3>{{::sub.title}}</h3></div><div class=\"col-sm-3 col-xs-12\"><a target=\"_blank\" href=\"{{sponsor.getText(&quot;sponsor.url&quot;)}}\" class=\"pull-right\"><img src=\"{{sponsor.getText(&quot;sponsor.image-229&quot;)}}\"/></a></div></div><div class=\"row submission-header\"><div class=\"col-sm-6 section-label\"><i class=\"fa fa-clock-o\"></i><span>Submitted</span></div><div class=\"col-sm-6 section-label print-link\"><div ng-click=\"print()\" class=\"pull-right\"><i class=\"fa fa-print\"></i><span>Print friendly</span></div></div><div class=\"col-sm-12\"><p>By <span> {{::sub.user}} </span></p><p>On {{::sub.dateFormatted}}</p></div></div></div><div ng-repeat=\"report in activeReports\" class=\"panel-body observation-list\"><div class=\"row-fluid observation-title\">{{::report.obtype}} report</div><div class=\"row-fluid\"><div class=\"row-fluid section-label\"><i class=\"fa fa-info-circle\"></i><span>Information</span></div><div ng-repeat=\"item in report.ob\" class=\"submission-header\"><ul class=\"observation-information\"><li ng-if=\"item.type === \'number\' || item.type === \'radio\'|| item.type === \'dropdown\'\" class=\"observation-item\">{{::item.prompt}}<i class=\"fa fa-check\"></i><span class=\"value\">{{::item.value}}</span></li><li ng-if=\"item.type === \'checkbox\'\" class=\"observation-item\">{{::item.prompt}}<ul><li ng-repeat=\"op in item.value track by $index\"><i class=\"fa fa-check\"></i><span class=\"value\">{{op}}</span></li></ul></li><li ng-if=\"item.type === \'datetime\'\" class=\"observation-item\">{{::item.prompt}}<span>&nbsp; {{::item.value | dateformat}}</span></li></ul><div ng-if=\"item.type === \'textarea\'\" class=\"observation-item comments\"><div class=\"row-fluid section-label\"><i class=\"fa fa-comment\"></i><span>Comments</span></div><div class=\"row-fluid\"><div class=\"col-sm-12\">{{::item.value}}</div></div></div></div></div></div><div class=\"panel-body upload-n-share\"><div class=\"row-fluid observation-title\">General info</div><div ng-if=\"sub.uploads.length &gt; 0\" class=\"row\"><div class=\"col-sm-12 section-label\"><i class=\"fa fa-camera\"></i><span>Uploads (click/tap to enlarge)</span></div><div class=\"col-sm-12\"><ul class=\"list-inline\"><li ng-repeat=\"url in sub.thumbs\"><a ng-href=\"{{::url}}\" target=\"_blank\"><img ng-src=\"{{::url}}\" width=\"75\" alt=\"{{::sub.title}}\"/></a></li></ul></div></div><div class=\"row share-report\"><div class=\"col-sm-12 section-label\"><i class=\"fa fa-share-square-o\"></i><span>Share this report</span></div><div class=\"col-sm-12\"><div class=\"col-sm-12\"><ul class=\"list-inline\"><li><a ng-href=\"https://twitter.com/intent/tweet?status={{::sub.shareUrl}}\"><i class=\"fa fa-twitter fa-fw fa-lg\"></i></a></li><li><a ng-href=\"https://www.facebook.com/sharer/sharer.php?u={{::sub.shareUrl}}\"><i class=\"fa fa-facebook fa-fw fa-lg\"></i></a></li><li><a ng-href=\"https://plus.google.com/share?url={{::sub.shareUrl}}\"><i class=\"fa fa-google-plus fa-fw fa-lg\"></i></a></li></ul></div></div></div></div></div>");
 $templateCache.put("min-report-modal.html","<div id=\"minForm\" role=\"dialog\" class=\"modal fade\"><div class=\"modal-dialog\"><div class=\"modal-content\"><div class=\"modal-header\"><button data-dismiss=\"modal\" class=\"close\"><span>close</span></button><h4 class=\"modal-title\">Mountain Information Network Report</h4></div><div class=\"modal-body\"><div ac-min-report-form=\"ac-min-report-form\"></div></div></div></div></div>");
 $templateCache.put("min-report-popup-modal.html","<div id=\"mobileMapPopup\" role=\"dialog\" class=\"modal fade\"><div class=\"modal-dialog\"><div class=\"modal-content\"><div class=\"modal-body\"></div>                <a href=\"#\" data-dismiss=\"modal\" style=\"position: absolute; right: 10px; top: 10px;\" class=\"pull-right\"><i class=\"fa fa-close fa-lg\"></i></a></div></div></div>");
 $templateCache.put("social-share.html","<div class=\"well\"><H4>Share this report:</H4><ul class=\"list-inline\"><li><a href=\"https://twitter.com/intent/tweet?url=http://avalanche.ca\"><i class=\"fa fa-twitter fa-fw fa-lg\"></i></a></li><li><a href=\"https://www.facebook.com/sharer/sharer.php?u=http://avalanche.ca\"><i class=\"fa fa-facebook fa-fw fa-lg\"></i></a></li><li><a href=\"https://plus.google.com/share?url=http://avalanche.ca\"><i class=\"fa fa-google-plus fa-fw fa-lg\"></i></a></li></ul></div>");}]);

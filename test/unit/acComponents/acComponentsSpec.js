@@ -21,22 +21,21 @@ describe('', function() {
     expect(hasModule('acComponents.config')).to.be.ok;
   });
 
-  
   it('should load filters module', function() {
     expect(hasModule('acComponents.filters')).to.be.ok;
   });
-  
 
-  
   it('should load directives module', function() {
     expect(hasModule('acComponents.directives')).to.be.ok;
   });
-  
 
-  
   it('should load services module', function() {
     expect(hasModule('acComponents.services')).to.be.ok;
   });
-  
+
+  it('should load controllers module', function() {
+    expect(hasModule('acComponents.controllers')).to.be.ok;
+  });
+
 
 });

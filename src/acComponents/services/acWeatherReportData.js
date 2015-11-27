@@ -2,16 +2,9 @@ angular.module('acComponents.services')
   .factory('acWeatherReportData', function(acFormUtils) {
     var fields = {
       skyCondition: {
-        type: 'checkbox',
-        prompt: 'Cloud Cover:',
-        options: {
-          'Clear': false,
-          'Few clouds (<2/8)': false,
-          'Scattered clouds (2/8-4/8)': false,
-          'Broken clouds (5/8-7/8)': false,
-          'Overcast (8/8)': false,
-          'Fog': false
-        },
+        type: 'radio',
+        prompt: 'Cloud cover:',
+        options: ['Clear', 'Few clouds (<2/8)', 'Scattered clouds (2/8-4/8)', 'Broken clouds (5/8-7/8)', 'Overcast (8/8)', 'Fog'],
         inline: true,
         helpText: 'Values expressed in eighths refer to the proportion of the sky that was covered with clouds. E.g. 2/8 refers to a sky approximately one quarter covered with cloud.',
         order: 1
@@ -19,7 +12,7 @@ angular.module('acComponents.services')
 
       precipitationType: {
         type: 'radio',
-        prompt: 'Precipitation Type:',
+        prompt: 'Precipitation type:',
         options: ['Snow', 'Rain', 'None'],
         value: null,
         inline: true,
@@ -28,7 +21,7 @@ angular.module('acComponents.services')
 
       snowfallRate: {
         type: 'number',
-        prompt: 'Snowfall Rate (cm/hour):',
+        prompt: 'Snowfall rate (cm/hour):',
         options: {
           min: 1,
           max: 20
@@ -97,7 +90,7 @@ angular.module('acComponents.services')
 
       newSnow24Hours: {
         type: 'number',
-        prompt: 'Amount of new snow in last 24 hours (centimetres):',
+        prompt: 'Amount of new snow in last 24 hours (cm):',
         options: {
           min: 0,
           max: 100
@@ -109,7 +102,7 @@ angular.module('acComponents.services')
 
       precipitation24Hours: {
         type: 'number',
-        prompt: 'Total rain and snow combined in last 24 hours (millimetres):',
+        prompt: 'Total rain and snow combined in last 24 hours (mm):',
         options: {
           min: 0,
           max: 100
@@ -134,15 +127,16 @@ angular.module('acComponents.services')
 
       stormStartDate: {
         type: 'datetime',
-        prompt: 'Storm Start Date',
+        prompt: 'Storm start date:',
+        showOnlyDate: true,
         value: null,
         helpText: 'The date on which the most recent storm started. Leave blank if there has not been a recent storm.',
         order: 12
       },
 
       windSpeed: {
-        type: 'dropdown',
-        prompt: 'Wind Speed',
+        type: 'radio',
+        prompt: 'Wind speed:',
         options: ['Calm', 'Light (1-25 km/h)', 'Moderate (26-40 km/h)', 'Strong (41-60 km/h)', 'Extreme (>60 km/h)'],
         value: null,
         helpText: 'Calm: smoke rises. Light: flags and twigs move. Moderate: snow begins to drift. Strong: whole tress in motion. Extreme: difficulty walking.',
@@ -151,7 +145,7 @@ angular.module('acComponents.services')
 
       windDirection: {
         type: 'radio',
-        prompt: 'Wind Direction',
+        prompt: 'Wind direction:',
         options: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'],
         inline: true,
         value: null,
@@ -160,16 +154,17 @@ angular.module('acComponents.services')
 
       blowingSnow: {
         type: 'radio',
-        prompt: 'Blowing Snow',
+        prompt: 'Blowing snow:',
         options: ['None', 'Light', 'Moderate', 'Intense'],
         inline: true,
         helpText: 'How much snow is blowing at ridge crest elevation. Light: localized snow drifting. Moderate: a plume of snow is visible. Intense: a large plume moving snow well down the slope.',
-        order: 15
+        order: 15,
+        value: null
       },
 
       weatherObsComment: {
         type: 'textarea',
-        prompt: 'Weather Observation Comment',
+        prompt: 'Weather observation comment',
         value: null,
         order: 16
       }

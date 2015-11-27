@@ -14,7 +14,7 @@ angular.module('acComponents.directives')
             }
         };
     })
-    .directive('acMinReportForm', function($state, $q, $timeout, acBreakpoint, acQuickReportData, acAvalancheReportData, acIncidentReportData, acSnowpackReportData, acWeatherReportData, acFormUtils, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, store, $anchorScroll, $modal) {
+    .directive('acMinReportForm', function($state, $rootScope, $q, $timeout, acBreakpoint, acReportData, acFormUtils, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, store, $anchorScroll, $modal, ngToast) {
         return {
             templateUrl: 'min-report-form.html',
             replace: true,
@@ -22,25 +22,34 @@ angular.module('acComponents.directives')
 
                 var submissionGuidelinesLink = 'http://www.avalanche.ca/fxresources/Submissions+Guidelines.pdf';
 
+                resetFields();
                 initReport();
 
                 $scope.additionalFields = {
                   avalancheReport : {
-                    name: 'Avalanche',
+                    name: 'avalanche',
                     text: 'Share information about a single, notable avalanche or tell us about overall avalanche conditions by describing many avalanches in a general sense. Aspect, elevation, trigger, dimensions/size are key data.'
                   },
                   snowpackReport : {
-                    name: 'Snowpack',
+                    name: 'snowpack',
                     text: 'Snowpack depth, layering, and bonding are key data. Test results are very useful.'
                   },
                   weatherReport : {
-                    name: 'Weather',
+                    name: 'weather',
                     text: 'Key data includes information about current and accumulated precipitation, wind speed and direction, temperatures, and cloud cover.'
                   },
                   incidentReport : {
-                    name: 'Incident',
+                    name: 'incident',
                     text: 'Sharing incidents can help us all learn. Describe close calls and accidents here. Be sensitive to the privacy of others. Before reporting serious accidents check our <a href="'+submissionGuidelinesLink+'" target="_blank">submission guidelines</a>.'
                   }
+                };
+
+                $scope.tabs = {
+                  quickReport: true,
+                  avalancheReport: false,
+                  snowpackReport: false,
+                  weatherReport: false,
+                  incidentReport: false
                 };
 
                 $scope.atleastOneTabCompleted = false;
@@ -62,7 +71,7 @@ angular.module('acComponents.directives')
 
                 function tabCompleted (tab) {
                   if (tab === 'quickReport') {
-                    return acQuickReportData.isCompleted($scope.report.obs.quickReport);
+                    return acReportData.quick.isCompleted($scope.report.obs.quickReport);
                   } else {
                     return $scope.report.obs[tab].isCompleted();
                   }
@@ -70,20 +79,20 @@ angular.module('acComponents.directives')
 
                 function initReport() {
                   $scope.report = {
-                    title: 'auto: Quick Report',
+                    title: '',
                     datetime: moment().format('YYYY-MM-DD hh:mm A'),
                     latlng: [],
                     files: [],
                     obs: {
                       quickReport: {
-                        ridingConditions: angular.copy(acQuickReportData.ridingConditions),
-                        avalancheConditions: angular.copy(acQuickReportData.avalancheConditions),
+                        ridingConditions: angular.copy(acReportData.quick.ridingConditions),
+                        avalancheConditions: angular.copy(acReportData.quick.avalancheConditions),
                         comment: null
                       },
-                      avalancheReport: acAvalancheReportData,
-                      incidentReport: acIncidentReportData,
-                      snowpackReport: acSnowpackReportData,
-                      weatherReport: acWeatherReportData
+                      avalancheReport: acReportData.avalanche,
+                      incidentReport: acReportData.incident,
+                      snowpackReport: acReportData.snowpack,
+                      weatherReport: acReportData.weather
                     }
                   };
                 }
@@ -98,17 +107,28 @@ angular.module('acComponents.directives')
                 }
 
                 function resetFields() {
-                  acAvalancheReportData.reset();
-                  acIncidentReportData.reset();
-                  acSnowpackReportData.reset();
-                  acWeatherReportData.reset();
+                  acReportData.avalanche.reset();
+                  acReportData.incident.reset();
+                  acReportData.snowpack.reset();
+                  acReportData.weather.reset();
                 }
 
                 $scope.resetForm = resetForm;
 
-                $scope.goBack = function () {
-                  resetForm();
-                  $state.go('ac.map');
+                $scope.goBack = function (formDirty) {
+
+                  //if (formDirty) {
+                  //  var goingBack = shouldDiscard();
+                  //  goingBack.then(exit);
+                  //} else {
+                  //  exit();
+                  //}
+                  //
+                  //function exit() {
+                      resetFields();
+                      initReport();
+                      $state.go('ac.map');
+                  //}
                 };
 
                 $scope.submitForm = function() {
@@ -117,7 +137,7 @@ angular.module('acComponents.directives')
 
                     reqObj.obs = _.reduce($scope.report.obs, function(total, item, key){
                         if (key === 'quickReport') {
-                          if (acQuickReportData.isCompleted(item)) {
+                          if (acReportData.quick.isCompleted(item)) {
                             total.quickReport = item;
                           }
                         } else if (item.isCompleted()){
@@ -130,17 +150,21 @@ angular.module('acComponents.directives')
                       return $q.reject('incomplete-form');
                     }
 
-                    //console.log('to be sent: ', reqObj.obs);
-//return;
                     var token = store.get('token');
                     if (token) {
                         $scope.minsubmitting = true;
                         return acSubmission.submit(reqObj, token).then(function(result) {
                             if (result.data && !('error' in result.data)) {
-                                $scope.minsubmitting = false;
-                                $scope.report.subid = result.data.subid;
-                                $scope.report.shareUrl = result.data.obs[0].shareUrl;
-                                console.log('submission: ' + result.data.subid);
+                                $state.go('ac.map');
+                                ngToast.create({
+                                  content: 'Your report was successfully submitted.',
+                                  class: 'alert alert-success',
+                                  dismissOnTimeout: true,
+                                  dismissButton: true,
+                                  dismissButtonHtml: '&times;'
+                                });
+
+
                                 return result;
                             } else {
                                 $scope.minsubmitting = false;
@@ -157,6 +181,22 @@ angular.module('acComponents.directives')
                         return $q.reject('auth-error');
                     }
                 };
+
+
+                function shouldDiscard() {
+                  var modalInstance = $modal.open({
+                    animation: false,
+                    templateUrl: 'min-back-modal.html',
+                    controller: 'acBackModal',
+                    size: 'lg',
+                    windowClass: 'back-modal',
+                    keyboard: false,
+                    backdrop: 'static'
+                  });
+
+                  return modalInstance.result;
+                }
+
 
                 $scope.openMapModal = function () {
                   var modalInstance = $modal.open({
