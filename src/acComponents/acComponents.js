@@ -10,7 +10,8 @@ angular.module('acComponents.config', [])
     .value('acConfig',{
         reportTypes : ['quick', 'avalanche', 'snowpack', 'weather', 'incident'],
         minFilters: ['avalanche', 'quick', 'snowpack', 'incident', 'weather'],
-        dateFilters : ['7-days','1-days','3-days', '14-days', '30-days']
+        dateFilters : ['7-days','1-days','3-days', '14-days', '30-days'],
+        maxZoom: 20
   })
     .constant('AC_API_ROOT_URL', 'http://avalanche-canada-min.elasticbeanstalk.com');
     //.constant('AC_API_ROOT_URL', 'http://localhost:9000');

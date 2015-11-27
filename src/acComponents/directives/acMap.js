@@ -1,5 +1,5 @@
 angular.module('acComponents.directives')
-  .directive('acMapboxMap', function ($rootScope, $window, $location, $timeout, acBreakpoint, acObservation, acForecast, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, $stateParams) {
+  .directive('acMapboxMap', function ($rootScope, $window, $location, $timeout, acBreakpoint, acObservation, acForecast, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, $stateParams, acConfig) {
     return {
       template: '<div id="map"></div>',
       replace: true,
@@ -17,7 +17,15 @@ angular.module('acComponents.directives')
         $scope.showRegions = $scope.showRegions || true;
 
         var mapConfig = {
-          maxZoom: 20,
+          maxZoom: acConfig.maxZoom,
+          mapSetup: {
+            attributionControl: false,
+            center: [52.3, -120.74966],
+            maxZoom: acConfig.maxZoom,
+            minZoom: 4,
+            zoom: 6,
+            zoomControl: false
+          },
           cluster:{
             showCoverageOnHover: false
           },
@@ -68,14 +76,7 @@ angular.module('acComponents.directives')
         };
 
         L.mapbox.accessToken = MAPBOX_ACCESS_TOKEN;
-        var map = L.mapbox.map(el[0].id, MAPBOX_MAP_ID, {
-          attributionControl: false,
-          center: [52.3, -120.74966],
-          maxZoom: mapConfig.maxZoom,
-          minZoom: 4,
-          zoom: 6,
-          zoomControl: false
-        });
+        var map = L.mapbox.map(el[0].id, MAPBOX_MAP_ID, mapConfig.mapSetup);
         var clusterOverlays = L.layerGroup().addTo(map);
 
         addMapControls();
