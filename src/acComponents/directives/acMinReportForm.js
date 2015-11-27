@@ -27,21 +27,29 @@ angular.module('acComponents.directives')
 
                 $scope.additionalFields = {
                   avalancheReport : {
-                    name: 'Avalanche',
+                    name: 'avalanche',
                     text: 'Share information about a single, notable avalanche or tell us about overall avalanche conditions by describing many avalanches in a general sense. Aspect, elevation, trigger, dimensions/size are key data.'
                   },
                   snowpackReport : {
-                    name: 'Snowpack',
+                    name: 'snowpack',
                     text: 'Snowpack depth, layering, and bonding are key data. Test results are very useful.'
                   },
                   weatherReport : {
-                    name: 'Weather',
+                    name: 'weather',
                     text: 'Key data includes information about current and accumulated precipitation, wind speed and direction, temperatures, and cloud cover.'
                   },
                   incidentReport : {
-                    name: 'Incident',
+                    name: 'incident',
                     text: 'Sharing incidents can help us all learn. Describe close calls and accidents here. Be sensitive to the privacy of others. Before reporting serious accidents check our <a href="'+submissionGuidelinesLink+'" target="_blank">submission guidelines</a>.'
                   }
+                };
+
+                $scope.tabs = {
+                  quickReport: true,
+                  avalancheReport: false,
+                  snowpackReport: false,
+                  weatherReport: false,
+                  incidentReport: false
                 };
 
                 $scope.atleastOneTabCompleted = false;

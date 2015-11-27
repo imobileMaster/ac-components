@@ -7,19 +7,19 @@
 
               .required-info-data.col-xs-12
                 .form-group(ng-class="{'has-error': !acMinForm.title.$valid && acMinForm.title.$dirty }")
-                  label(for="title")
+                  h4
                     | Name your report
                   input.form-control(type="text", name="title", ng-model="report.title", placeholder="e.g. Upper Raft River", required)
                 .form-group(ng-class="{'has-error': !acMinForm.datetime.$valid}")
-                  label(for="datetime")
+                  h4
                     |  Submission date and time
                   input.form-control(type="datetime", name="datetime", ng-model="report.datetime", ac-datetime-picker)
                 .form-group(ng-class="{'has-error': invalidLatLng}")
-                  label(for="latlng")
+                  h4
                     |  Enter location by map
                   .btn-map(ng-click="openMapModal()")
                     i.fa.fa-map-o
-                  label
+                  h4
                     | or enter location by Lat Long
                   input.form-control.latlng(type="text", ng-class="{'modified': tempLatlngModified}", name="tempLatlng", ac-enter="saveLocation()" ng-model="report.tempLatlng", placeholder="e.g. 51.522, -188.883", required)
                   .save-location(role="button", ng-if="tempLatlngModified", ng-click="saveLocation()")
@@ -47,7 +47,7 @@
             tabset.observation-tabs(type="pills")
               //
                 Quick report
-              tab(ac-tab-style="{{getTabExtraClasses('quickReport')}}")
+              tab(ac-tab-style="{{getTabExtraClasses('quickReport')}}", active="tabs['quickReport']")
                 tab-heading.tab-head
                   | Quick
                 .tab-text.col-xs-12.col-md-8.no-padding
@@ -97,13 +97,13 @@
                       .textarea.col-xs-12
                         textarea.form-control(rows="3", name="comment" ng-model="report.obs.quickReport.comment", style="resize: vertical;")
                     .options.col-xs-12.col-md-4
-              tab(ng-repeat="(key, tab) in additionalFields", ac-tab-style="{{getTabExtraClasses(key)}}")
+              tab(ng-repeat="(key, tab) in additionalFields", ac-tab-style="{{getTabExtraClasses(key)}}", active="tabs[key]")
                 tab-heading.tab-head
                  | {{ ::tab.name}}
                 .tab-text.col-xs-12.col-md-8.no-padding(ng-bind-html="tab.text")
 
                 .fields-group.col-xs-12.no-padding
-                  .field.col-xs-12(ng-repeat="(item, av) in report.obs[key].fields")
+                  .field.col-xs-12(ng-repeat="(item, av) in report.obs[key].fields" ng-if="av.type!=='calculated'")
                     h4.field-title.col-xs-12.no-padding
                       strong {{ ::av.prompt }}
                     .options.col-xs-12.col-md-8
@@ -137,13 +137,20 @@
                           input.form-control(type="datetime", ng-model="report.obs[key].fields[item].value", ac-datetime-picker, show-only-date="av.showOnlyDate" placeholder="Click to select date")
                       .error.col-xs-12.no-padding(ng-if="acMinForm[item].$invalid") {{::av.errorMessage}}
                     .options.col-xs-12.col-md-4
-
-            .return-to-top.col-xs-12.no-padding
-              input.btn.btn-default.btn-styled(type="button", value="Back to top", ng-click="scrollToTop()")
-        input.btn.btn-default.btn-styled(type="button", value="Back", ng-click="goBack(acMinForm.$dirty)")
-        .submit-btn
-          i.fa.fa-fw.fa-lg.fa-spinner.fa-spin(ng-show="minsubmitting")
-          input.btn.btn-default.btn-styled(type="submit", id="submit", value="SUBMIT", ng-disabled="acMinForm.$invalid || report.latlng.length === 0 || minsubmitting")
+            tabset.observation-tabs.bottom.col-xs-12.no-padding(type="pills")
+              //
+                Quick report
+              tab(ac-tab-style="{{getTabExtraClasses('quickReport')}}", active="tabs['quickReport']", ng-click="scrollToTop()")
+                tab-heading.tab-head
+                  | Quick
+              tab(ng-repeat="(key, tab) in additionalFields", ac-tab-style="{{getTabExtraClasses(key)}}", active="tabs[key]", ng-click="scrollToTop()")
+                tab-heading.tab-head
+                  | {{ ::tab.name}}
+        .footer-buttons.col-xs-12.no-padding
+          input.btn.btn-default.btn-styled(type="button", value="Back", ng-click="goBack(acMinForm.$dirty)")
+          .submit-btn
+            i.fa.fa-fw.fa-lg.fa-spinner.fa-spin(ng-show="minsubmitting")
+            input.btn.btn-default.btn-styled(type="submit", id="submit", value="SUBMIT", ng-disabled="acMinForm.$invalid || report.latlng.length === 0 || minsubmitting")
 
     div(ng-if="minerror")
         .alert.alert-danger(role="alert")
