@@ -175,7 +175,8 @@ angular.module('acComponents.services')
         type: 'datetime',
         showOnlyDate: true,
         helpText:'Date the weak layer was buried.',
-        order: 16
+        order: 16,
+        value: null
       },
 
       weakLayerCrystalType: {

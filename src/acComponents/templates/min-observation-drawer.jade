@@ -34,7 +34,7 @@
           div(ng-repeat="ob in sub.obs")
             div.submission-header(ng-if="ob.obtype === sub.requested", ng-repeat="item in activeTab")
               ul.observation-information
-                li.observation-item(ng-if="item.type === 'number' || item.type === 'radio'|| item.type === 'dropdown'")
+                li.observation-item(ng-if="item.type === 'number' || item.type === 'radio' || item.type === 'dropdown' || item.type === 'text' ")
                   | {{::item.prompt}}
                   i.fa.fa-check
                   span.value {{::item.value}}

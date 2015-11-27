@@ -126,6 +126,9 @@
                       .number.col-xs-12(ng-if="av.type=='number'", ng-class="{'inline':av.inline}")
                         label
                           input(type="number", name="{{::item}}" placeholder="Number between {{ ::av.options.min}} and {{ ::av.options.max}}", ng-model="report.obs[key].fields[item].value", ng-blur="validate(item, av)")
+                      .text.col-xs-12(ng-if="av.type=='text'", ng-class="{'inline':av.inline}")
+                        label
+                          input(type="text", name="{{::item}}" placeholder="{{ ::av.prompt }}", ng-model="report.obs[key].fields[item].value", ng-required="report.obs[key].fields[av.constraint.field].options[av.constraint.option]" ng-blur="validate(item, av)")
                       .select.col-md-6.col-xs-12.no-padding(ng-if="av.type=='dropdown'", ng-class="{'inline':av.inline, 'column-left':$odd}")
                         select(ng-options="option for option in av.options", ng-model="report.obs[key].fields[item].value")
                           option(value="") Select option
