@@ -14,7 +14,7 @@ angular.module('acComponents.services')
 
       snowpackSiteElevation: {
         type: 'number',
-        prompt: 'Site Elevation (metres above sea level)',
+        prompt: 'Site Elevation (m above sea level)',
         options: {
           min: 0,
           max: 4000
@@ -44,7 +44,7 @@ angular.module('acComponents.services')
 
       snowpackDepth: {
         type: 'number',
-        prompt: 'Depth (centimetres)',
+        prompt: 'Depth (cm)',
         options: {
           min: 0,
           max: 10000
@@ -92,7 +92,7 @@ angular.module('acComponents.services')
 
       snowpackFootPenetration: {
         type: 'number',
-        prompt: 'Foot Penetration (centimeters)',
+        prompt: 'Foot Penetration (cm)',
         options: {
           min: 0,
           max: 200
@@ -105,7 +105,7 @@ angular.module('acComponents.services')
 
       snowpackSkiPenetration: {
         type: 'number',
-        prompt: 'Ski Penetration (centimeters)',
+        prompt: 'Ski Penetration (cm)',
         options: {
           min: 0,
           max: 200
@@ -118,7 +118,7 @@ angular.module('acComponents.services')
 
       snowpackSledPenetration: {
         type: 'number',
-        prompt: 'Sled Penetration (centimeters)',
+        prompt: 'Sled Penetration (cm)',
         options: {
           min: 0,
           max: 200

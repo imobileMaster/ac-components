@@ -149,7 +149,4 @@
         .alert.alert-danger(role="alert")
             p There was an error submittting you report.
             p(ng-if="minerrormsg") {{minerrormsg}}
-            div(ng-if="validationErrors") Please checkout the following fields:
-              p(ng-repeat="(tab, fields) in validationErrors")
-                span.firstCapital {{::tab}} - {{::fields}}
 
