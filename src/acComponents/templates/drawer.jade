@@ -10,24 +10,33 @@
             li.ac-submit-report-tab.on(ng-if="drawerPosition === 'left'", ng-click="goToSubmitReport()")
               i.fa.fa-plus.fa-2x
               i.fa.fa-tasks.fa-inverse.fa-2x
-              span New report
+              span Create report
 
             li.ac-filters.ac-min-filters(ng-if="drawerPosition === 'left'")
               ul.list-inline(ng-init="expandedMin = false",ng-class="{opened: expandedMin}")
-                li.ac-minfilter-button(ng-click="expandedMin = !expandedMin")
+                li.ac-default-button.on(ng-click="expandedMin = !expandedMin")
                   i.fa.fa-map-marker.fa-inverse.fa-2x
-                  span MIN Filter
+                  span MIN Filters
                 li(ng-repeat="minFilter in minFilters", ng-if="expandedMin",ng-click="toggleFilter('minFilter:'+ minFilter)", ng-class="{on: getMinFilters(minFilter)}")
                   div.report-allmin(ac-allmin-icon, ng-if="minFilter === 'all min'")
                   i.fa.fa-map-marker.fa-inverse.fa-2x(ng-class="'report-'+ minFilter", ng-if="minFilter !== 'all min'")
-                  span {{ minFilter }}
+                  span(ng-class="{'no-top': minFilter == 'all min' }") {{ minFilter }}
 
-            li.ac-filters.ac-date-filters(ng-if="drawerPosition === 'left'")
+            li.ac-filters.ac-default-filters(ng-if="drawerPosition === 'left'")
               ul.list-inline(ng-class="{opened: expandedDate}")
-                li.on(ng-click="toggleDateFilters()")
+                li.ac-default-button.on(ng-click="toggleDateFilters()")
                   i.fa.fa-calendar.fa-inverse.fa-2x
-                  span {{ filters.obsPeriod }}
-                li(ng-repeat="dateFilter in dateFilters", ng-if="expandedDate", ng-click="toggleFilter('obsPeriod:'+dateFilter);", ng-class="{hidden: filters.obsPeriod === dateFilter}")
+                  span Date filter
+                li(ng-repeat="dateFilter in dateFilters", ng-if="expandedDate", ng-click="toggleFilter('obsPeriod:'+dateFilter);", ng-class="{on: filters.obsPeriod === dateFilter}")
                   i.fa.fa-calendar.fa-inverse.fa-2x
                   span {{ dateFilter }}
+            //Previous behaviour where date filter selected is visible
+            //li.ac-filters.ac-date-filters(ng-if="drawerPosition === 'left'")
+            //  ul.list-inline(ng-class="{opened: expandedDate}")
+            //    li.on(ng-click="toggleDateFilters()")
+            //      i.fa.fa-calendar.fa-inverse.fa-2x
+            //      span {{ filters.obsPeriod }}
+            //    li(ng-repeat="dateFilter in dateFilters", ng-if="expandedDate", ng-click="toggleFilter('obsPeriod:'+dateFilter);", ng-class="{hidden: filters.obsPeriod === dateFilter}")
+            //      i.fa.fa-calendar.fa-inverse.fa-2x
+            //      span {{ dateFilter }}
     .ac-drawer-body(ng-transclude)

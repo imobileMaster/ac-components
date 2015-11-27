@@ -13,7 +13,8 @@ angular.module('acComponents.config', [])
     .value('acConfig',{
         reportTypes : ['quick', 'avalanche', 'snowpack', 'weather', 'incident'],
         minFilters: ['avalanche', 'quick', 'snowpack', 'incident', 'weather'],
-        dateFilters : ['7-days','1-days','3-days', '14-days', '30-days']
+        dateFilters : ['1-days','3-days', '7-days','14-days', '30-days'],
+        maxZoom: 20
   })
     .constant('AC_API_ROOT_URL', 'http://avalanche-canada-min.elasticbeanstalk.com');
     //.constant('AC_API_ROOT_URL', 'http://localhost:9000');
@@ -250,7 +251,7 @@ angular.module('acComponents.directives')
     }]);
 
 angular.module('acComponents.directives')
-  .directive('acMapboxMap', ["$rootScope", "$window", "$location", "$timeout", "acBreakpoint", "acObservation", "acForecast", "acSubmission", "MAPBOX_ACCESS_TOKEN", "MAPBOX_MAP_ID", "$stateParams", function ($rootScope, $window, $location, $timeout, acBreakpoint, acObservation, acForecast, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, $stateParams) {
+  .directive('acMapboxMap', ["$rootScope", "$window", "$location", "$timeout", "acBreakpoint", "acObservation", "acForecast", "acSubmission", "MAPBOX_ACCESS_TOKEN", "MAPBOX_MAP_ID", "$stateParams", "acConfig", function ($rootScope, $window, $location, $timeout, acBreakpoint, acObservation, acForecast, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, $stateParams, acConfig) {
     return {
       template: '<div id="map"></div>',
       replace: true,
@@ -266,6 +267,36 @@ angular.module('acComponents.directives')
       link: function ($scope, el, attrs) {
         $scope.device = {};
         $scope.showRegions = $scope.showRegions || true;
+
+        var mapConfig = {
+          maxZoom: acConfig.maxZoom,
+          mapSetup: {
+            attributionControl: false,
+            center: [52.3, -120.74966],
+            maxZoom: acConfig.maxZoom,
+            minZoom: 4,
+            zoom: 6,
+            zoomControl: false
+          },
+          cluster:{
+            showCoverageOnHover: false
+          },
+          setFeatureLayer: function (lat, lng, type){
+            return {
+              type: 'Feature',
+              geometry: {
+                type: 'Point',
+                coordinates: [lat, lng]
+              },
+              properties: {
+                'marker-size': 'small',
+                'marker-color': getMarkerColor(type),
+                zIndexOffset: 1000
+              }
+            }
+          }
+        };
+
         var layers = {
           dangerIcons: L.featureGroup()
         };
@@ -297,14 +328,7 @@ angular.module('acComponents.directives')
         };
 
         L.mapbox.accessToken = MAPBOX_ACCESS_TOKEN;
-        var map = L.mapbox.map(el[0].id, MAPBOX_MAP_ID, {
-          attributionControl: false,
-          center: [52.3, -120.74966],
-          maxZoom: 14,
-          minZoom: 4,
-          zoom: 6,
-          zoomControl: false
-        });
+        var map = L.mapbox.map(el[0].id, MAPBOX_MAP_ID, mapConfig.mapSetup);
         var clusterOverlays = L.layerGroup().addTo(map);
 
         addMapControls();
@@ -312,7 +336,7 @@ angular.module('acComponents.directives')
         function addMapControls(){
           L.control.locate({
             locateOptions: {
-              maxZoom: 20
+              maxZoom: mapConfig.maxZoom
             },
             position: 'bottomright'
           }).addTo(map);
@@ -512,22 +536,11 @@ angular.module('acComponents.directives')
           clusterOverlays.clearLayers();
 
           if ($scope.obs && $scope.obs.length > 0) {
-            var markers = new L.markerClusterGroup().addTo(clusterOverlays);
+            var markers = new L.markerClusterGroup(mapConfig.cluster).addTo(clusterOverlays);
 
             $scope.obs.map(function (ob) {
 
-              var marker = L.mapbox.featureLayer({
-                type: 'Feature',
-                geometry: {
-                  type: 'Point',
-                  coordinates: [ob.latlng[1], ob.latlng[0]]
-                },
-                properties: {
-                  'marker-size': 'small',
-                  'marker-color': getMarkerColor(ob.obtype),
-                  zIndexOffset: 1000
-                }
-              })
+              var marker = L.mapbox.featureLayer(mapConfig.setFeatureLayer(ob.latlng[1], ob.latlng[0], ob.obtype))
                 .setFilter(function () {
                   if (_.indexOf($scope.minFilters, ob.obtype) !== -1) {
                     return true;
@@ -684,21 +697,10 @@ angular.module('acComponents.directives')
 
           if($stateParams.subid && newVal && newVal.latlng){
             clusterOverlays.clearLayers();
-            var markers = new L.markerClusterGroup().addTo(clusterOverlays);
+            var markers = new L.markerClusterGroup(mapConfig.cluster).addTo(clusterOverlays);
 
             newVal.obs.map(function (ob) {
-              var marker = L.mapbox.featureLayer({
-                type: 'Feature',
-                geometry: {
-                  type: 'Point',
-                  coordinates: [newVal.latlng[1], newVal.latlng[0]]
-                },
-                properties: {
-                  'marker-size': 'small',
-                  'marker-color': getMarkerColor(ob.obtype),
-                  zIndexOffset: 1000
-                }
-              })
+              var marker = L.mapbox.featureLayer(mapConfig.setFeatureLayer(newVal.latlng[1], newVal.latlng[0],ob.obtype))
                 .setFilter(function () {
                   if (_.indexOf($scope.minFilters, ob.obtype) !== -1) {
                     return true;
@@ -2535,7 +2537,7 @@ angular.module('acComponents.services')
 
 angular.module("acComponents.templates", []).run(["$templateCache", function($templateCache) {$templateCache.put("allmin-icon.html","<svg width=\"28px\" height=\"28px\" viewbox=\"0 0 28 28\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:sketch=\"http://www.bohemiancoding.com/sketch/ns\"><title>all_min</title><g id=\"Styleguide\" stroke=\"none\" stroke-width=\"1\" fill=\"none\" fill-rule=\"evenodd\" sketch:type=\"MSPage\"><g id=\"02_01_Second-proposal-#2\" sketch:type=\"MSArtboardGroup\" transform=\"translate(-30.000000, -101.000000)\" stroke=\"#FFFFFF\"><g id=\"all_min\" sketch:type=\"MSLayerGroup\" transform=\"translate(31.000000, 102.000000)\"><circle id=\"Oval-6\" fill=\"#FFFFFF\" sketch:type=\"MSShapeGroup\" cx=\"13\" cy=\"13\" r=\"13\"></circle><path id=\"Oval-5\" d=\"M20.6424365,23.5174622 C18.4973383,25.078868 15.8562401,26 13,26 C10.1408573,26 7.49729401,25.0769949 5.35102528,23.5126999 C5.35616485,23.5157039 5.35879172,23.5172209 5.35879172,23.5172209 L12.9999995,13 L20.6412083,23.5172209 C20.6412083,23.5172209 20.6416198,23.5173052 20.6424365,23.5174622 Z\" fill=\"#F44336\" sketch:type=\"MSShapeGroup\"></path><path id=\"Oval-1\" d=\"M13,0 C7.1843333,0 2.26060446,3.81883989 0.599648246,9.08568486 C0.623290506,9.01855468 0.636265288,8.98277907 0.636265288,8.98277907 L12.9999995,13 L13,0 Z\" fill=\"#03A9F4\" sketch:type=\"MSShapeGroup\"></path><path id=\"Oval-1\" d=\"M13,0 C18.8156667,0 23.7393955,3.81883989 25.4003518,9.08568486 C25.3767095,9.01855468 25.3637347,8.98277907 25.3637347,8.98277907 L13.0000005,13 L13,0 Z\" fill=\"#3F51B5\" sketch:type=\"MSShapeGroup\"></path><path id=\"Oval-3\" d=\"M7.63867216,23.5467443 C10.8878189,21.1834812 13.0000005,17.3516752 13.0000005,13.0265428 C13.0000005,11.6211191 12.7769788,10.2677848 12.3643955,9 L12.3637352,9.00932187 L0,13.0265428 L7.64120875,23.5437637 C7.64120875,23.5437637 7.64035873,23.5447686 7.63867216,23.5467443 Z\" fill=\"#4CAF50\" sketch:type=\"MSShapeGroup\" transform=\"translate(6.500000, 16.273372) scale(-1, 1) translate(-6.500000, -16.273372) \"></path><path id=\"Oval-3\" d=\"M20.6386717,23.5202015 C23.8878184,21.1569384 26,17.3251324 26,13 C26,11.5945763 25.7769784,10.241242 25.364395,8.97345721 L25.3637347,8.98277907 L12.9999995,13 L20.6412083,23.5172209 C20.6412083,23.5172209 20.6403583,23.5182258 20.6386717,23.5202015 Z\" fill=\"#FFC107\" sketch:type=\"MSShapeGroup\"></path></g></g></g></svg>");
 $templateCache.put("danger-icon.html","<div class=\"danger-icon\"><svg version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" x=\"0px\" y=\"0px\" viewBox=\"398.5 12.1 555 560\" enable-background=\"new 398.5 12.1 555 560\" xml:space=\"preserve\"><polygon id=\"alp\" points=\"747.7,218.1 623.1,197.6 678.8,109.8\"></polygon><polygon id=\"tln\" points=\"794.2,291 542.8,323.6 616.7,207.4 755.5,230.3\"></polygon><polygon id=\"btl\" points=\"858.3,391.8 499.4,391.8 535.1,335.5 800.6,301.1\"></polygon></svg><span>FORECAST</span></div>");
-$templateCache.put("drawer.html","<div class=\"ac-drawer\"><a ng-click=\"drawer.right.visible = false\" ng-if=\"drawerPosition === \'right\'\" class=\"ac-drawer-close visible-xs\"><i class=\"fa fa-close fa-lg\"></i></a><div class=\"ac-drawer-tools\"><ul><li ng-if=\"drawerPosition === \'right\'\" ng-click=\"toggleForecast()\" ng-class=\"{on: drawer.right.visible &amp;&amp; drawer.right.enabled}\" style=\"margin-bottom: 50px;\"><div ac-danger-icon=\"ac-danger-icon\" style=\"height: 60px; width:60px;\"></div></li><li ng-if=\"drawerPosition === \'left\'\" ng-click=\"goToSubmitReport()\" class=\"ac-submit-report-tab on\"><i class=\"fa fa-plus fa-2x\"></i><i class=\"fa fa-tasks fa-inverse fa-2x\"></i><span>New report</span></li><li ng-if=\"drawerPosition === \'left\'\" class=\"ac-filters ac-min-filters\"><ul ng-init=\"expandedMin = false\" ng-class=\"{opened: expandedMin}\" class=\"list-inline\"><li ng-click=\"expandedMin = !expandedMin\" class=\"ac-minfilter-button\"><i class=\"fa fa-map-marker fa-inverse fa-2x\"></i><span>MIN Filter</span></li><li ng-repeat=\"minFilter in minFilters\" ng-if=\"expandedMin\" ng-click=\"toggleFilter(\'minFilter:\'+ minFilter)\" ng-class=\"{on: getMinFilters(minFilter)}\"><div ac-allmin-icon=\"ac-allmin-icon\" ng-if=\"minFilter === \'all min\'\" class=\"report-allmin\"></div><i ng-class=\"\'report-\'+ minFilter\" ng-if=\"minFilter !== \'all min\'\" class=\"fa fa-map-marker fa-inverse fa-2x\"></i><span>{{ minFilter }}</span></li></ul></li><li ng-if=\"drawerPosition === \'left\'\" class=\"ac-filters ac-date-filters\"><ul ng-class=\"{opened: expandedDate}\" class=\"list-inline\"><li ng-click=\"toggleDateFilters()\" class=\"on\"><i class=\"fa fa-calendar fa-inverse fa-2x\"></i><span>{{ filters.obsPeriod }}</span></li><li ng-repeat=\"dateFilter in dateFilters\" ng-if=\"expandedDate\" ng-click=\"toggleFilter(\'obsPeriod:\'+dateFilter);\" ng-class=\"{hidden: filters.obsPeriod === dateFilter}\"><i class=\"fa fa-calendar fa-inverse fa-2x\"></i><span>{{ dateFilter }}</span></li></ul></li></ul></div><div ng-transclude=\"ng-transclude\" class=\"ac-drawer-body\"></div></div>");
+$templateCache.put("drawer.html","<div class=\"ac-drawer\"><a ng-click=\"drawer.right.visible = false\" ng-if=\"drawerPosition === \'right\'\" class=\"ac-drawer-close visible-xs\"><i class=\"fa fa-close fa-lg\"></i></a><div class=\"ac-drawer-tools\"><ul><li ng-if=\"drawerPosition === \'right\'\" ng-click=\"toggleForecast()\" ng-class=\"{on: drawer.right.visible &amp;&amp; drawer.right.enabled}\" style=\"margin-bottom: 50px;\"><div ac-danger-icon=\"ac-danger-icon\" style=\"height: 60px; width:60px;\"></div></li><li ng-if=\"drawerPosition === \'left\'\" ng-click=\"goToSubmitReport()\" class=\"ac-submit-report-tab on\"><i class=\"fa fa-plus fa-2x\"></i><i class=\"fa fa-tasks fa-inverse fa-2x\"></i><span>Create report</span></li><li ng-if=\"drawerPosition === \'left\'\" class=\"ac-filters ac-min-filters\"><ul ng-init=\"expandedMin = false\" ng-class=\"{opened: expandedMin}\" class=\"list-inline\"><li ng-click=\"expandedMin = !expandedMin\" class=\"ac-default-button on\"><i class=\"fa fa-map-marker fa-inverse fa-2x\"></i><span>MIN Filters</span></li><li ng-repeat=\"minFilter in minFilters\" ng-if=\"expandedMin\" ng-click=\"toggleFilter(\'minFilter:\'+ minFilter)\" ng-class=\"{on: getMinFilters(minFilter)}\"><div ac-allmin-icon=\"ac-allmin-icon\" ng-if=\"minFilter === \'all min\'\" class=\"report-allmin\"></div><i ng-class=\"\'report-\'+ minFilter\" ng-if=\"minFilter !== \'all min\'\" class=\"fa fa-map-marker fa-inverse fa-2x\"></i><span ng-class=\"{\'no-top\': minFilter == \'all min\' }\">{{ minFilter }}</span></li></ul></li><li ng-if=\"drawerPosition === \'left\'\" class=\"ac-filters ac-default-filters\"><ul ng-class=\"{opened: expandedDate}\" class=\"list-inline\"><li ng-click=\"toggleDateFilters()\" class=\"ac-default-button on\"><i class=\"fa fa-calendar fa-inverse fa-2x\"></i><span>Date filter</span></li><li ng-repeat=\"dateFilter in dateFilters\" ng-if=\"expandedDate\" ng-click=\"toggleFilter(\'obsPeriod:\'+dateFilter);\" ng-class=\"{on: filters.obsPeriod === dateFilter}\"><i class=\"fa fa-calendar fa-inverse fa-2x\"></i><span>{{ dateFilter }}</span></li></ul></li><!--Previous behaviour where date filter selected is visible--><!--li.ac-filters.ac-date-filters(ng-if=\"drawerPosition === \'left\'\")--><!--  ul.list-inline(ng-class=\"{opened: expandedDate}\")--><!--    li.on(ng-click=\"toggleDateFilters()\")--><!--      i.fa.fa-calendar.fa-inverse.fa-2x--><!--      span {{ filters.obsPeriod }}--><!--    li(ng-repeat=\"dateFilter in dateFilters\", ng-if=\"expandedDate\", ng-click=\"toggleFilter(\'obsPeriod:\'+dateFilter);\", ng-class=\"{hidden: filters.obsPeriod === dateFilter}\")--><!--      i.fa.fa-calendar.fa-inverse.fa-2x--><!--      span {{ dateFilter }}--></ul></div><div ng-transclude=\"ng-transclude\" class=\"ac-drawer-body\"></div></div>");
 $templateCache.put("forecast-mini.html","<div class=\"panel\"><div ng-show=\"forecast.externalUrl\" style=\"min-height: 500px;\" class=\"panel-body\"><div class=\"row\"><div class=\"col-xs-12\"><h3 class=\"ac-forecast-region\">{{ forecast.name }}</h3></div></div><div class=\"row\"><div class=\"col-xs-12\"><p>Avalanche information for this region is available &nbsp;<a ng-href=\"{{forecast.externalUrl}}\" target=\"_blank\"><i class=\"fa fa-external-link\">here.</i></a></p></div></div></div><div ng-show=\"forecast.parksUrl\" style=\"min-height: 500px;\" class=\"panel-body\"><div class=\"row\"><div class=\"col-xs-12\"><h3 class=\"ac-forecast-region\">{{ forecast.name }}</h3></div></div><div class=\"row\"><div class=\"col-xs-12\"><p>Avalanche information for this region is available &nbsp;<a ng-href=\"{{forecast.parksUrl}}\" target=\"_blank\"><i class=\"fa fa-external-link\">here.</i></a></p></div></div></div><div ng-hide=\"forecast.externalUrl || forecast.parksUrl\" class=\"panel-body ac-forecast-mini-body\"><div class=\"row\"><div class=\"col-xs-6\"><h4 class=\"ac-forecast-region\">{{ forecast.bulletinTitle | acNormalizeForecastTitle }}</h4></div><div ng-if=\"forecast.region == &quot;kananaskis&quot;\" class=\"col-xs-6\"><a target=\"_blank\" href=\"\" class=\"pull-right\"><img style=\"width:75px;\" src=\"http://www.avalanche.ca/assets/images/kananaskis.jpg\"/></a></div><div ng-if=\"!(forecast.region == &quot;kananaskis&quot;)\" class=\"col-xs-6\"><a target=\"_blank\" href=\"{{sponsor.getText(&quot;sponsor.url&quot;)}}\" class=\"pull-right\"><img src=\"{{sponsor.getText(&quot;sponsor.image-229&quot;)}}\"/></a></div></div><div class=\"row ac-forecast-dates\"><div class=\"col-md-6\"><dl><dd class=\"small\"><strong class=\"ac-text-primary\">DATE ISSUED</strong></dd><dt class=\"small\"><span class=\"ac-text-default\">{{ forecast.dateIssued | date:\'EEEE MMMM d, y h:mm a\'  | uppercase }}</span></dt></dl></div><div class=\"col-md-6\"><dl><dd class=\"small\"><strong class=\"ac-text-primary\">VALID UNTIL</strong></dd><dt class=\"small\"><span class=\"ac-text-default\">{{ forecast.validUntil | date:\'EEEE MMMM d, y h:mm a\' | uppercase }}</span></dt></dl></div></div><div class=\"row\"><div class=\"col-xs-12\"><p class=\"ac-forecast-highlights\"><strong ng-bind-html=\"forecast.highlights\"></strong></p></div></div><div class=\"row\"><div style=\"padding-right:0\" class=\"col-xs-12 observation-tabs\"><ul role=\"tablist\" style=\"text-transform: uppercase;\" class=\"nav nav-pills\"><li class=\"active\"><a href=\"\" role=\"tab\" data-target=\"#forecast\" data-toggle=\"tab\">Forecast</a></li><li><a href=\"\" role=\"tab\" data-target=\"#problems\" data-toggle=\"tab\">Problems</a></li><li><a href=\"\" role=\"tab\" data-target=\"#details\" data-toggle=\"tab\">Details</a></li><li><a href=\"/forecasts/{{forecast.region}}\" role=\"tab\">Full Page</a></li><li><a href=\"/weather\" role=\"tab\">Weather</a></li></ul><div class=\"tab-content\"><div id=\"forecast\" class=\"tab-pane active\"><div class=\"row\"><div class=\"col-xs-12\"><div class=\"panel panel-primary\"><div class=\"panel-heading\">{{ forecast.dangerRatings[0].date | dateUtc:\'dddd\' }}</div><div class=\"panel-body ac-forecast-nowcast\"><img ng-show=\"forecast.region\" ng-src=\"{{forecast.region &amp;&amp; apiUrl+\'/api/forecasts/\' + forecast.region  + \'/nowcast.svg\' || \'\'}}\" class=\"ac-nowcast\"/></div><table class=\"table table-condensed ac-forecast-days\"><thead class=\"ac-thead-dark\"><tr><th></th><th>{{ forecast.dangerRatings[1].date | dateUtc:\'dddd\' }}</th><th>{{ forecast.dangerRatings[2].date | dateUtc:\'dddd\' }}</th></tr></thead><tbody><tr><td class=\"ac-veg-zone--alp\"><strong>Alpine</strong></td><td class=\"ac-danger-rating--{{ forecast.dangerRatings[1].dangerRating.alp.split(\':\')[1].toLowerCase()}}\"><strong>{{ forecast.dangerRatings[1].dangerRating.alp.replace(\':\', \' \') }}</strong></td><td class=\"ac-danger-rating--{{ forecast.dangerRatings[2].dangerRating.alp.split(\':\')[1].toLowerCase()}}\"><strong>{{ forecast.dangerRatings[2].dangerRating.alp.replace(\':\', \' \') }}</strong></td></tr><tr><td class=\"ac-veg-zone--tln\"><strong>Treeline</strong></td><td class=\"ac-danger-rating--{{ forecast.dangerRatings[1].dangerRating.tln.split(\':\')[1].toLowerCase()}}\"><strong>{{ forecast.dangerRatings[1].dangerRating.tln.replace(\':\', \' \') }}</strong></td><td class=\"ac-danger-rating--{{ forecast.dangerRatings[2].dangerRating.tln.split(\':\')[1].toLowerCase()}}\"><strong>{{ forecast.dangerRatings[2].dangerRating.tln.replace(\':\', \' \') }}</strong></td></tr><tr><td class=\"ac-veg-zone--btl\"><strong>Below Treeline</strong></td><td class=\"ac-danger-rating--{{ forecast.dangerRatings[1].dangerRating.btl.split(\':\')[1].toLowerCase()}}\"><strong>{{ forecast.dangerRatings[1].dangerRating.btl.replace(\':\', \' \') }}</strong></td><td class=\"ac-danger-rating--{{ forecast.dangerRatings[2].dangerRating.btl.split(\':\')[1].toLowerCase()}}\"><strong>{{ forecast.dangerRatings[2].dangerRating.btl.replace(\':\', \' \') }}</strong></td></tr><tr><td><strong>Confidence:</strong></td><td colspan=\"2\"><span class=\"ac-text-default\">{{ forecast.confidence }}</span></td></tr></tbody></table><footer id=\"forecast-bulletin\" class=\"col-xs-12\"></footer><div class=\"panel-group\"><div class=\"panel panel-default first\"><h4 class=\"panel-title\"><a href=\"\" data-target=\"#collapseTwo\" data-parent=\"#accordion\" data-toggle=\"collapse\" class=\"collapsed\">{{dangerRating.getText(\'generic.title\')}}</a></h4><div id=\"collapseTwo\" class=\"collapse\"><div ng-bind-html=\"dangerRating.getStructuredText(\'generic.body\').asHtml(ctx)\" class=\"panel-body\"></div></div></div><div class=\"panel panel-default last\"><h4 class=\"panel-title\"><a href=\"\" data-target=\"#collapseOne\" data-parent=\"#accordion\" data-toggle=\"collapse\" class=\"collapsed\">{{disclaimer.getText(\'generic.title\')}}</a></h4><div id=\"collapseOne\" class=\"collapse\"><div ng-bind-html=\"disclaimer.getStructuredText(\'generic.body\').asHtml(ctx)\" class=\"panel-body\"></div></div></div></div></div></div></div></div><div id=\"problems\" class=\"tab-pane\"><div id=\"problemsAccordion\" class=\"panel-group\"><div ng-repeat=\"problem in forecast.problems\" class=\"panel panel-primary\"><div class=\"panel-heading\"><h4 class=\"panel-title\"><a href=\"\" data-target=\"#problem{{$index}}\" data-toggle=\"collapse\" data-parent=\"#problemsAccordion\">{{ problem.type }}<i class=\"fa fa-fw fa-level-down pull-right\"></i><small class=\"pull-right\">click to expand</small></a></h4></div><div id=\"problem{{$index}}\" class=\"panel-collapse collapse\"><div class=\"panel-body\"><div class=\"row\"><div class=\"col-md-6\"><div class=\"panel panel-default\"><div class=\"panel-heading\"><strong class=\"small\">What Elevations?</strong></div><div class=\"panel-body ac-problem-icon ac-problem-icon--elevations\"><img ng-src=\"{{problem.icons.elevations}}\" class=\"center-block\"/></div></div></div><div class=\"col-md-6\"><div class=\"panel panel-default\"><div class=\"panel-heading\"><strong class=\"small\">What Aspects?</strong></div><div class=\"panel-body ac-problem-icon ac-problem-icon--aspects\"><img ng-src=\"{{problem.icons.aspects}}\" class=\"center-block\"/></div></div></div></div><div class=\"row\"><div class=\"col-md-6\"><div class=\"panel panel-default\"><div class=\"panel-heading\"><strong class=\"small\">Chances of Avalanches?</strong></div><div class=\"panel-body ac-problem-icon ac-problem-icon--likelihood\"><img ng-src=\"{{problem.icons.likelihood}}\" class=\"center-block\"/></div></div></div><div class=\"col-md-6\"><div class=\"panel panel-default\"><div class=\"panel-heading\"><strong class=\"small\">Expected Size?</strong></div><div class=\"panel-body ac-problem-icon ac-problem-icon--expected-size\"><img ng-src=\"{{problem.icons.expectedSize}}\" class=\"center-block\"/></div></div></div></div><div class=\"row\"><div class=\"col-md-12\"><p ng-bind-html=\"problem.comment\" class=\"ac-problem narative\"></p><div class=\"panel panel-default ac-problem-travel-advice\"><div class=\"panel-heading\"><strong class=\"small\">Travel and Terrain Advice</strong></div><div class=\"panel-body\"><p ng-bind-html=\"problem.travelAndTerrainAdvice\"></p></div></div></div></div></div></div></div></div></div><div id=\"details\" class=\"tab-pane\"><div id=\"detailsAccordion\" class=\"panel-group\"><div class=\"panel panel-primary\"><div class=\"panel-heading\"><h4 class=\"panel-title\"><a href=\"\" data-target=\"#avalancheSummary\" data-toggle=\"collapse\" data-parent=\"#detailsAccordion\">Avalanche Summary<i class=\"fa fa-fw fa-level-down fa-lg pull-right\"></i><small class=\"pull-right\">click to expand</small></a></h4></div><div id=\"avalancheSummary\" class=\"panel-collapse collapse\"><div ng-bind-html=\"forecast.avalancheSummary\" class=\"panel-body\"></div></div></div><div class=\"panel panel-primary\"><div class=\"panel-heading\"><h4 class=\"panel-title\"><a href=\"\" data-target=\"#snowpackSummary\" data-toggle=\"collapse\" data-parent=\"#detailsAccordion\">Snowpack Summary<i class=\"fa fa-fw fa-level-down fa-lg pull-right\"></i><small class=\"pull-right\">click to expand</small></a></h4></div><div id=\"snowpackSummary\" class=\"panel-collapse collapse\"><div ng-bind-html=\"forecast.snowpackSummary\" class=\"panel-body\"></div></div></div><div class=\"panel panel-primary\"><div class=\"panel-heading\"><h4 class=\"panel-title\"><a href=\"\" data-target=\"#weatherForecast\" data-toggle=\"collapse\" data-parent=\"#detailsAccordion\">Weather Forecast<i class=\"fa fa-fw fa-level-down fa-lg pull-right\"></i><small class=\"pull-right\">click to expand</small></a></h4></div><div id=\"weatherForecast\" class=\"panel-collapse collapse\"><div ng-bind-html=\"forecast.weatherForecast\" class=\"panel-body\"></div></div></div></div></div></div></div></div></div></div>");
 $templateCache.put("loading-indicator.html","<div class=\"ac-loading-indicator\"><div class=\"rect1\"></div><div class=\"rect2\"></div><div class=\"rect3\"></div><div class=\"rect4\"></div><div class=\"rect5\"></div></div>");
 $templateCache.put("min-back-modal.html","<div class=\"modal-body\"><p>Are you sure you want to exit?</p><p>You will lose all your data!</p></div><div class=\"modal-footer\"><button type=\"button\" ng-click=\"discardAndExit()\" class=\"btn btn-default\">Yes</button><button type=\"button\" ng-click=\"stayOnThePage()\" class=\"btn btn-primary\">No</button></div>");
