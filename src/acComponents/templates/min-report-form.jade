@@ -94,6 +94,9 @@
                     h4.field-title.col-xs-12.no-padding
                       strong Comments
                     .options.col-xs-12.col-md-8
+                      .help-text
+                        p
+                          a(href="http://www.avalanche.ca/fxresources/Submissions+Guidelines.pdf" target="_blank") Submission guidelines
                       .textarea.col-xs-12
                         textarea.form-control(rows="3", name="comment" ng-model="report.obs.quickReport.comment", style="resize: vertical;")
                     .options.col-xs-12.col-md-4
@@ -103,7 +106,7 @@
                 .tab-text.col-xs-12.col-md-8.no-padding(ng-bind-html="tab.text")
 
                 .fields-group.col-xs-12.no-padding
-                  .field.col-xs-12(ng-repeat="(item, av) in report.obs[key].fields" ng-if="av.type!=='calculated'")
+                  .field.col-xs-12(ng-repeat="(item, av) in report.obs[key].fields", ng-if="av.type!=='calculated'")
                     h4.field-title.col-xs-12.no-padding
                       strong {{ ::av.prompt }}
                     .options.col-xs-12.col-md-8
@@ -111,8 +114,8 @@
                         p
                           i.fa.fa-question-circle
                           span {{ ::av.helpText}}
-                        span(ng-if="av.guidelines")
-                          a(href="{{ ::av.guidelines}}" target="_blank") Submission guidelines
+                          span(ng-if="av.guidelines")
+                            a(href="{{ ::av.guidelines}}" target="_blank") Submission guidelines
                       .checkbox.col-md-6.col-xs-12(ng-if="av.type=='checkbox'", ng-repeat="(option, enabled) in av.options", ng-class="{'inline':av.inline, 'column-left':$odd}")
                         label
                           input(type="checkbox", name="{{::item}}", ng-model="av.options[option]", ng-click="validate(item, av)")
