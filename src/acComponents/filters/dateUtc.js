@@ -10,8 +10,8 @@ angular.module('acComponents.filters')
     })
   .filter('dateformat', function(){
     return function formatDate(datetimeString){
-      var datetime = moment(datetimeString);
-      var offset = moment.parseZone(datetimeString).zone();
+      var datetime = moment(datetimeString, 'YYYY-MM-DD hh:mm');
+      var offset = moment.parseZone(datetime).zone();
       var prefixes = {
         480: 'P',
         420: 'M',
@@ -28,6 +28,6 @@ angular.module('acComponents.filters')
         datetime.subtract(offset, 'minutes');
       }
 
-      return datetime.format('MMM Do, YYYY [at] HH:mm [' + zoneAbbr + ']')
+      return datetime.format('MMM Do, YYYY');
     }
   });

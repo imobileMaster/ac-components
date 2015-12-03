@@ -4,7 +4,7 @@
       .pull-right.close-drawer(ng-click="closeDrawer()")
         i.fa.fa-close
       .col-sm-8.col-xs-12
-        h3 {{::sub.title}}
+        h3 {{sub.title}}
       .col-sm-3.col-xs-12
         a.pull-right(target='_blank', href='{{sponsor.getText("sponsor.url")}}')
           img(src='{{sponsor.getText("sponsor.image-229")}}')
@@ -17,8 +17,8 @@
           i.fa.fa-external-link
           span full page
       .col-sm-12
-        p By <span> {{::sub.user}} </span>
-        p On {{::sub.dateFormatted}}
+        p By <span> {{sub.user}} </span>
+        p On {{sub.dateFormatted}}
 
   .panel-body
     .row-fluid.observation-tabs
@@ -35,25 +35,25 @@
             div.submission-header(ng-if="ob.obtype === sub.requested", ng-repeat="item in activeTab")
               ul.observation-information
                 li.observation-item(ng-if="item.type === 'number' || item.type === 'radio' || item.type === 'dropdown' || item.type === 'text' ")
-                  | {{::item.prompt}}
+                  | {{item.prompt}}
                   i.fa.fa-check
-                  span.value {{::item.value}}
+                  span.value {{item.value}}
                 li.observation-item(ng-if="item.type === 'checkbox'")
-                  | {{::item.prompt}}
+                  | {{item.prompt}}
                   ul
                     li(ng-repeat="op in item.value track by $index")
                       i.fa.fa-check
                       span.value {{op}}
                 li.observation-item(ng-if="item.type === 'datetime'")
-                  | {{::item.prompt}}
-                  span &nbsp; {{::item.value | dateformat}}
+                  | {{item.prompt}}
+                  span &nbsp; {{item.value | dateformat}}
 
               .observation-item.comments(ng-if="item.type === 'textarea'")
                 .row-fluid.section-label
                   i.fa.fa-comment
                   span Comments
                 .row-fluid
-                  .col-sm-12 {{::item.value}}
+                  .col-sm-12 {{item.value}}
 
 
   .panel-body.upload-n-share
@@ -65,8 +65,8 @@
       .col-sm-12
         ul.list-inline
           li(ng-repeat="url in sub.thumbs")
-            a(ng-href="{{::url}}", target="_blank")
-              img(ng-src="{{::url}}", width="75", alt="{{::sub.title}}")
+            a(ng-href="{{url}}", target="_blank")
+              img(ng-src="{{url}}", width="75", alt="{{sub.title}}")
     .row
       .col-sm-12.section-label
         i.fa.fa-share-square-o
@@ -76,11 +76,11 @@
         .col-sm-12
           ul.list-inline
             li
-              a(ng-href="https://twitter.com/intent/tweet?status={{::sub.shareUrl}}")
+              a(ng-href="https://twitter.com/intent/tweet?status={{sub.shareUrl}}")
                 i.fa.fa-twitter.fa-fw.fa-lg
             li
-              a(ng-href="https://www.facebook.com/sharer/sharer.php?u={{::sub.shareUrl}}")
+              a(ng-href="https://www.facebook.com/sharer/sharer.php?u={{sub.shareUrl}}")
                 i.fa.fa-facebook.fa-fw.fa-lg
             li
-              a(ng-href="https://plus.google.com/share?url={{::sub.shareUrl}}")
+              a(ng-href="https://plus.google.com/share?url={{sub.shareUrl}}")
                 i.fa.fa-google-plus.fa-fw.fa-lg
