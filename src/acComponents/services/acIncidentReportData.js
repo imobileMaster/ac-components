@@ -94,7 +94,7 @@ angular.module('acComponents.services')
 
       numberPeopleInjured: {
         type: 'number',
-        prompt: 'Number of people caught, not injured and not buried:',
+        prompt: 'Number of people caught and injured but not buried:',
         options: {
           'min': 0,
           'max': 400

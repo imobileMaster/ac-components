@@ -131,7 +131,7 @@
                         label
                           input.form-control(type="text", name="{{::item}}" placeholder="{{ ::av.prompt }}", ng-model="report.obs[key].fields[item].value", ng-required="report.obs[key].fields[av.constraint.field].options[av.constraint.option]" ng-blur="validate(item, av)")
                       .select.col-md-6.col-xs-12.no-padding(ng-if="av.type=='dropdown'", ng-class="{'inline':av.inline, 'column-left':$odd}")
-                        select.fomr-control(ng-options="option for option in av.options", ng-model="report.obs[key].fields[item].value")
+                        select.form-control(ng-options="option for option in av.options", ng-model="report.obs[key].fields[item].value")
                           option(value="") Select option
                       .textarea.col-xs-12(ng-if="av.type=='textarea'")
                         textarea.form-control(rows="3", ng-model="report.obs[key].fields[item].value")

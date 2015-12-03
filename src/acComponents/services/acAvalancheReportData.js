@@ -72,14 +72,15 @@ angular.module('acComponents.services')
         limit: 3,
         inline: true,
         options: {
-          'Loose wet': false,
-          'Loose dry': false,
           'Storm slab': false,
+          'Wind slab': false,
           'Persistent slab': false,
           'Deep persistent slab': false,
           'Wet slab': false,
           'Cornice only': false,
-          'Cornice with slab': false
+          'Cornice with slab': false,
+          'Loose wet': false,
+          'Loose dry': false
         },
         order: 7,
         errorMessage: 'Please check maximum 3 options.'
@@ -88,7 +89,8 @@ angular.module('acComponents.services')
       triggerType: {
         type: 'radio',
         prompt: 'Trigger type:',
-        options:['Natural', 'Skier', 'Snowmobile', 'Other Vehicle', 'Helicopter', 'Explosives'],
+        inline: true,
+        options:['Natural', 'Skier', 'Snowmobile', 'Other vehicle', 'Helicopter', 'Explosives'],
         value: null,
         order: 8
       },
@@ -97,6 +99,7 @@ angular.module('acComponents.services')
         type: 'radio',
         prompt: 'Trigger subtype:',
         value: null,
+        inline: true,
         options: ['Accidental', 'Intentional', 'Remote'],
         helpText: 'A remote trigger is when the avalanche starts some distance away from where the trigger was  applied.',
         order: 9
@@ -128,7 +131,7 @@ angular.module('acComponents.services')
         prompt: 'Start zone elevation band:',
         type: 'radio',
         inline: true,
-        options: ['Alpine', 'Treeline', 'Below Treeline'],
+        options: ['Alpine', 'Treeline', 'Below treeline'],
         value: null,
         order: 12
       },
@@ -208,8 +211,9 @@ angular.module('acComponents.services')
       windExposure: {
         type: 'radio',
         prompt: 'Wind exposure:',
-        options: ['Lee slope', 'Windward slope', 'Down flow', 'Cross-loaded slope', 'Reverse-loaded slope', 'No wind exposure'],
+        options: ['Lee slope', 'Cross-loaded slope', 'Windward slope', 'Down flow', 'Reverse-loaded slope', 'No wind exposure'],
         value: null,
+        inline: true,
         order: 19
       },
 
@@ -217,6 +221,7 @@ angular.module('acComponents.services')
         type: 'radio',
         prompt: 'Vegetation cover:',
         value: null,
+        inline: true,
         options: ['Open slope', 'Sparse trees or gladed slope', 'Dense trees'],
         order: 20
       },
