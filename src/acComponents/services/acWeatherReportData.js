@@ -13,7 +13,7 @@ angular.module('acComponents.services')
       precipitationType: {
         type: 'radio',
         prompt: 'Precipitation type:',
-        options: ['Snow', 'Rain', 'None'],
+        options: ['Snow', 'Rain', 'Mixed Snow & Rain', 'None'],
         value: null,
         inline: true,
         order: 2
@@ -80,7 +80,7 @@ angular.module('acComponents.services')
 
       temperatureTrend: {
         type: 'radio',
-        prompt: 'Temperature Trend:',
+        prompt: 'Temperature trend:',
         options: ['Falling', 'Steady', 'Rising'],
         value: null,
         inline: true,
@@ -139,6 +139,7 @@ angular.module('acComponents.services')
         prompt: 'Wind speed:',
         options: ['Calm', 'Light (1-25 km/h)', 'Moderate (26-40 km/h)', 'Strong (41-60 km/h)', 'Extreme (>60 km/h)'],
         value: null,
+        inline: true,
         helpText: 'Calm: smoke rises. Light: flags and twigs move. Moderate: snow begins to drift. Strong: whole tress in motion. Extreme: difficulty walking.',
         order: 13
       },

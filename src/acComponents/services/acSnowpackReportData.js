@@ -6,7 +6,7 @@ angular.module('acComponents.services')
       snowpackObsType: {
         type: 'radio',
         prompt: 'Is this a point observation or a summary of your day?',
-        options: ['Point Observation', 'Summary'],
+        options: ['Point observation', 'Summary'],
         inline: true,
         value: null,
         order: 1
@@ -80,9 +80,9 @@ angular.module('acComponents.services')
         type: 'checkbox',
         prompt: 'Surface condition:',
         options: {
-          'New Snow': false,
+          'New snow': false,
           'Crust': false,
-          'Surface Hoar': false,
+          'Surface hoar': false,
           'Facets': false,
           'Corn': false,
           'Variable': false
@@ -132,8 +132,8 @@ angular.module('acComponents.services')
 
       snowpackTestInitiation: {
         type: 'radio',
-        prompt: 'Test result:',
-        options: ['None', 'Very Easy', 'Easy', 'Moderate', 'Hard'],
+        prompt: 'Snowpack test result:',
+        options: ['None', 'Very easy', 'Easy', 'Moderate', 'Hard'],
         helpText: 'Average if you did a number of tests.',
         value: null,
         inline: true,
@@ -142,8 +142,8 @@ angular.module('acComponents.services')
 
       snowpackTestFracture: {
         type: 'radio',
-        prompt: 'Test fracture character:',
-        options: ['Sudden ("Pop" or "Drop")', 'Resistant', 'Uneven break'],
+        prompt: 'Snowpack test fracture character:',
+        options: ['Sudden ("pop" or "drop")', 'Resistant', 'Uneven break'],
         helpText: 'Average if you did a number of tests. Describe further in comments if variable results.',
         value: null,
         inline: true,
@@ -152,7 +152,7 @@ angular.module('acComponents.services')
 
       snowpackTestFailure: {
         type: 'number',
-        prompt: 'Test failure depth:',
+        prompt: 'Snowpack test failure depth:',
         options: {
           min: 0,
           max: 200
@@ -165,12 +165,12 @@ angular.module('acComponents.services')
 
       snowpackTestFailureLayerCrystalType: {
         type: 'checkbox',
-        prompt: 'Test failure layer crystal type:',
+        prompt: 'Snowpack test failure layer crystal type:',
         limit: 2,
         options: {
           'Surface hoar': false,
           'Facets': false,
-          'Depth hoar Hoar': false,
+          'Depth hoar': false,
           'Storm snow': false,
           'Crust': false,
           'Other': false

@@ -149,7 +149,7 @@ angular.module('acComponents.services')
           });
 
           return quickTab;
-        }
+        };
 
         function mapAvalancheConditions(av) {
           var avalanches = [];
