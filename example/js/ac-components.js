@@ -882,7 +882,7 @@ angular.module('acComponents.directives')
                       quickReport: {
                         ridingConditions: angular.copy(acReportData.quick.ridingConditions),
                         avalancheConditions: angular.copy(acReportData.quick.avalancheConditions),
-                        comment: null
+                        comment: angular.copy(acReportData.quick.comment)
                       },
                       avalancheReport: acReportData.avalanche,
                       incidentReport: acReportData.incident,
@@ -1910,7 +1910,7 @@ angular.module('acComponents.services')
 
       numberCaughtOnly: {
         type: 'number',
-        prompt: 'Number of people caught but not buried:',
+        prompt: 'Number of people caught and injured but not buried:',
         options: {
           'min': 0,
           'max': 100
@@ -1992,7 +1992,7 @@ angular.module('acComponents.services')
 
         return {
             byPeriod: function (period) {
-                var opt = {params: {last: period || '2:days', client: 'web'}};
+                var opt = {params: {last: period || '2:days'}};
 
                 return $http.get(endpointUrl, opt).then(function (res) {
                     return res.data;
@@ -2084,6 +2084,7 @@ angular.module('acComponents.services')
             }
         };
 
+        this.comment = null;
 
         // this function is different from the other isCompleted functions because we had to preserve the form of the service
         // in order to keep the functionality of the mobile app.
@@ -2159,6 +2160,15 @@ angular.module('acComponents.services')
             }
           });
 
+          if (ob.comment) {
+            quickTab.push({
+              type: 'textarea',
+              prompt: 'Comment',
+              value: ob.comment,
+              order: 100
+            });
+          }
+
           return quickTab;
         };
 
@@ -2224,7 +2234,7 @@ angular.module('acComponents.services')
       snowpackSiteElevationBand: {
         type: 'radio',
         prompt: 'Elevation band:',
-        options: ['Alpine', 'Treeline', 'Below Treeline'],
+        options: ['Alpine', 'Treeline', 'Below treeline'],
         inline: true,
         value: null,
         order: 3
@@ -2453,12 +2463,11 @@ angular.module('acComponents.services')
                 });
             },
             getOne: function(obid, format) {
-                var opt = {params: {client: 'web'}};
                 var format = '.'+format || '';
                 var obUrl = endpointUrl + obid + format;
                 var obIdUrl = endpointUrl + '/' + obid;
 
-                return $http.get(obIdUrl, opt).then(function (res) {
+                return $http.get(obIdUrl).then(function (res) {
                     return res.data;
                 });
             }

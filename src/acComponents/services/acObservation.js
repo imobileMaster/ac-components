@@ -4,7 +4,7 @@ angular.module('acComponents.services')
 
         return {
             byPeriod: function (period) {
-                var opt = {params: {last: period || '2:days', client: 'web'}};
+                var opt = {params: {last: period || '2:days'}};
 
                 return $http.get(endpointUrl, opt).then(function (res) {
                     return res.data;

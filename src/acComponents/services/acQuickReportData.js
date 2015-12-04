@@ -73,6 +73,7 @@ angular.module('acComponents.services')
             }
         };
 
+        this.comment = null;
 
         // this function is different from the other isCompleted functions because we had to preserve the form of the service
         // in order to keep the functionality of the mobile app.
@@ -147,6 +148,15 @@ angular.module('acComponents.services')
               }
             }
           });
+
+          if (ob.comment) {
+            quickTab.push({
+              type: 'textarea',
+              prompt: 'Comment',
+              value: ob.comment,
+              order: 100
+            });
+          }
 
           return quickTab;
         };
