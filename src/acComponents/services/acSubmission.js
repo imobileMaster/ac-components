@@ -63,12 +63,11 @@ angular.module('acComponents.services')
                 });
             },
             getOne: function(obid, format) {
-                var opt = {params: {client: 'web'}};
                 var format = '.'+format || '';
                 var obUrl = endpointUrl + obid + format;
                 var obIdUrl = endpointUrl + '/' + obid;
 
-                return $http.get(obIdUrl, opt).then(function (res) {
+                return $http.get(obIdUrl).then(function (res) {
                     return res.data;
                 });
             }
