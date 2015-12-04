@@ -82,7 +82,7 @@ angular.module('acComponents.services')
 
       numberCaughtOnly: {
         type: 'number',
-        prompt: 'Number of people caught but not buried:',
+        prompt: 'Number of people caught and injured but not buried:',
         options: {
           'min': 0,
           'max': 100

@@ -28,7 +28,7 @@ angular.module('acComponents.services')
       snowpackSiteElevationBand: {
         type: 'radio',
         prompt: 'Elevation band:',
-        options: ['Alpine', 'Treeline', 'Below Treeline'],
+        options: ['Alpine', 'Treeline', 'Below treeline'],
         inline: true,
         value: null,
         order: 3
