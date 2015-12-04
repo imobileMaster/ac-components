@@ -87,7 +87,7 @@ angular.module('acComponents.directives')
                       quickReport: {
                         ridingConditions: angular.copy(acReportData.quick.ridingConditions),
                         avalancheConditions: angular.copy(acReportData.quick.avalancheConditions),
-                        comment: null
+                        comment: angular.copy(acReportData.quick.comment)
                       },
                       avalancheReport: acReportData.avalanche,
                       incidentReport: acReportData.incident,
