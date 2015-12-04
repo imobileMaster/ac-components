@@ -1992,7 +1992,7 @@ angular.module('acComponents.services')
 
         return {
             byPeriod: function (period) {
-                var opt = {params: {last: period || '2:days', client: 'web'}};
+                var opt = {params: {last: period || '2:days'}};
 
                 return $http.get(endpointUrl, opt).then(function (res) {
                     return res.data;
@@ -2453,12 +2453,11 @@ angular.module('acComponents.services')
                 });
             },
             getOne: function(obid, format) {
-                var opt = {params: {client: 'web'}};
                 var format = '.'+format || '';
                 var obUrl = endpointUrl + obid + format;
                 var obIdUrl = endpointUrl + '/' + obid;
 
-                return $http.get(obIdUrl, opt).then(function (res) {
+                return $http.get(obIdUrl).then(function (res) {
                     return res.data;
                 });
             }
