@@ -30,13 +30,14 @@ angular.module('acComponents.directives')
             iconCreateFunction: createClusterIcon,
             zoomToBoundsOnClick: false
           },
-          setFeatureLayer: function (lat, lng, type){
+          setFeatureLayer: function (lat, lng, type, subid){
             return {
               type: 'Feature',
               geometry: {
                 type: 'Point',
                 coordinates: [lat, lng]
               },
+              extra: {subid: subid},
               properties: {
                 'marker-size': 'small',
                 'marker-color': getMarkerColor(type),
@@ -289,7 +290,7 @@ angular.module('acComponents.directives')
 
             $scope.obs.map(function (ob) {
 
-              var marker = L.mapbox.featureLayer(mapConfig.setFeatureLayer(ob.latlng[1], ob.latlng[0], ob.obtype))
+              var marker = L.mapbox.featureLayer(mapConfig.setFeatureLayer(ob.latlng[1], ob.latlng[0], ob.obtype, ob.subid))
                 .setFilter(function () {
                   if (_.indexOf($scope.minFilters, ob.obtype) !== -1) {
                     return true;
@@ -459,7 +460,7 @@ angular.module('acComponents.directives')
             var markers = new L.markerClusterGroup(mapConfig.cluster).addTo(clusterOverlays);
 
             newVal.obs.map(function (ob) {
-              var marker = L.mapbox.featureLayer(mapConfig.setFeatureLayer(newVal.latlng[1], newVal.latlng[0],ob.obtype))
+              var marker = L.mapbox.featureLayer(mapConfig.setFeatureLayer(newVal.latlng[1], newVal.latlng[0],ob.obtype, ob.subid))
                 .setFilter(function () {
                   if (_.indexOf($scope.minFilters, ob.obtype) !== -1) {
                     return true;
@@ -522,19 +523,11 @@ angular.module('acComponents.directives')
         function createClusterIcon(cluster){
           var childMakers = cluster.getAllChildMarkers();
 
-          var markers = _.reduce(childMakers, function (result, marker, key){
-              var latLng = marker.getLatLng();
-              result.push({
-                latLng: latLng.lat+ ' '+ latLng.lng
-              });
-              return result;
-          },[]);
-
-          var uniqMarkers = _.uniq(markers, 'latLng').length;
+          var uniqMarkers = _.uniq(childMakers, function(m) { return m.feature.extra.subid; }).length;
 
           cluster.multipleReports = (uniqMarkers > 1);
 
-            return new L.DivIcon({ html: '<div><span>' + uniqMarkers + '</span></div>', className: 'marker-cluster marker-cluster-sm', iconSize: new L.Point(40, 40) });
+          return new L.DivIcon({ html: '<div><span>' + uniqMarkers + '</span></div>', className: 'marker-cluster marker-cluster-sm', iconSize: new L.Point(40, 40) });
         }
 
       }
