@@ -22,6 +22,11 @@ angular.module('acComponents.directives')
                 });
               return results;
           },[]);
+
+          scope.activeReports = _.sortBy(scope.activeReports, function(obj) {
+            return ['quick', 'avalanche', 'snowpack', 'weather', 'incident'].indexOf(obj.obtype);
+          });
+
         }
 
         function print(){
