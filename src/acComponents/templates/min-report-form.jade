@@ -107,8 +107,12 @@
 
                 .fields-group.col-xs-12.no-padding
                   .field.col-xs-12(ng-repeat="(item, av) in report.obs[key].fields", ng-if="av.type!=='calculated'")
-                    h4.field-title.col-xs-12.no-padding
+                    h4.field-title.col-xs-12.no-padding(ng-if="av.title === undefined")
                       strong {{ ::av.prompt }}
+                    h4.field-title.col-xs-12.no-padding(ng-if="av.title !== undefined && av.title !== null")
+                      strong {{ ::av.title }}
+                    
+
                     .options.col-xs-12.col-md-8
                       .help-text(ng-if="av.helpText")
                         p
@@ -137,7 +141,7 @@
                         textarea.form-control(rows="3", ng-model="report.obs[key].fields[item].value")
                       .datetime-input.col-xs-12(ng-if="av.type=='datetime'")
                         label(for="datetime")
-                          input.form-control(type="datetime", ng-model="report.obs[key].fields[item].value", ac-datetime-picker, show-only-date="av.showOnlyDate" placeholder="Click to select date")
+                          input.form-control(type="datetime", ng-model="report.obs[key].fields[item].value", ac-datetime-picker, show-only-date="av.showOnlyDate", show-only-time="av.showOnlyTime", placeholder="{{av.placeholder ? av.placeholder : 'Click to select date'}}")
                       .error.col-xs-12.no-padding(ng-if="acMinForm[item].$invalid") {{::av.errorMessage}}
                     .options.col-xs-12.col-md-4
             tabset.observation-tabs.bottom.col-xs-12.no-padding(type="pills")

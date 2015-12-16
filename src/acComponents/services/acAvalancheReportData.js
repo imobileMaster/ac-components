@@ -3,11 +3,35 @@ angular.module('acComponents.services')
     var fields = {
 
       avalancheOccurrenceEpoch: {
-        prompt: 'Avalanche observation date:',
+        title: 'Avalanche date/time:',
+        prompt: 'Avalanche date:',
         type: 'datetime',
         showOnlyDate: true,
         value: null,
-        order: 1
+        order: 1,
+        placeholder: 'Click to select date (required)',
+        helpText: 'If you triggered or witnessed an avalanche add date/time.'
+      },
+
+      avalancheOccurrenceTime: {
+        title: null,
+        prompt: 'Avalanche time:',
+        type: 'datetime',
+        showOnlyTime: true,
+        value: null,
+        order: 1,
+        placeholder: 'Click to select time (optional)'
+      },
+
+      avalancheObservation: {
+        title: null,
+        helpText: 'If you observed evidence of recent avalanches, estimate occurrence time.',
+        prompt: 'Estimated occurrence time:',
+        type: 'radio',
+        inline: true,
+        options: ['12 hrs ago', '12-24 hrs ago', '24-48 hrs ago', '>48 hrs ago'],
+        value: null,
+        order: 2
       },
 
       avalancheNumber: {
