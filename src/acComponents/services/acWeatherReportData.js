@@ -13,7 +13,7 @@ angular.module('acComponents.services')
       precipitationType: {
         type: 'radio',
         prompt: 'Precipitation type:',
-        options: ['Snow', 'Rain', 'Mixed Snow & Rain', 'None'],
+        options: ['Snow', 'Rain', 'Mixed snow & rain', 'None'],
         value: null,
         inline: true,
         order: 2
