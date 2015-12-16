@@ -143,19 +143,34 @@ angular.module('acComponents.services')
       },
 
       startZoneAspect: {
-        type: 'radio',
+        type: 'checkbox',
         inline: true,
         prompt: 'Start zone aspect:',
-        options: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'],
+        options: {
+          'N': false, 
+          'NE': false, 
+          'E': false, 
+          'SE': false, 
+          'S': false, 
+          'SW': false, 
+          'W': false, 
+          'NW': false
+        },
         value: null,
-        order: 11
+        order: 11,
+        limit: 3,
+        errorMessage: 'Please check maximum 3 options.'
       },
 
       startZoneElevationBand: {
         prompt: 'Start zone elevation band:',
-        type: 'radio',
+        type: 'checkbox',
         inline: true,
-        options: ['Alpine', 'Treeline', 'Below treeline'],
+        options: {
+          'Alpine': false, 
+          'Treeline': false, 
+          'Below treeline': false
+        },
         value: null,
         order: 12
       },
