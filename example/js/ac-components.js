@@ -2382,7 +2382,8 @@ angular.module('acComponents.services')
           'Other': false
         },
         inline: true,
-        order: 15
+        order: 15,
+        errorMessage: 'Please check maximum 2 options.'
       },
 
       snowpackObsComment: {
