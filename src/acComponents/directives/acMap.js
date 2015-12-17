@@ -15,6 +15,7 @@ angular.module('acComponents.directives')
       link: function ($scope, el, attrs) {
         $scope.device = {};
         $scope.showRegions = $scope.showRegions || true;
+        $scope.visibleObs = [];
 
         var mapConfig = {
           maxZoom: acConfig.maxZoom,
@@ -297,11 +298,12 @@ angular.module('acComponents.directives')
                     return false;
                   }
                 });
+              marker.subid = ob.subid;
 
               marker.on('click', function (e) {
                 $rootScope.requestInProgress = true;
 
-                acSubmission.getOne(ob.subid).then(function(results){
+                acSubmission.getOne(ob.subid).then(function(results) {
                   results.requested = ob.obtype;
                   $scope.currentReport = results;
                   $rootScope.requestInProgress = false;
@@ -313,7 +315,7 @@ angular.module('acComponents.directives')
               marker.eachLayer(function (layer) {
                 markers.addLayer(layer);
               });
-
+              $scope.visibleObs.push(marker);
             });
 
             markers.on('clusterclick', function (e){
@@ -324,7 +326,48 @@ angular.module('acComponents.directives')
               }else{
                 cluster.spiderfy();
               }
-            });
+            })
+
+
+            setTimeout(function() {
+              if($location.path().indexOf('focus') !== -1) {
+                var currentMarker = null;
+                _.each($scope.visibleObs, function (marker) {
+                  if (marker.subid === $stateParams.markerid) {
+                    currentMarker = marker;
+                    marker.fire('click');
+                    return false;
+                  }
+                });
+
+                _.each(markers._featureGroup.getLayers(), function(cluster) {
+                  _.each(cluster.getAllChildMarkers(), function(marker) {
+                    _.each(currentMarker.getLayers(), function(layer) {
+                      if(marker._latlng.lat == layer._latlng.lat && marker._latlng.lng == layer._latlng.lng) {
+                        cluster.spiderfy();
+                        return false;
+                      }
+                    });
+
+                    //if(marker._leaflet_id === currentMarker._leaflet_id) {
+                    //  cluster.spiderfy();
+                    //  return false;
+                    //}
+                  });
+
+                  /*
+                  _.each(currentMarker.getLayers(), function(layer) {
+                    if(cluster._group.hasLayer(layer)) {
+                      cluster.spiderfy();
+                      return false;
+                    }
+                  });
+                  */
+                });
+              }
+            }, 1000);
+
+
 
           } else {
 

@@ -30,15 +30,14 @@
       div.submission-header(ng-repeat="item in report.ob")
         ul.observation-information
           li.observation-item(ng-if="item.type === 'number' || item.type === 'radio'|| item.type === 'dropdown'")
-            | {{::item.prompt}}
-            i.fa.fa-check
+            | {{::item.prompt}} 
             span.value {{::item.value}}
           li.observation-item(ng-if="item.type === 'checkbox'")
             | {{::item.prompt}}
             ul
               li(ng-repeat="op in item.value track by $index")
-                i.fa.fa-check
                 span.value {{op}}
+                span.value(ng-if="!$first && !$last") ,
           li.observation-item(ng-if="item.type === 'datetime'")
             | {{::item.prompt}}
             span &nbsp; {{::item.value | dateformat}}
