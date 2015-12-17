@@ -6,7 +6,12 @@ angular.module('acComponents.directives')
 
         function applyStyle (newVal) {
           var res = JSON.parse(newVal);
+
           _.forEach(res, function (val, cssClass) {
+            if(cssClass === 'tab') {
+              el.find('a').addClass(val);
+            }
+
             if (val) {
               el.removeClass(cssClass).addClass(cssClass);
             } else {
