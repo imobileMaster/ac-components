@@ -13,7 +13,7 @@
                 .form-group(ng-class="{'has-error': !acMinForm.datetime.$valid}")
                   h4
                     |  Submission date and time
-                  input.form-control(type="datetime", name="datetime", ng-model="report.datetime", ac-datetime-picker)
+                  input.form-control(type="datetime", name="datetime", ng-model="report.datetime", ac-datetime-picker, max-date-today="true")
                 .form-group(ng-class="{'has-error': invalidLatLng}")
                   h4
                     |  Enter location by map
@@ -141,7 +141,7 @@
                         textarea.form-control(rows="3", ng-model="report.obs[key].fields[item].value")
                       .datetime-input.col-xs-12(ng-if="av.type=='datetime'")
                         label(for="datetime")
-                          input.form-control(type="datetime", ng-model="report.obs[key].fields[item].value", ac-datetime-picker, show-only-date="av.showOnlyDate", show-only-time="av.showOnlyTime", placeholder="{{av.placeholder ? av.placeholder : 'Click to select date'}}")
+                          input.form-control(type="datetime", ng-model="report.obs[key].fields[item].value", ac-datetime-picker, show-only-date="av.showOnlyDate", show-only-time="av.showOnlyTime", max-date-today="av.maxDateToday" placeholder="{{av.placeholder ? av.placeholder : 'Click to select date'}}")
                       .error.col-xs-12.no-padding(ng-if="acMinForm[item].$invalid") {{::av.errorMessage}}
                     .options.col-xs-12.col-md-4
             tabset.observation-tabs.bottom.col-xs-12.no-padding(type="pills")

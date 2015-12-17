@@ -131,7 +131,8 @@ angular.module('acComponents.services')
         showOnlyDate: true,
         value: null,
         helpText: 'The date on which the most recent storm started. Leave blank if there has not been a recent storm.',
-        order: 12
+        order: 12,
+        maxDateToday: true
       },
 
       windSpeed: {

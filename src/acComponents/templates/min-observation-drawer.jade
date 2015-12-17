@@ -24,7 +24,7 @@
     .row-fluid.observation-tabs
       ul.nav.nav-pills.nav-justified(role="tablist")
         li(ng-repeat="tab in reportTypes",role="presentation", ng-class="[hasReport(tab),{active: tab === sub.requested}]")
-          a(ng-click="changeTab(tab)",style="text-transform: uppercase;") {{::tab}}
+          a(ng-click="changeTab(tab)", style="text-transform: uppercase;", ng-class="tab") {{::tab}}
     .row-fluid
       .tab-content
         div.tab-pane(ng-repeat="tab in reportTypes", role="tabpanel", id="{{tab}}", ng-class="{active: tab === sub.requested}")

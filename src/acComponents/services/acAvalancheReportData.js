@@ -10,7 +10,8 @@ angular.module('acComponents.services')
         value: null,
         order: 1,
         placeholder: 'Click to select date (required)',
-        helpText: 'If you triggered or witnessed an avalanche add date/time.'
+        helpText: 'If you triggered or witnessed an avalanche add date/time.',
+        maxDateToday: true
       },
 
       avalancheOccurrenceTime: {
@@ -219,7 +220,8 @@ angular.module('acComponents.services')
         showOnlyDate: true,
         helpText:'Date the weak layer was buried.',
         order: 16,
-        value: null
+        value: null,
+        maxDateToday: true
       },
 
       weakLayerCrystalType: {

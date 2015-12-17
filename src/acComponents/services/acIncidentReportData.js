@@ -21,6 +21,7 @@ angular.module('acComponents.services')
       },
 
       otherActivityDescription: {
+        title: null,
         type: 'text',
         prompt: 'Describe other activity',
         value: null,

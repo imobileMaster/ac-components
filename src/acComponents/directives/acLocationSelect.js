@@ -65,7 +65,7 @@ angular.module('acComponents.directives')
                 function createMarker (latlng) {
                     marker = L.marker(latlng, {
                       icon: L.mapbox.marker.icon({
-                        'marker-color': 'f79118'
+                        'marker-color': '4B6D6F'
                       }),
                       draggable: true
                     });
