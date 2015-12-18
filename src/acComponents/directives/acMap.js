@@ -346,14 +346,17 @@ angular.module('acComponents.directives')
                 });
 
                 _.each(markers._featureGroup.getLayers(), function(cluster) {
-                  _.each(cluster.getAllChildMarkers(), function(marker) {
-                    _.each(currentMarker.getLayers(), function(layer) {
-                      if(marker._latlng.lat == layer._latlng.lat && marker._latlng.lng == layer._latlng.lng) {
-                        cluster.spiderfy();
-                        return false;
-                      }
+                  if(typeof cluster.getAllChildMarkers === 'function') {
+                    // run through the clusters and find a marker in the cluster.
+                    _.each(cluster.getAllChildMarkers(), function(marker) {
+                      _.each(currentMarker.getLayers(), function(layer) {
+                        if(marker._latlng.lat === layer._latlng.lat && marker._latlng.lng === layer._latlng.lng) {
+                          cluster.spiderfy();
+                          return false;
+                        }
+                      });
                     });
-                  });
+                  }
                 });
               }
             }, 1000);
