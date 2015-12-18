@@ -1,5 +1,5 @@
 angular.module('acComponents.directives')
-  .directive('acMapboxMap', function ($rootScope, $window, $location, $timeout, acBreakpoint, acObservation, acForecast, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, $stateParams, acConfig) {
+  .directive('acMapboxMap', function ($rootScope, $window, $location, $timeout, acBreakpoint, acObservation, acForecast, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, $stateParams, acConfig, localStorageService) {
     return {
       template: '<div id="map"></div>',
       replace: true,
@@ -310,6 +310,8 @@ angular.module('acComponents.directives')
                 });
 
                 map.setView(ob.latlng, map.getZoom());
+                localStorageService.set('mapZoom', map.getZoom());
+                localStorageService.set('mapCenter', map.getCenter());
               });
 
               marker.eachLayer(function (layer) {
@@ -328,6 +330,9 @@ angular.module('acComponents.directives')
               }
             })
 
+            if($location.path().indexOf('focus') !== -1) {
+              map.setView(localStorageService.get('mapCenter'), localStorageService.get('mapZoom'));
+            }
 
             setTimeout(function() {
               if($location.path().indexOf('focus') !== -1) {
@@ -348,21 +353,7 @@ angular.module('acComponents.directives')
                         return false;
                       }
                     });
-
-                    //if(marker._leaflet_id === currentMarker._leaflet_id) {
-                    //  cluster.spiderfy();
-                    //  return false;
-                    //}
                   });
-
-                  /*
-                  _.each(currentMarker.getLayers(), function(layer) {
-                    if(cluster._group.hasLayer(layer)) {
-                      cluster.spiderfy();
-                      return false;
-                    }
-                  });
-                  */
                 });
               }
             }, 1000);

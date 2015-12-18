@@ -30,7 +30,7 @@ angular.module('acComponents.services')
         prompt: 'Estimated occurrence time:',
         type: 'radio',
         inline: true,
-        options: ['12 hrs ago', '12-24 hrs ago', '24-48 hrs ago', '>48 hrs ago'],
+        options: ['12 hrs ago', '12-24 hrs ago', '>24-48 hrs ago', '>48 hrs ago'],
         value: null,
         order: 2
       },
