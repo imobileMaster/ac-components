@@ -33,7 +33,7 @@ angular.module('acComponents.directives')
 
         function closeDrawer() {
           scope.sub = null;
-          if($stateParams.subid){
+          if($stateParams.subid || $stateParams.markerid) {
             $state.go('ac.map');
           }
         }
