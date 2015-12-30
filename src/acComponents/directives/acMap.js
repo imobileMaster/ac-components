@@ -47,6 +47,11 @@ angular.module('acComponents.directives')
           }
         };
 
+        if($location.path().indexOf('focus') !== -1) {
+          mapConfig.mapSetup.zoom = localStorageService.get('mapZoom');
+          mapConfig.mapSetup.center = localStorageService.get('mapCenter');
+        }
+
         var layers = {
           dangerIcons: L.featureGroup()
         };
@@ -328,11 +333,7 @@ angular.module('acComponents.directives')
               }else{
                 cluster.spiderfy();
               }
-            })
-
-            if($location.path().indexOf('focus') !== -1) {
-              map.setView(localStorageService.get('mapCenter'), localStorageService.get('mapZoom'));
-            }
+            });
 
             setTimeout(function() {
               if($location.path().indexOf('focus') !== -1) {
