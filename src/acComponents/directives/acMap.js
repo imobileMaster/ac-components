@@ -48,8 +48,8 @@ angular.module('acComponents.directives')
         };
 
         if($location.path().indexOf('focus') !== -1) {
-          mapConfig.mapSetup.zoom = localStorageService.get('mapZoom');
-          mapConfig.mapSetup.center = localStorageService.get('mapCenter');
+          mapConfig.mapSetup.zoom = localStorageService.get('mapZoom') || mapConfig.mapSetup.zoom;
+          mapConfig.mapSetup.center = localStorageService.get('mapCenter') || mapConfig.mapSetup.center;
         }
 
         var layers = {
