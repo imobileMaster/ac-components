@@ -35,7 +35,9 @@ angular.module('acComponents.services')
 
       groupSize: {
         type: 'number',
-        prompt: 'Number of people in the group:',
+        title: 'Group details:',
+        prompt: 'Total in the group?',
+        subTitle: 'Total in the group?',
         options: {
           'min': 0,
           'max': 100
@@ -47,7 +49,8 @@ angular.module('acComponents.services')
 
       numberFullyBuried: {
         type: 'number',
-        prompt: 'Number of people fully buried:',
+        prompt: 'People fully buried?',
+        subTitle: 'People fully buried?',
         options: {
           'min': 0,
           'max': 100
@@ -59,7 +62,8 @@ angular.module('acComponents.services')
 
       numberPartlyBuriedImpairedBreathing: {
         type: 'number',
-        prompt: 'Number of people partly buried, breathing impaired:',
+        prompt: 'People partly buried with impaired breathing?',
+        subTitle: 'People partly buried with impaired breathing?',
         options: {
           'min': 0,
           'max': 100
@@ -71,7 +75,8 @@ angular.module('acComponents.services')
 
       numberPartlyBuriedAbleBreathing: {
         type: 'number',
-        prompt: 'Number of people partly buried, able to breathe normally:',
+        prompt: 'People partly buried with normal breathing?',
+        subTitle: 'People partly buried with normal breathing?',
         options: {
           'min': 0,
           'max': 100
@@ -83,7 +88,8 @@ angular.module('acComponents.services')
 
       numberCaughtOnly: {
         type: 'number',
-        prompt: 'Number of people caught and injured but not buried:',
+        prompt: 'People injured (caught but not buried)?',
+        subTitle: 'People injured (caught but not buried)?',
         options: {
           'min': 0,
           'max': 100
@@ -95,7 +101,8 @@ angular.module('acComponents.services')
 
       numberPeopleInjured: {
         type: 'number',
-        prompt: 'Number of people caught, not injured and not buried:',
+        prompt: 'People not injured (caught but not buried)?',
+        subTitle: 'People not injured (caught but not buried)?',
         options: {
           'min': 0,
           'max': 400

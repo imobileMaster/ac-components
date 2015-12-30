@@ -45,7 +45,7 @@
                       span.value(ng-if="!$last") ,&nbsp;
                 li.observation-item(ng-if="item.type === 'datetime'")
                   | {{item.prompt}}
-                  span &nbsp; {{item.value}}
+                  span.value &nbsp; {{item.value}}
 
               .observation-item.comments(ng-if="item.type === 'textarea'")
                 .row-fluid.section-label

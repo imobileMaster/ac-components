@@ -10,7 +10,7 @@ angular.module('acComponents.services')
         value: null,
         order: 1,
         placeholder: 'Click to select date (required)',
-        helpText: 'If you triggered or witnessed an avalanche add date/time.',
+        subTitle: 'If you triggered or witnessed an avalanche add date/time.',
         maxDateToday: true
       },
 
@@ -26,7 +26,7 @@ angular.module('acComponents.services')
 
       avalancheObservation: {
         title: null,
-        helpText: 'If you observed evidence of recent avalanches, estimate occurrence time.',
+        subTitle: 'If you observed evidence of recent avalanches, estimate occurrence time.',
         prompt: 'Estimated occurrence time:',
         type: 'radio',
         inline: true,

@@ -107,11 +107,13 @@
 
                 .fields-group.col-xs-12.no-padding
                   .field.col-xs-12(ng-repeat="(item, av) in report.obs[key].fields", ng-if="av.type!=='calculated'")
-                    h4.field-title.col-xs-12.no-padding(ng-if="av.title === undefined")
+
+                    h4.field-title.col-xs-12.no-padding(ng-if="av.title === undefined && av.subTitle === undefined")
                       strong {{ ::av.prompt }}
                     h4.field-title.col-xs-12.no-padding(ng-if="av.title !== undefined && av.title !== null")
                       strong {{ ::av.title }}
-                    
+
+                    h5.col-xs-12.no-padding(ng-if="av.subTitle !== undefined") {{ ::av.subTitle }}
 
                     .options.col-xs-12.col-md-8
                       .help-text(ng-if="av.helpText")
