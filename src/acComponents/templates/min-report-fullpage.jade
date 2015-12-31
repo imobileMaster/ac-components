@@ -37,7 +37,8 @@
             ul
               li(ng-repeat="op in item.value track by $index")
                 span.value {{op}}
-                span.value(ng-if="!$last") ,&nbsp;
+                span.value(ng-if="!$last")
+                  = ", "
           li.observation-item(ng-if="item.type === 'datetime'")
             | {{::item.prompt}}
             span &nbsp; {{::item.value | dateformat}}

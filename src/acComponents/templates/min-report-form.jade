@@ -20,7 +20,7 @@
                   .btn-map(ng-click="openMapModal()")
                     i.fa.fa-map-o
                   h4
-                    | or enter location by lat long
+                    | or enter location by lat/long
                   input.form-control.latlng(type="text", ng-class="{'modified': tempLatlngModified}", name="tempLatlng", ac-enter="saveLocation()" ng-model="report.tempLatlng", placeholder="e.g. 51.522, -188.883", required)
                   .save-location(role="button", ng-if="tempLatlngModified", ng-click="saveLocation()")
                     i.fa.fa-map-marker
