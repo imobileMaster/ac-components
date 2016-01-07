@@ -18,6 +18,12 @@ angular.module('acComponents.directives')
               };
 
               el.datetimepicker(options);
+              
+              jQuery(window).scroll(function() {
+                if(el.data("DateTimePicker") !== undefined) {
+                    el.data("DateTimePicker").hide();
+                }
+              });
             }
           }
         }

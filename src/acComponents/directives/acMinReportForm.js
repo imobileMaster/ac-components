@@ -147,9 +147,9 @@ angular.module('acComponents.directives')
                         return total;
                     }, {});
 
-                    if (_.keys(reqObj.obs).length === 0) {
-                      return $q.reject('incomplete-form');
-                    }
+                    //if (_.keys(reqObj.obs).length === 0) {
+                    //  return $q.reject('incomplete-form');
+                    //}
 
                     var token = store.get('token');
                     if (token) {

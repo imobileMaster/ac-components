@@ -8,6 +8,8 @@ angular.module('acComponents.controllers')
     };
 
     $scope.save = function () {
+      $scope.params.latlng[0] = $scope.params.latlng[0].toFixed(5);
+      $scope.params.latlng[1] = $scope.params.latlng[1].toFixed(5);
       $modalInstance.close($scope.params.latlng);
     };
 
