@@ -710,7 +710,6 @@ angular.module('acComponents.directives')
 
 
         function setRegionFocus() {
-          console.log('DEBUG: setRegionFocus()');
           if ($scope.showRegions) {
             var regionLayers = layers.regions.getLayers();
             var mapCenter = getMapCenter();
@@ -734,7 +733,6 @@ angular.module('acComponents.directives')
 
           if(region.feature.properties.type === 'link') {
 
-            console.log("DEBUG: sending to...", region.feature.properties.url);
             $window.open(region.feature.properties.url, '_blank');
 
           } 
@@ -762,7 +760,6 @@ angular.module('acComponents.directives')
         map.on('zoomend', refreshLayers);
 
         $scope.$watch('region', function (newRegion, oldRegion) {
-          console.log("DEBUG: watch:region");
           if (layers.regions && newRegion && newRegion !== oldRegion) {
             setRegion(newRegion);
           }
@@ -775,7 +772,6 @@ angular.module('acComponents.directives')
         });
 
         $scope.$watch('showRegions', function (newShowRegions, oldShowRegions) {
-          console.log("DEBUG: showRegions(" + newShowRegions + ")");
           if (newShowRegions !== oldShowRegions) {
             if (!newShowRegions && map.hasLayer(layers.regions)) {
               if (layers.currentRegion) {
