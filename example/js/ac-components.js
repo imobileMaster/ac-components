@@ -606,7 +606,7 @@ angular.module('acComponents.directives')
               marker.subid = ob.subid;
 
               marker.on('click', function (e) {
-                $eootScope.requestInProgress = true;
+                $rootScope.requestInProgress = true;
 
                 acSubmission.getOne(ob.subid).then(function(results) {
                   results.requested = ob.obtype;
