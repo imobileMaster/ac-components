@@ -606,7 +606,7 @@ angular.module('acComponents.directives')
               marker.subid = ob.subid;
 
               marker.on('click', function (e) {
-                $rootScope.requestInProgress = true;
+                $eootScope.requestInProgress = true;
 
                 acSubmission.getOne(ob.subid).then(function(results) {
                   results.requested = ob.obtype;
@@ -731,11 +731,18 @@ angular.module('acComponents.directives')
 
         function setRegion(region) {
 
-          if(region.feature.properties.type === 'link') {
+          var regionType =region.feature.properties.type;
+          if(regionType === 'link'|| regionType === 'parks') {
+            var url = region.feature.properties.url; 
+            if(region.feature.properties.type === 'parks') {
+                url = region.feature.properties.externalUrl
+            } 
+            $window.open(url, '_blank');
+            // Stop the card from displaying
+            $scope.region = undefined;
+            return;
+          }
 
-            $window.open(region.feature.properties.url, '_blank');
-
-          } 
 
           layers.currentRegion = region;
           if ($scope.region !== region) {
