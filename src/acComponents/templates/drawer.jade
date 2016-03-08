@@ -4,6 +4,11 @@
         i.fa.fa-close.fa-lg
     .ac-drawer-tools
         ul
+            li.ac-submit-report-tab.on(ng-if="drawerPosition === 'right'", ng-click="goToHotZoneReport()")
+              i.fa.fa-plus.fa-2x
+              i.fa.fa-exclamation-triangle.fa-inverse.fa-2x
+              span New hot zone report
+
             li(ng-if="drawerPosition === 'right'", ng-click="toggleForecast()", ng-class="{on: drawer.right.visible && drawer.right.enabled}", style="margin-bottom: 50px;")
                 div(ac-danger-icon, style="height: 60px; width:60px;")
 
