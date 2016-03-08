@@ -203,6 +203,193 @@ angular.module('acComponents.directives')
 ;
 
 angular.module('acComponents.directives')
+    .directive('acHotZoneReportForm', ["$state", "$rootScope", "$q", "$timeout", "acBreakpoint", "acReportData", "acFormUtils", "acSubmission", "MAPBOX_ACCESS_TOKEN", "MAPBOX_MAP_ID", "store", "$anchorScroll", "$modal", "ngToast", function($state, $rootScope, $q, $timeout, acBreakpoint, acReportData, acFormUtils, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, store, $anchorScroll, $modal, ngToast) {
+        return {
+            templateUrl: 'hot-zone-report-form.html',
+            replace: true,
+            link: function($scope, el, attrs) {
+
+                resetFields();
+                initReport();
+
+                $scope.scrollToTop = function () {
+                  $anchorScroll.yOffset = 100;
+                  $anchorScroll('top');
+                };
+
+                function tabCompleted (tab) {
+                  if (tab === 'quickReport') {
+                    return acReportData.quick.isCompleted($scope.report.obs.quickReport);
+                  } else {
+                    return $scope.report.obs[tab].isCompleted();
+                  }
+                }
+
+                function initReport() {
+                  $scope.report = {
+                    headline: '',
+                    dateissue: moment().format('YYYY-MM-DD hh:mm A'),
+                    datevalid: moment().format('YYYY-MM-DD hh:mm A'),
+                    latlng: [],
+                    files: [],
+                    obs: {
+                      criticalFactors: angular.copy(acReportData.hotzone.criticalFactors),
+                      terrainAvoidanceList: angular.copy(acReportData.hotzone.terrainAvoidanceList),
+                      travelAdvice: angular.copy(acReportData.hotzone.travelAdvice)
+                    }
+                  };
+                }
+
+                function resetForm() {
+                    $timeout(function () {
+                        resetFields();
+                        initReport();
+                        $scope.submitting = false;
+                        $scope.error = false;
+                    }, 0);
+                }
+
+                function resetFields() {
+                  acReportData.hotzone.criticalFactors.reset();
+                  acReportData.hotzone.terrainAvoidanceList.reset();
+                  acReportData.hotzone.travelAdvice.reset();
+                }
+
+                $scope.resetForm = resetForm;
+
+                $scope.goBack = function (formDirty) {
+
+                  //if (formDirty) {
+                  //  var goingBack = shouldDiscard();
+                  //  goingBack.then(exit);
+                  //} else {
+                  //  exit();
+                  //}
+                  //
+                  //function exit() {
+                      resetFields();
+                      initReport();
+                      $state.go('ac.map');
+                  //}
+                };
+
+                $scope.submitForm = function() {
+
+                    // var reqObj = _.cloneDeep($scope.report);
+
+                    // reqObj.obs = _.reduce($scope.report.obs, function(total, item, key){
+                    //     if (key === 'quickReport') {
+                    //       if (acReportData.quick.isCompleted(item)) {
+                    //         total.quickReport = item;
+                    //       }
+                    //     } else if (item.isCompleted()){
+                    //       total[key] = item.getDTO();
+                    //     }
+                    //     return total;
+                    // }, {});
+
+                    // //if (_.keys(reqObj.obs).length === 0) {
+                    // //  return $q.reject('incomplete-form');
+                    // //}
+
+                    // var token = store.get('token');
+                    // if (token) {
+                    //     $scope.submitting = true;
+                    //     return acSubmission.submit(reqObj, token).then(function(result) {
+                    //         if (result.data && !('error' in result.data)) {
+                    //             $state.go('ac.map');
+                    //             ngToast.create({
+                    //               content: 'Your report was successfully submitted.',
+                    //               class: 'alert alert-success',
+                    //               dismissOnTimeout: true,
+                    //               dismissButton: true,
+                    //               dismissButtonHtml: '&times;'
+                    //             });
+
+
+                    //             return result;
+                    //         } else {
+                    //             $scope.submitting = false;
+                    //             $scope.error = true;
+                    //             return $q.reject('error');
+                    //         }
+                    //     }, function(err) {
+                    //         $scope.submitting = false;
+                    //         $scope.error = true;
+                    //         $scope.errormsg = err;
+                    //         return $q.reject(err);
+                    //     });
+                    // } else {
+                    //     return $q.reject('auth-error');
+                    // }
+                };
+
+
+                function shouldDiscard() {
+                  var modalInstance = $modal.open({
+                    animation: false,
+                    templateUrl: 'min-back-modal.html',
+                    controller: 'acBackModal',
+                    size: 'lg',
+                    windowClass: 'back-modal',
+                    keyboard: false,
+                    backdrop: 'static'
+                  });
+
+                  return modalInstance.result;
+                }
+
+
+                $scope.openMapModal = function () {
+                  var modalInstance = $modal.open({
+                    animation: false,
+                    templateUrl: 'min-map-modal.html',
+                    controller: 'acMapModal',
+                    size: 'lg',
+                    windowClass: 'map-modal',
+                    resolve: {
+                      latlng: function () {
+                        return $scope.report.latlng
+                      }
+                    }
+                  });
+
+                  modalInstance.result.then(function (latlng) {
+                    $scope.report.latlng = latlng;
+                  });
+                };
+
+                var watch = $scope.$watchCollection(function () { return [$scope.report.latlng, $scope.report.tempLatlng]; }, function (newVal, oldVal) {
+                  if (newVal) {
+                    if (newVal[0] !== oldVal[0]) {
+                      $scope.report.tempLatlng = $scope.report.latlng.join(',');
+                      newVal[1] = $scope.report.tempLatlng;
+                      $scope.tempLatlngModified = false;
+                    }
+                    if (newVal[1] && newVal[1] !== newVal[0].join(',')) {
+                      $scope.tempLatlngModified = true;
+                    }
+                  }
+                });
+
+                $scope.$on('$destroy', function () {
+                  watch();
+                });
+
+                $scope.saveLocation = function () {
+                  if (acFormUtils.validateLocationString($scope.report.tempLatlng)) {
+                    $scope.report.latlng = $scope.report.tempLatlng.split(',');
+                    $scope.tempLatlngModified = false;
+                    $scope.invalidLatLng = false;
+                  } else {
+                    $scope.invalidLatLng = true;
+                  }
+                };
+            }
+        };
+    }]);
+
+angular.module('acComponents.directives')
     .directive('acLoadingIndicator', function () {
         return {
             templateUrl: 'loading-indicator.html',
@@ -331,13 +518,14 @@ angular.module('acComponents.directives')
             iconCreateFunction: createClusterIcon,
             zoomToBoundsOnClick: false
           },
-          setFeatureLayer: function (lat, lng, type){
+          setFeatureLayer: function (lat, lng, type, subid){
             return {
               type: 'Feature',
               geometry: {
                 type: 'Point',
                 coordinates: [lat, lng]
               },
+              extra: {subid: subid},
               properties: {
                 'marker-size': 'small',
                 'marker-color': getMarkerColor(type),
@@ -595,7 +783,7 @@ angular.module('acComponents.directives')
 
             $scope.obs.map(function (ob) {
 
-              var marker = L.mapbox.featureLayer(mapConfig.setFeatureLayer(ob.latlng[1], ob.latlng[0], ob.obtype))
+              var marker = L.mapbox.featureLayer(mapConfig.setFeatureLayer(ob.latlng[1], ob.latlng[0], ob.obtype, ob.subid))
                 .setFilter(function () {
                   if (_.indexOf($scope.minFilters, ob.obtype) !== -1) {
                     return true;
@@ -812,7 +1000,7 @@ angular.module('acComponents.directives')
             var markers = new L.markerClusterGroup(mapConfig.cluster).addTo(clusterOverlays);
 
             newVal.obs.map(function (ob) {
-              var marker = L.mapbox.featureLayer(mapConfig.setFeatureLayer(newVal.latlng[1], newVal.latlng[0],ob.obtype))
+              var marker = L.mapbox.featureLayer(mapConfig.setFeatureLayer(newVal.latlng[1], newVal.latlng[0],ob.obtype, ob.subid))
                 .setFilter(function () {
                   if (_.indexOf($scope.minFilters, ob.obtype) !== -1) {
                     return true;
@@ -875,19 +1063,11 @@ angular.module('acComponents.directives')
         function createClusterIcon(cluster){
           var childMakers = cluster.getAllChildMarkers();
 
-          var markers = _.reduce(childMakers, function (result, marker, key){
-              var latLng = marker.getLatLng();
-              result.push({
-                latLng: latLng.lat+ ' '+ latLng.lng
-              });
-              return result;
-          },[]);
-
-          var uniqMarkers = _.uniq(markers, 'latLng').length;
+          var uniqMarkers = _.uniq(childMakers, function(m) { return m.feature.extra.subid; }).length;
 
           cluster.multipleReports = (uniqMarkers > 1);
 
-            return new L.DivIcon({ html: '<div><span>' + uniqMarkers + '</span></div>', className: 'marker-cluster marker-cluster-sm', iconSize: new L.Point(40, 40) });
+          return new L.DivIcon({ html: '<div><span>' + uniqMarkers + '</span></div>', className: 'marker-cluster marker-cluster-sm', iconSize: new L.Point(40, 40) });
         }
 
       }
@@ -1970,6 +2150,215 @@ angular.module('acComponents.services')
   });
 
 angular.module('acComponents.services')
+  .service('acHotZoneReportData', ["acFormUtils", function(acFormUtils) {
+
+    var criticalFactors = {
+
+      persistentAvalancheProblem: {
+        type: 'radio',
+        inline: true,
+        prompt: 'Persistent avalanche problem:',
+        options: ['Yes', 'No', 'Unknown'],
+        value: null,
+        order: 1
+      },
+
+      slabAvalanches: {
+        type: 'radio',
+        inline: true,
+        prompt: 'Slab avalanches in the last 48 hours:',
+        options: ['Yes', 'No', 'Unknown'],
+        value: null,
+        order: 2
+      },
+
+      instability: {
+        type: 'radio',
+        inline: true,
+        prompt: 'Signs of instability:',
+        options: ['Yes', 'No', 'Unknown'],
+        value: null,
+        order: 3
+      },
+
+      recentSnowfall: {
+        type: 'radio',
+        inline: true,
+        prompt: 'Recent snowfall > 30cm:',
+        options: ['Yes', 'No', 'Unknown'],
+        value: null,
+        order: 4
+      },
+
+      recentRainfall: {
+        type: 'radio',
+        inline: true,
+        prompt: 'Recent rainfall:',
+        options: ['Yes', 'No', 'Unknown'],
+        value: null,
+        order: 5
+      },
+
+      recentWindloading: {
+        type: 'radio',
+        inline: true,
+        prompt: 'Recent windloading:',
+        options: ['Yes', 'No', 'Unknown'],
+        value: null,
+        order: 6
+      },
+
+      significantWarming: {
+        type: 'radio',
+        inline: true,
+        prompt: 'Significant warming:',
+        options: ['Yes', 'No', 'Unknown'],
+        value: null,
+        order: 7
+      },
+
+      criticalFactorsComments: {
+        prompt: 'Comments:',
+        type: 'textarea',
+        value: null,
+        order: 8
+      }
+
+    };
+
+    var terrainAvoidanceList = {
+
+      aspect: {
+        type: 'checkbox',
+        prompt: 'Aspect:',
+        options: {
+          'N': false,
+          'NE': false,
+          'E': false,
+          'SE': false,
+          'S': false,
+          'SW': false,
+          'W': false,
+          'NW': false,
+          'All': false
+        },
+        inline: true,
+        order: 1
+      },
+
+      elevationBand: {
+        type: 'checkbox',
+        prompt: 'Elevation band:',
+        options: {
+          'Alpine': false,
+          'Treeline': false,
+          'Below Treeline': false
+        },
+        inline: true,
+        order: 2
+      },
+
+      elevationBelow: {
+        type: 'number',
+        prompt: 'Elevation below:',
+        options: {
+          'min': 0,
+          'max': 5000
+        },
+        value: null,
+        errorMessage: 'Number between 0 and 5000 please.',
+        order: 3
+      },
+
+      elevationAbove: {
+        type: 'number',
+        prompt: 'Elevation above:',
+        options: {
+          'min': 0,
+          'max': 5000
+        },
+        value: null,
+        errorMessage: 'Number between 0 and 5000 please.',
+        order: 4
+      },
+
+      elevationBetween: {
+        type: 'number',
+        prompt: 'Elevation between:',
+        options: {
+          'min': 0,
+          'max': 5000
+        },
+        value: null,
+        errorMessage: 'Number between 0 and 5000 please.',
+        order: 5
+      },
+
+      terrainFeatures: {
+        type: 'checkbox',
+        prompt: 'Terrain features:',
+        options: {
+          'Steeper than:': false,
+          'Convex': false,
+          'Unsupported': false,
+          'Lee Slopes': false,
+          'Crossloaded Slopes': false,
+          'Shallow Snowpack': false,
+          'Variable Depth Snowpack': false,
+          'Other': false
+        },
+        inline: true,
+        order: 6
+      },
+
+      terrainAvoidanceComments: {
+        prompt: 'Comments',
+        type: 'textarea',
+        value: null,
+        order: 7
+      }
+
+    };
+
+    var travelAdvice = {
+      travelAdviceStatement1: {
+        prompt: 'Travel advice statement 1:',
+        type: 'textarea',
+        value: null,
+        order: 1
+      },
+
+      travelAdviceStatement2: {
+        prompt: 'Travel advice statement 2:',
+        type: 'textarea',
+        value: null,
+        order: 2
+      },
+
+      travelAdviceStatement3: {
+        prompt: 'Travel advice statement 3:',
+        type: 'textarea',
+        value: null,
+        order: 3
+      },
+
+      travelAdviceComments: {
+        prompt: 'Travel advice comments:',
+        type: 'textarea',
+        value: null,
+        order: 4
+      }
+
+    };
+
+    return {
+      criticalFactors: acFormUtils.buildReport(criticalFactors),
+      terrainAvoidanceList: acFormUtils.buildReport(terrainAvoidanceList),
+      travelAdvice: acFormUtils.buildReport(travelAdvice)
+    };
+  }]);
+
+angular.module('acComponents.services')
     .factory('acImageCache', ["$http", function($http) {
         return {
             cache: function (images) {
@@ -2353,14 +2742,15 @@ angular.module('acComponents.services')
     );
 
 angular.module('acComponents.services')
-  .factory('acReportData', ["acQuickReportData", "acAvalancheReportData", "acSnowpackReportData", "acWeatherReportData", "acIncidentReportData", function(acQuickReportData, acAvalancheReportData, acSnowpackReportData, acWeatherReportData, acIncidentReportData) {
+  .factory('acReportData', ["acQuickReportData", "acAvalancheReportData", "acSnowpackReportData", "acWeatherReportData", "acIncidentReportData", "acHotZoneReportData", function(acQuickReportData, acAvalancheReportData, acSnowpackReportData, acWeatherReportData, acIncidentReportData, acHotZoneReportData) {
 
     return {
       quick: acQuickReportData,
       avalanche: acAvalancheReportData,
       snowpack: acSnowpackReportData,
       weather: acWeatherReportData,
-      incident: acIncidentReportData
+      incident: acIncidentReportData,
+      hotzone: acHotZoneReportData
     };
 
   }]);
@@ -2836,11 +3226,12 @@ $templateCache.put("forecast-mini-avalx.html","<div class=\"panel-body ac-foreca
 $templateCache.put("forecast-mini-external.html","<div style=\"min-height: 500px;\" class=\"panel-body\"><div class=\"row\"><div class=\"col-xs-12\"><h3 class=\"ac-forecast-region\">{{ forecast.name }}</h3></div></div><div class=\"row\"><div class=\"col-xs-12\"><p>Avalanche information for this region is available &nbsp;<a ng-href=\"{{forecast.externalUrl}}\" target=\"_blank\"><i class=\"fa fa-external-link\">here.</i></a></p></div></div></div>");
 $templateCache.put("forecast-mini-parks.html","<div style=\"min-height: 500px;\" class=\"panel-body\"><div class=\"row\"><div class=\"col-xs-12\"><h3 class=\"ac-forecast-region\">{{ forecast.name }}</h3></div></div><div class=\"row\"><div class=\"col-xs-12\"><p>Avalanche information for this region is available &nbsp;<a ng-href=\"{{forecast.parksUrl}}\" target=\"_blank\"><i class=\"fa fa-external-link\">here.</i></a></p></div></div></div>");
 $templateCache.put("forecast-mini.html","<div class=\"panel\"><div ng-show=\"forecast.externalUrl\"><ac-forecast-mini-external forecast=\'forecast\' /></div><div ng-show=\"forecast.parksUrl\"><ac-forecast-mini-parks forecast=\'forecast\' /></div><div ng-hide=\"forecast.externalUrl || forecast.parksUrl\"><ac-forecast-mini-avalx forecast=\'forecast\' danger-rating=\'dangerRating\' disclaimer=\'disclaimer\' sponsor=\'sponsor\' /></div></div>");
+$templateCache.put("hot-zone-report-form.html","<div class=\"min-form\"><form name=\"acHotZoneForm\" novalidate=\"novalidate\" ng-if=\"!report.subid\" role=\"form\" ac-submission-form-validator=\"ac-submission-form-validator\"><div class=\"form-fields col-xs-12 no-padding\"><div class=\"col-xs-12 col-md-4 form-left-column\"><div class=\"required-info clearfix\"><h3 class=\"form-subtitle\">Required Info</h3><div class=\"required-info-data col-xs-12\"><div ng-class=\"{\'has-error\': !acHotZoneForm.title.$valid &amp;&amp; acHotZoneForm.title.$dirty }\" class=\"form-group\"><h4>Headline</h4><input type=\"text\" name=\"title\" ng-model=\"report.headline\" placeholder=\"e.g. two - three sentences\" required=\"required\" class=\"form-control\"/></div><div ng-class=\"{\'has-error\': !acHotZoneForm.dateissue.$valid}\" class=\"form-group\"><h4> Date of issue</h4><input type=\"datetime\" name=\"dateissue\" ng-model=\"report.dateissue\" ac-datetime-picker=\"ac-datetime-picker\" max-date-today=\"true\" class=\"form-control\"/></div><div ng-class=\"{\'has-error\': !acHotZoneForm.datevalid.$valid}\" class=\"form-group\"><h4> Valid until</h4><input type=\"datetime\" name=\"datevalid\" ng-model=\"report.datevalid\" ac-datetime-picker=\"ac-datetime-picker\" max-date-today=\"false\" class=\"form-control\"/></div><div ng-class=\"{\'has-error\': invalidLatLng}\" class=\"form-group\"><h4> Enter location by map</h4><div ng-click=\"openMapModal()\" class=\"btn-map\"><i class=\"fa fa-map-o\"></i></div><h4>or enter location by lat/long</h4><input type=\"text\" ng-class=\"{\'modified\': tempLatlngModified}\" name=\"tempLatlng\" ac-enter=\"saveLocation()\" ng-model=\"report.tempLatlng\" placeholder=\"e.g. 51.522, -188.883\" required=\"required\" class=\"form-control latlng\"/><div role=\"button\" ng-if=\"tempLatlngModified\" ng-click=\"saveLocation()\" class=\"save-location\"><i class=\"fa fa-map-marker\"></i></div><div ng-if=\"invalidLatLng\" class=\"error col-xs-12 no-padding\">Invalid coordinates format</div></div></div></div><div class=\"uploads\"><h3 class=\"form-subtitle\">Uploads</h3><p>Add a photo (.jpg or .png).</p><div class=\"help-text\"><p><i class=\"fa fa-question-circle\"></i>If uploading more than one photo, select all and submit photos together.</p></div><div class=\"form-group\"><div class=\"col-xs-12 no-padding btn-file\"><div class=\"col-xs-3 no-padding\"><span class=\"btn btn-default btn-styled\">Browse</span></div><input type=\"text\" readonly=\"readonly\" placeholder=\".jpg or .png\" value=\"{{ report.files.length ? report.files.length + \' photos added\' : null}}\" class=\"col-xs-9 no-padding\"/><input type=\"file\" name=\"uploads\" file-model=\"report.files\" accept=\".png,.jpg,.jpeg\" multiple=\"multiple\"/></div></div></div></div><div class=\"col-xs-12 col-md-8 form-right-column\"><h3 id=\"top\" class=\"form-subtitle\">Critical Factors Summary</h3><div style=\"margin: 20px 0px;\" class=\"fields-group col-xs-12 no-padding\"><div ng-repeat=\"(item, av) in report.obs.criticalFactors.fields\" ng-if=\"av.type!==\'calculated\'\" class=\"field col-xs-12\"><h4 ng-if=\"av.title === undefined &amp;&amp; av.subTitle === undefined\" class=\"field-title col-xs-12 no-padding\"><strong>{{ ::av.prompt }}</strong></h4><h4 ng-if=\"av.title !== undefined &amp;&amp; av.title !== null\" class=\"field-title col-xs-12 no-padding\"><strong>{{ ::av.title }}</strong></h4><h5 ng-if=\"av.subTitle !== undefined\" class=\"col-xs-12 no-padding\">{{ ::av.subTitle }}</h5><div class=\"options col-xs-12 col-md-8\"><div ng-if=\"av.helpText\" class=\"help-text\"><p><i class=\"fa fa-question-circle\"></i><span>{{ ::av.helpText}}</span><span ng-if=\"av.guidelines\"><a href=\"{{ ::av.guidelines}}\" target=\"_blank\">Submission guidelines</a></span></p></div><div ng-if=\"av.type==\'checkbox\'\" ng-repeat=\"(option, enabled) in av.options\" ng-class=\"{\'inline\':av.inline, \'column-left\':$odd}\" class=\"checkbox col-md-6 col-xs-12\"><label><input type=\"checkbox\" name=\"{{::item}}\" ng-model=\"av.options[option]\" ng-click=\"validate(item, av)\"/>{{ ::option}}</label></div><div ng-if=\"av.type==\'radio\'\" ng-repeat=\"option in av.options\" ng-class=\"{\'inline\':av.inline, \'column-left\':$odd}\" class=\"radio col-md-6 col-xs-12\"><label><input type=\"radio\" ng-model=\"report.obs[key].fields[item].value\" value=\"{{ ::option}}\"/>{{ ::option}}</label></div><div ng-if=\"av.type==\'number\'\" ng-class=\"{\'inline\':av.inline}\" class=\"number col-xs-12\"><label><input type=\"number\" name=\"{{::item}}\" placeholder=\"{{ av.placeholder ? av.placeholder : \'Number between \'+ av.options.min +\' and \'+av.options.max }}\" ng-model=\"report.obs[key].fields[item].value\" ng-blur=\"validate(item, av)\" class=\"form-control\"/></label></div><div ng-if=\"av.type==\'text\'\" ng-class=\"{\'inline\':av.inline}\" class=\"text col-xs-12\"><label><input type=\"text\" name=\"{{::item}}\" placeholder=\"{{ ::av.prompt }}\" ng-model=\"report.obs[key].fields[item].value\" ng-required=\"report.obs[key].fields[av.constraint.field].options[av.constraint.option]\" ng-blur=\"validate(item, av)\" class=\"form-control\"/></label></div><div ng-if=\"av.type==\'dropdown\'\" ng-class=\"{\'inline\':av.inline, \'column-left\':$odd}\" class=\"select col-md-6 col-xs-12 no-padding\"><select ng-options=\"option for option in av.options\" ng-model=\"report.obs[key].fields[item].value\" class=\"form-control\"><option value=\"\">Select option</option></select></div><div ng-if=\"av.type==\'textarea\'\" class=\"textarea col-xs-12\"><textarea rows=\"3\" ng-model=\"report.obs[key].fields[item].value\" class=\"form-control\"></textarea></div><div ng-if=\"av.type==\'datetime\'\" class=\"datetime-input col-xs-12\"><label for=\"datetime\"><input type=\"datetime\" ng-model=\"report.obs[key].fields[item].value\" ac-datetime-picker=\"ac-datetime-picker\" show-only-date=\"av.showOnlyDate\" show-only-time=\"av.showOnlyTime\" max-date-today=\"av.maxDateToday\" placeholder=\"{{av.placeholder ? av.placeholder : \'Click to select date\'}}\" class=\"form-control\"/></label></div><div ng-if=\"acMinForm[item].$invalid\" class=\"error col-xs-12 no-padding\">{{::av.errorMessage}}</div></div><div class=\"options col-xs-12 col-md-4\"></div></div></div><h3 class=\"form-subtitle\">Terrain Avoidance List</h3><div style=\"margin: 20px 0px;\" class=\"fields-group col-xs-12 no-padding\"><div ng-repeat=\"(item, av) in report.obs.terrainAvoidanceList.fields\" ng-if=\"av.type!==\'calculated\'\" class=\"field col-xs-12\"><h4 ng-if=\"av.title === undefined &amp;&amp; av.subTitle === undefined\" class=\"field-title col-xs-12 no-padding\"><strong>{{ ::av.prompt }}</strong></h4><h4 ng-if=\"av.title !== undefined &amp;&amp; av.title !== null\" class=\"field-title col-xs-12 no-padding\"><strong>{{ ::av.title }}</strong></h4><h5 ng-if=\"av.subTitle !== undefined\" class=\"col-xs-12 no-padding\">{{ ::av.subTitle }}</h5><div class=\"options col-xs-12 col-md-8\"><div ng-if=\"av.helpText\" class=\"help-text\"><p><i class=\"fa fa-question-circle\"></i><span>{{ ::av.helpText}}</span><span ng-if=\"av.guidelines\"><a href=\"{{ ::av.guidelines}}\" target=\"_blank\">Submission guidelines</a></span></p></div><div ng-if=\"av.type==\'checkbox\'\" ng-repeat=\"(option, enabled) in av.options\" ng-class=\"{\'inline\':av.inline, \'column-left\':$odd}\" class=\"checkbox col-md-6 col-xs-12\"><label><input type=\"checkbox\" name=\"{{::item}}\" ng-model=\"av.options[option]\" ng-click=\"validate(item, av)\"/>{{ ::option}}</label></div><div ng-if=\"av.type==\'radio\'\" ng-repeat=\"option in av.options\" ng-class=\"{\'inline\':av.inline, \'column-left\':$odd}\" class=\"radio col-md-6 col-xs-12\"><label><input type=\"radio\" ng-model=\"report.obs[key].fields[item].value\" value=\"{{ ::option}}\"/>{{ ::option}}</label></div><div ng-if=\"av.type==\'number\'\" ng-class=\"{\'inline\':av.inline}\" class=\"number col-xs-12\"><label><input type=\"number\" name=\"{{::item}}\" placeholder=\"{{ av.placeholder ? av.placeholder : \'Number between \'+ av.options.min +\' and \'+av.options.max }}\" ng-model=\"report.obs[key].fields[item].value\" ng-blur=\"validate(item, av)\" class=\"form-control\"/></label></div><div ng-if=\"av.type==\'text\'\" ng-class=\"{\'inline\':av.inline}\" class=\"text col-xs-12\"><label><input type=\"text\" name=\"{{::item}}\" placeholder=\"{{ ::av.prompt }}\" ng-model=\"report.obs[key].fields[item].value\" ng-required=\"report.obs[key].fields[av.constraint.field].options[av.constraint.option]\" ng-blur=\"validate(item, av)\" class=\"form-control\"/></label></div><div ng-if=\"av.type==\'dropdown\'\" ng-class=\"{\'inline\':av.inline, \'column-left\':$odd}\" class=\"select col-md-6 col-xs-12 no-padding\"><select ng-options=\"option for option in av.options\" ng-model=\"report.obs[key].fields[item].value\" class=\"form-control\"><option value=\"\">Select option</option></select></div><div ng-if=\"av.type==\'textarea\'\" class=\"textarea col-xs-12\"><textarea rows=\"3\" ng-model=\"report.obs[key].fields[item].value\" class=\"form-control\"></textarea></div><div ng-if=\"av.type==\'datetime\'\" class=\"datetime-input col-xs-12\"><label for=\"datetime\"><input type=\"datetime\" ng-model=\"report.obs[key].fields[item].value\" ac-datetime-picker=\"ac-datetime-picker\" show-only-date=\"av.showOnlyDate\" show-only-time=\"av.showOnlyTime\" max-date-today=\"av.maxDateToday\" placeholder=\"{{av.placeholder ? av.placeholder : \'Click to select date\'}}\" class=\"form-control\"/></label></div><div ng-if=\"acMinForm[item].$invalid\" class=\"error col-xs-12 no-padding\">{{::av.errorMessage}}</div></div><div class=\"options col-xs-12 col-md-4\"></div></div></div><h3 class=\"form-subtitle\">Travel Advice</h3><div style=\"margin: 20px 0px;\" class=\"fields-group col-xs-12 no-padding\"><div ng-repeat=\"(item, av) in report.obs.travelAdvice.fields\" ng-if=\"av.type!==\'calculated\'\" class=\"field col-xs-12\"><h4 ng-if=\"av.title === undefined &amp;&amp; av.subTitle === undefined\" class=\"field-title col-xs-12 no-padding\"><strong>{{ ::av.prompt }}</strong></h4><h4 ng-if=\"av.title !== undefined &amp;&amp; av.title !== null\" class=\"field-title col-xs-12 no-padding\"><strong>{{ ::av.title }}</strong></h4><h5 ng-if=\"av.subTitle !== undefined\" class=\"col-xs-12 no-padding\">{{ ::av.subTitle }}</h5><div class=\"options col-xs-12 col-md-8\"><div ng-if=\"av.helpText\" class=\"help-text\"><p><i class=\"fa fa-question-circle\"></i><span>{{ ::av.helpText}}</span><span ng-if=\"av.guidelines\"><a href=\"{{ ::av.guidelines}}\" target=\"_blank\">Submission guidelines</a></span></p></div><div ng-if=\"av.type==\'checkbox\'\" ng-repeat=\"(option, enabled) in av.options\" ng-class=\"{\'inline\':av.inline, \'column-left\':$odd}\" class=\"checkbox col-md-6 col-xs-12\"><label><input type=\"checkbox\" name=\"{{::item}}\" ng-model=\"av.options[option]\" ng-click=\"validate(item, av)\"/>{{ ::option}}</label></div><div ng-if=\"av.type==\'radio\'\" ng-repeat=\"option in av.options\" ng-class=\"{\'inline\':av.inline, \'column-left\':$odd}\" class=\"radio col-md-6 col-xs-12\"><label><input type=\"radio\" ng-model=\"report.obs[key].fields[item].value\" value=\"{{ ::option}}\"/>{{ ::option}}</label></div><div ng-if=\"av.type==\'number\'\" ng-class=\"{\'inline\':av.inline}\" class=\"number col-xs-12\"><label><input type=\"number\" name=\"{{::item}}\" placeholder=\"{{ av.placeholder ? av.placeholder : \'Number between \'+ av.options.min +\' and \'+av.options.max }}\" ng-model=\"report.obs[key].fields[item].value\" ng-blur=\"validate(item, av)\" class=\"form-control\"/></label></div><div ng-if=\"av.type==\'text\'\" ng-class=\"{\'inline\':av.inline}\" class=\"text col-xs-12\"><label><input type=\"text\" name=\"{{::item}}\" placeholder=\"{{ ::av.prompt }}\" ng-model=\"report.obs[key].fields[item].value\" ng-required=\"report.obs[key].fields[av.constraint.field].options[av.constraint.option]\" ng-blur=\"validate(item, av)\" class=\"form-control\"/></label></div><div ng-if=\"av.type==\'dropdown\'\" ng-class=\"{\'inline\':av.inline, \'column-left\':$odd}\" class=\"select col-md-6 col-xs-12 no-padding\"><select ng-options=\"option for option in av.options\" ng-model=\"report.obs[key].fields[item].value\" class=\"form-control\"><option value=\"\">Select option</option></select></div><div ng-if=\"av.type==\'textarea\'\" class=\"textarea col-xs-12\"><textarea rows=\"3\" ng-model=\"report.obs[key].fields[item].value\" class=\"form-control\"></textarea></div><div ng-if=\"av.type==\'datetime\'\" class=\"datetime-input col-xs-12\"><label for=\"datetime\"><input type=\"datetime\" ng-model=\"report.obs[key].fields[item].value\" ac-datetime-picker=\"ac-datetime-picker\" show-only-date=\"av.showOnlyDate\" show-only-time=\"av.showOnlyTime\" max-date-today=\"av.maxDateToday\" placeholder=\"{{av.placeholder ? av.placeholder : \'Click to select date\'}}\" class=\"form-control\"/></label></div><div ng-if=\"acMinForm[item].$invalid\" class=\"error col-xs-12 no-padding\">{{::av.errorMessage}}</div></div><div class=\"options col-xs-12 col-md-4\"></div></div></div></div></div><div class=\"footer-buttons col-xs-12 no-padding\"><input type=\"button\" value=\"Back\" ng-click=\"goBack(acHotZoneForm.$dirty)\" class=\"btn btn-default btn-styled\"/><div class=\"submit-btn\"><i ng-show=\"submitting\" class=\"fa fa-fw fa-lg fa-spinner fa-spin\"></i><input type=\"button\" ng-click=\"submitForm()\" id=\"submit\" value=\"SUBMIT\" ng-disabled=\"report.latlng.length === 0 || submitting\" class=\"btn btn-default btn-styled\"/></div></div></form><div ng-if=\"error\"><div role=\"alert\" class=\"alert alert-danger\"><p>There was an error submitting your report.</p><p ng-if=\"errormsg\">{{errormsg}}</p></div></div></div>");
 $templateCache.put("loading-indicator.html","<div class=\"ac-loading-indicator\"><div class=\"rect1\"></div><div class=\"rect2\"></div><div class=\"rect3\"></div><div class=\"rect4\"></div><div class=\"rect5\"></div></div>");
 $templateCache.put("min-back-modal.html","<div class=\"modal-body\"><p>Are you sure you want to exit?</p><p>You will lose all your data!</p></div><div class=\"modal-footer\"><button type=\"button\" ng-click=\"discardAndExit()\" class=\"btn btn-default\">Yes</button><button type=\"button\" ng-click=\"stayOnThePage()\" class=\"btn btn-primary\">No</button></div>");
 $templateCache.put("min-map-modal.html","<div class=\"modal-body\"><input type=\"button\" value=\"Save and close\" ng-click=\"save()\" class=\"btn btn-default save-button\"/><div ac-location-select=\"ac-location-select\" latlng=\"params.latlng\" style=\"height: 100%; width: 100%;\" ng-if=\"show\"></div></div>");
 $templateCache.put("min-observation-drawer.html","<div class=\"panel\"><div class=\"panel-body\"><div class=\"row\"><div ng-click=\"closeDrawer()\" class=\"pull-right close-drawer\"><i class=\"fa fa-close\"></i></div><div class=\"col-sm-8 col-xs-12\"><h3>{{sub.title}}</h3></div><div class=\"col-sm-3 col-xs-12\"><a target=\"_blank\" href=\"{{sponsor.getText(&quot;sponsor.url&quot;)}}\" class=\"pull-right\"><img ng-src=\"{{sponsor.getText(&quot;sponsor.image-229&quot;)}}\"/></a></div></div><div class=\"row submission-header\"><div class=\"col-sm-6 section-label\"><i class=\"fa fa-clock-o\"></i><span>Submitted</span></div><div class=\"col-sm-6 section-label full-page-link\"><div ng-click=\"viewFullPage(sub.subid)\" class=\"pull-right\"><i class=\"fa fa-external-link\"></i><span>full page</span></div></div><div class=\"col-sm-12\"><p>By <span> {{sub.user}} </span></p><p>On {{sub.dateFormatted}}</p></div></div></div><div class=\"panel-body\"><div class=\"row-fluid observation-tabs\"><ul role=\"tablist\" class=\"nav nav-pills nav-justified\"><li ng-repeat=\"tab in reportTypes\" role=\"presentation\" ng-class=\"[hasReport(tab),{active: tab === sub.requested}]\"><a ng-click=\"changeTab(tab)\" style=\"text-transform: uppercase;\" ng-class=\"tab\">{{::tab}}</a></li></ul></div><div class=\"row-fluid\"><div class=\"tab-content\"><div ng-repeat=\"tab in reportTypes\" role=\"tabpanel\" id=\"{{tab}}\" ng-class=\"{active: tab === sub.requested}\" class=\"tab-pane\"><div class=\"row-fluid section-label\"><i class=\"fa fa-info-circle\"></i><span>Information</span></div><div ng-repeat=\"ob in sub.obs\"><div ng-if=\"ob.obtype === sub.requested\" ng-repeat=\"item in activeTab\" class=\"submission-header\"><ul class=\"observation-information\"><li ng-if=\"item.type === \'number\' || item.type === \'radio\' || item.type === \'dropdown\' || item.type === \'text\' \" class=\"observation-item\">{{item.prompt}} <span class=\"value\">{{item.value}}</span></li><li ng-if=\"item.type === \'checkbox\'\" class=\"observation-item\">{{item.prompt}}<ul><li ng-repeat=\"op in item.value track by $index\"><span class=\"value\">{{op}}</span><span ng-if=\"!$last\" class=\"value\">, </span></li></ul></li><li ng-if=\"item.type === \'datetime\'\" class=\"observation-item\">{{item.prompt}}<span>&nbsp; {{item.value}}</span></li></ul><div ng-if=\"item.type === \'textarea\'\" class=\"observation-item comments\"><div class=\"row-fluid section-label\"><i class=\"fa fa-comment\"></i><span>Comments</span></div><div class=\"row-fluid\"><div class=\"col-sm-12\">{{item.value}}</div></div></div></div></div></div></div></div></div><div class=\"panel-body upload-n-share\"><div ng-if=\"sub.uploads.length &gt; 0\" class=\"row\"><div class=\"col-sm-12 section-label\"><i class=\"fa fa-camera\"></i><span>Uploads (click/tap to enlarge)</span></div><div class=\"col-sm-12\"><ul class=\"list-inline\"><li ng-repeat=\"url in sub.thumbs\"><a ng-href=\"{{url}}\" target=\"_blank\"><img ng-src=\"{{url}}\" width=\"75\" alt=\"{{sub.title}}\"/></a></li></ul></div></div><div class=\"row\"><div class=\"col-sm-12 section-label\"><i class=\"fa fa-share-square-o\"></i><span>Share this report</span></div><div class=\"col-sm-12\"><div class=\"col-sm-12\"><ul class=\"list-inline\"><li><a ng-href=\"https://twitter.com/intent/tweet?status={{sub.shareUrl}}\"><i class=\"fa fa-twitter fa-fw fa-lg\"></i></a></li><li><a ng-href=\"https://www.facebook.com/sharer/sharer.php?u={{sub.shareUrl}}\"><i class=\"fa fa-facebook fa-fw fa-lg\"></i></a></li><li><a ng-href=\"https://plus.google.com/share?url={{sub.shareUrl}}\"><i class=\"fa fa-google-plus fa-fw fa-lg\"></i></a></li></ul></div></div></div></div></div>");
-$templateCache.put("min-report-form.html","<div class=\"min-form\"><form name=\"acMinForm\" novalidate=\"novalidate\" ng-if=\"!report.subid\" role=\"form\" ac-submission-form-validator=\"ac-submission-form-validator\"><div class=\"form-fields col-xs-12 no-padding\"><div class=\"col-xs-12 col-md-4 form-left-column\"><div class=\"required-info clearfix\"><h3 class=\"form-subtitle\">Step 1. Required Info</h3><div class=\"required-info-data col-xs-12\"><div ng-class=\"{\'has-error\': !acMinForm.title.$valid &amp;&amp; acMinForm.title.$dirty }\" class=\"form-group\"><h4>Name your report</h4><input type=\"text\" name=\"title\" ng-model=\"report.title\" placeholder=\"e.g. Upper Raft River\" required=\"required\" class=\"form-control\"/></div><div ng-class=\"{\'has-error\': !acMinForm.datetime.$valid}\" class=\"form-group\"><h4> Submission date and time</h4><input type=\"datetime\" name=\"datetime\" ng-model=\"report.datetime\" ac-datetime-picker=\"ac-datetime-picker\" max-date-today=\"true\" class=\"form-control\"/></div><div ng-class=\"{\'has-error\': invalidLatLng}\" class=\"form-group\"><h4> Enter location by map</h4><div ng-click=\"openMapModal()\" class=\"btn-map\"><i class=\"fa fa-map-o\"></i></div><h4>or enter location by lat/long</h4><input type=\"text\" ng-class=\"{\'modified\': tempLatlngModified}\" name=\"tempLatlng\" ac-enter=\"saveLocation()\" ng-model=\"report.tempLatlng\" placeholder=\"e.g. 51.522, -188.883\" required=\"required\" class=\"form-control latlng\"/><div role=\"button\" ng-if=\"tempLatlngModified\" ng-click=\"saveLocation()\" class=\"save-location\"><i class=\"fa fa-map-marker\"></i></div><div ng-if=\"invalidLatLng\" class=\"error col-xs-12 no-padding\">Invalid coordinates format</div></div></div></div><div class=\"uploads\"><h3 class=\"form-subtitle\">Step 2. Uploads</h3><p>Add a photo (.jpg or .png) to help tell your story.</p><div class=\"help-text\"><p><i class=\"fa fa-question-circle\"></i>If uploading more than one photo, select all and submit photos together.</p></div><div class=\"form-group\"><div class=\"col-xs-12 no-padding btn-file\"><div class=\"col-xs-3 no-padding\"><span class=\"btn btn-default btn-styled\">Browse</span></div><input type=\"text\" readonly=\"readonly\" placeholder=\".jpg or .png\" value=\"{{ report.files.length ? report.files.length + \' photos added\' : null}}\" class=\"col-xs-9 no-padding\"/><input type=\"file\" name=\"uploads\" file-model=\"report.files\" accept=\".png,.jpg,.jpeg\" multiple=\"multiple\"/></div></div></div></div><div class=\"col-xs-12 col-md-8 form-right-column\"><h3 id=\"top\" class=\"form-subtitle\">Step 3. Observations</h3><div class=\"announcement\">Add information on one, some, or all tabs, then click SUBMIT at the bottom.</div><tabset type=\"pills\" class=\"observation-tabs\"><!--Quick report--><tab ac-tab-style=\"{{getTabExtraClasses(\'quickReport\')}}\" active=\"tabs[\'quickReport\']\"><tab-heading class=\"tab-head\">Quick</tab-heading><div class=\"tab-text col-xs-12 col-md-8 no-padding\">Use the Quick Report to quickly share information about your trip. You can create a comprehensive\nreport by adding more details in the Avalanche, Snowpack, Weather, and/or Incident tabs.</div><div class=\"fields-group col-xs-12 no-padding\"><div ng-repeat=\"(item, ridingCondition) in report.obs.quickReport.ridingConditions\" class=\"field col-xs-12\"><h4 class=\"field-title col-xs-12 no-padding\"><strong>{{ ::ridingCondition.prompt }}</strong></h4><div class=\"options col-xs-12 col-md-8\"><div ng-if=\"ridingCondition.type==\'multiple\'\" ng-repeat=\"(option, enabled) in ridingCondition.options\" ng-class=\"{\'column-left\':$odd}\" class=\"checkbox col-xs-12 col-md-6 inline\"><label><input type=\"checkbox\" name=\"{{ ::item}}\" ng-model=\"ridingCondition.options[option]\"/>{{ ::option}}</label></div><div ng-if=\"ridingCondition.type==\'single\'\" ng-repeat=\"option in ridingCondition.options\" class=\"radio col-xs-12 col-md-6 inline\"><label><input type=\"radio\" name=\"{{ ::item}}\" ng-model=\"ridingCondition.selected\" ng-value=\"option\"/>{{ ::option}}</label></div></div><div class=\"options col-xs-12 col-md-4\"></div></div><div class=\"field col-xs-12\"><h4 class=\"field-title col-xs-12 no-padding\"><strong>Avalanche conditions</strong></h4><div class=\"options col-xs-12 col-md-8\"><div class=\"checkbox col-xs-12\"><label><input type=\"checkbox\" name=\"slab\" ng-model=\"report.obs.quickReport.avalancheConditions.slab\"/>Slab avalanches today or yesterday.</label></div><div class=\"checkbox col-xs-12\"><label><input type=\"checkbox\" name=\"sound\" ng-model=\"report.obs.quickReport.avalancheConditions.sound\"/>Whumpfing or drum-like sounds or shooting cracks.</label></div><div class=\"checkbox col-xs-12\"><label><input type=\"checkbox\" name=\"snow\" ng-model=\"report.obs.quickReport.avalancheConditions.snow\"/>30cm + of new snow, or significant drifitng, or rain in the last 48 hours.</label></div><div class=\"checkbox col-xs-12\"><label><input type=\"checkbox\" name=\"temp\" ng-model=\"report.obs.quickReport.avalancheConditions.temp\"/>Rapid temperature rise to near zero degrees or wet surface snow.</label></div></div><div class=\"options col-xs-12 col-md-4\"></div></div><div class=\"field col-xs-12\"><h4 class=\"field-title col-xs-12 no-padding\"><strong>Comments</strong></h4><div class=\"options col-xs-12 col-md-8\"><div class=\"help-text\"><p><a href=\"http://www.avalanche.ca/fxresources/Submissions+Guidelines.pdf\" target=\"_blank\">Submission guidelines</a></p></div><div class=\"textarea col-xs-12\"><textarea rows=\"3\" name=\"comment\" ng-model=\"report.obs.quickReport.comment\" style=\"resize: vertical;\" class=\"form-control\"></textarea></div></div><div class=\"options col-xs-12 col-md-4\"></div></div></div></tab><tab ng-repeat=\"(key, tab) in additionalFields\" ac-tab-style=\"{{getTabExtraClasses(key)}}\" active=\"tabs[key]\"><tab-heading class=\"tab-head\">{{ ::tab.name}}</tab-heading><div ng-bind-html=\"tab.text\" class=\"tab-text col-xs-12 col-md-8 no-padding\"></div><div class=\"fields-group col-xs-12 no-padding\"><div ng-repeat=\"(item, av) in report.obs[key].fields\" ng-if=\"av.type!==\'calculated\'\" class=\"field col-xs-12\"><h4 ng-if=\"av.title === undefined &amp;&amp; av.subTitle === undefined\" class=\"field-title col-xs-12 no-padding\"><strong>{{ ::av.prompt }}</strong></h4><h4 ng-if=\"av.title !== undefined &amp;&amp; av.title !== null\" class=\"field-title col-xs-12 no-padding\"><strong>{{ ::av.title }}</strong></h4><h5 ng-if=\"av.subTitle !== undefined\" class=\"col-xs-12 no-padding\">{{ ::av.subTitle }}</h5><div class=\"options col-xs-12 col-md-8\"><div ng-if=\"av.helpText\" class=\"help-text\"><p><i class=\"fa fa-question-circle\"></i><span>{{ ::av.helpText}}</span><span ng-if=\"av.guidelines\"><a href=\"{{ ::av.guidelines}}\" target=\"_blank\">Submission guidelines</a></span></p></div><div ng-if=\"av.type==\'checkbox\'\" ng-repeat=\"(option, enabled) in av.options\" ng-class=\"{\'inline\':av.inline, \'column-left\':$odd}\" class=\"checkbox col-md-6 col-xs-12\"><label><input type=\"checkbox\" name=\"{{::item}}\" ng-model=\"av.options[option]\" ng-click=\"validate(item, av)\"/>{{ ::option}}</label></div><div ng-if=\"av.type==\'radio\'\" ng-repeat=\"option in av.options\" ng-class=\"{\'inline\':av.inline, \'column-left\':$odd}\" class=\"radio col-md-6 col-xs-12\"><label><input type=\"radio\" ng-model=\"report.obs[key].fields[item].value\" value=\"{{ ::option}}\"/>{{ ::option}}</label></div><div ng-if=\"av.type==\'number\'\" ng-class=\"{\'inline\':av.inline}\" class=\"number col-xs-12\"><label><input type=\"number\" name=\"{{::item}}\" placeholder=\"{{ av.placeholder ? av.placeholder : \'Number between \'+ av.options.min +\' and \'+av.options.max }}\" ng-model=\"report.obs[key].fields[item].value\" ng-blur=\"validate(item, av)\" class=\"form-control\"/></label></div><div ng-if=\"av.type==\'text\'\" ng-class=\"{\'inline\':av.inline}\" class=\"text col-xs-12\"><label><input type=\"text\" name=\"{{::item}}\" placeholder=\"{{ ::av.prompt }}\" ng-model=\"report.obs[key].fields[item].value\" ng-required=\"report.obs[key].fields[av.constraint.field].options[av.constraint.option]\" ng-blur=\"validate(item, av)\" class=\"form-control\"/></label></div><div ng-if=\"av.type==\'dropdown\'\" ng-class=\"{\'inline\':av.inline, \'column-left\':$odd}\" class=\"select col-md-6 col-xs-12 no-padding\"><select ng-options=\"option for option in av.options\" ng-model=\"report.obs[key].fields[item].value\" class=\"form-control\"><option value=\"\">Select option</option></select></div><div ng-if=\"av.type==\'textarea\'\" class=\"textarea col-xs-12\"><textarea rows=\"3\" ng-model=\"report.obs[key].fields[item].value\" class=\"form-control\"></textarea></div><div ng-if=\"av.type==\'datetime\'\" class=\"datetime-input col-xs-12\"><label for=\"datetime\"><input type=\"datetime\" ng-model=\"report.obs[key].fields[item].value\" ac-datetime-picker=\"ac-datetime-picker\" show-only-date=\"av.showOnlyDate\" show-only-time=\"av.showOnlyTime\" max-date-today=\"av.maxDateToday\" placeholder=\"{{av.placeholder ? av.placeholder : \'Click to select date\'}}\" class=\"form-control\"/></label></div><div ng-if=\"acMinForm[item].$invalid\" class=\"error col-xs-12 no-padding\">{{::av.errorMessage}}</div></div><div class=\"options col-xs-12 col-md-4\"></div></div></div></tab></tabset><tabset type=\"pills\" class=\"observation-tabs bottom col-xs-12 no-padding\"><!--Quick report--><tab ac-tab-style=\"{{getTabExtraClasses(\'quickReport\')}}\" active=\"tabs[\'quickReport\']\" ng-click=\"scrollToTop()\"><tab-heading class=\"tab-head\">Quick</tab-heading></tab><tab ng-repeat=\"(key, tab) in additionalFields\" ac-tab-style=\"{{getTabExtraClasses(key)}}\" active=\"tabs[key]\" ng-click=\"scrollToTop()\"><tab-heading class=\"tab-head\">{{ ::tab.name}}</tab-heading></tab></tabset></div></div><div class=\"footer-buttons col-xs-12 no-padding\"><input type=\"button\" value=\"Back\" ng-click=\"goBack(acMinForm.$dirty)\" class=\"btn btn-default btn-styled\"/><div class=\"submit-btn\"><i ng-show=\"minsubmitting\" class=\"fa fa-fw fa-lg fa-spinner fa-spin\"></i><input type=\"button\" ng-click=\"submitForm()\" id=\"submit\" value=\"SUBMIT\" ng-disabled=\"report.latlng.length === 0 || minsubmitting\" class=\"btn btn-default btn-styled\"/></div></div></form><div ng-if=\"minerror\"><div role=\"alert\" class=\"alert alert-danger\"><p>There was an error submittting you report.</p><p ng-if=\"minerrormsg\">{{minerrormsg}}</p></div></div></div>");
+$templateCache.put("min-report-form.html","<div class=\"min-form\"><form name=\"acMinForm\" novalidate=\"novalidate\" ng-if=\"!report.subid\" role=\"form\" ac-submission-form-validator=\"ac-submission-form-validator\"><div class=\"form-fields col-xs-12 no-padding\"><div class=\"col-xs-12 col-md-4 form-left-column\"><div class=\"required-info clearfix\"><h3 class=\"form-subtitle\">Step 1. Required Info</h3><div class=\"required-info-data col-xs-12\"><div ng-class=\"{\'has-error\': !acMinForm.title.$valid &amp;&amp; acMinForm.title.$dirty }\" class=\"form-group\"><h4>Name your report</h4><input type=\"text\" name=\"title\" ng-model=\"report.title\" placeholder=\"e.g. Upper Raft River\" required=\"required\" class=\"form-control\"/></div><div ng-class=\"{\'has-error\': !acMinForm.datetime.$valid}\" class=\"form-group\"><h4> Submission date and time</h4><input type=\"datetime\" name=\"datetime\" ng-model=\"report.datetime\" ac-datetime-picker=\"ac-datetime-picker\" max-date-today=\"true\" class=\"form-control\"/></div><div ng-class=\"{\'has-error\': invalidLatLng}\" class=\"form-group\"><h4> Enter location by map</h4><div ng-click=\"openMapModal()\" class=\"btn-map\"><i class=\"fa fa-map-o\"></i></div><h4>or enter location by lat/long</h4><input type=\"text\" ng-class=\"{\'modified\': tempLatlngModified}\" name=\"tempLatlng\" ac-enter=\"saveLocation()\" ng-model=\"report.tempLatlng\" placeholder=\"e.g. 51.522, -188.883\" required=\"required\" class=\"form-control latlng\"/><div role=\"button\" ng-if=\"tempLatlngModified\" ng-click=\"saveLocation()\" class=\"save-location\"><i class=\"fa fa-map-marker\"></i></div><div ng-if=\"invalidLatLng\" class=\"error col-xs-12 no-padding\">Invalid coordinates format</div></div></div></div><div class=\"uploads\"><h3 class=\"form-subtitle\">Step 2. Uploads</h3><p>Add a photo (.jpg or .png) to help tell your story.</p><div class=\"help-text\"><p><i class=\"fa fa-question-circle\"></i>If uploading more than one photo, select all and submit photos together.</p></div><div class=\"form-group\"><div class=\"col-xs-12 no-padding btn-file\"><div class=\"col-xs-3 no-padding\"><span class=\"btn btn-default btn-styled\">Browse</span></div><input type=\"text\" readonly=\"readonly\" placeholder=\".jpg or .png\" value=\"{{ report.files.length ? report.files.length + \' photos added\' : null}}\" class=\"col-xs-9 no-padding\"/><input type=\"file\" name=\"uploads\" file-model=\"report.files\" accept=\".png,.jpg,.jpeg\" multiple=\"multiple\"/></div></div></div></div><div class=\"col-xs-12 col-md-8 form-right-column\"><h3 id=\"top\" class=\"form-subtitle\">Step 3. Observations</h3><div class=\"announcement\">Add information on one, some, or all tabs, then click SUBMIT at the bottom.</div><tabset type=\"pills\" class=\"observation-tabs\"><!--Quick report--><tab ac-tab-style=\"{{getTabExtraClasses(\'quickReport\')}}\" active=\"tabs[\'quickReport\']\"><tab-heading class=\"tab-head\">Quick</tab-heading><div class=\"tab-text col-xs-12 col-md-8 no-padding\">Use the Quick Report to quickly share information about your trip. You can create a comprehensive\nreport by adding more details in the Avalanche, Snowpack, Weather, and/or Incident tabs.</div><div class=\"fields-group col-xs-12 no-padding\"><div ng-repeat=\"(item, ridingCondition) in report.obs.quickReport.ridingConditions\" class=\"field col-xs-12\"><h4 class=\"field-title col-xs-12 no-padding\"><strong>{{ ::ridingCondition.prompt }}</strong></h4><div class=\"options col-xs-12 col-md-8\"><div ng-if=\"ridingCondition.type==\'multiple\'\" ng-repeat=\"(option, enabled) in ridingCondition.options\" ng-class=\"{\'column-left\':$odd}\" class=\"checkbox col-xs-12 col-md-6 inline\"><label><input type=\"checkbox\" name=\"{{ ::item}}\" ng-model=\"ridingCondition.options[option]\"/>{{ ::option}}</label></div><div ng-if=\"ridingCondition.type==\'single\'\" ng-repeat=\"option in ridingCondition.options\" class=\"radio col-xs-12 col-md-6 inline\"><label><input type=\"radio\" name=\"{{ ::item}}\" ng-model=\"ridingCondition.selected\" ng-value=\"option\"/>{{ ::option}}</label></div></div><div class=\"options col-xs-12 col-md-4\"></div></div><div class=\"field col-xs-12\"><h4 class=\"field-title col-xs-12 no-padding\"><strong>Avalanche conditions</strong></h4><div class=\"options col-xs-12 col-md-8\"><div class=\"checkbox col-xs-12\"><label><input type=\"checkbox\" name=\"slab\" ng-model=\"report.obs.quickReport.avalancheConditions.slab\"/>Slab avalanches today or yesterday.</label></div><div class=\"checkbox col-xs-12\"><label><input type=\"checkbox\" name=\"sound\" ng-model=\"report.obs.quickReport.avalancheConditions.sound\"/>Whumpfing or drum-like sounds or shooting cracks.</label></div><div class=\"checkbox col-xs-12\"><label><input type=\"checkbox\" name=\"snow\" ng-model=\"report.obs.quickReport.avalancheConditions.snow\"/>30cm + of new snow, or significant drifitng, or rain in the last 48 hours.</label></div><div class=\"checkbox col-xs-12\"><label><input type=\"checkbox\" name=\"temp\" ng-model=\"report.obs.quickReport.avalancheConditions.temp\"/>Rapid temperature rise to near zero degrees or wet surface snow.</label></div></div><div class=\"options col-xs-12 col-md-4\"></div></div><div class=\"field col-xs-12\"><h4 class=\"field-title col-xs-12 no-padding\"><strong>Comments</strong></h4><div class=\"options col-xs-12 col-md-8\"><div class=\"help-text\"><p><a href=\"http://www.avalanche.ca/fxresources/Submissions+Guidelines.pdf\" target=\"_blank\">Submission guidelines</a></p></div><div class=\"textarea col-xs-12\"><textarea rows=\"3\" name=\"comment\" ng-model=\"report.obs.quickReport.comment\" style=\"resize: vertical;\" class=\"form-control\"></textarea></div></div><div class=\"options col-xs-12 col-md-4\"></div></div></div></tab><tab ng-repeat=\"(key, tab) in additionalFields\" ac-tab-style=\"{{getTabExtraClasses(key)}}\" active=\"tabs[key]\"><tab-heading class=\"tab-head\">{{ ::tab.name}}</tab-heading><div ng-bind-html=\"tab.text\" class=\"tab-text col-xs-12 col-md-8 no-padding\"></div><div class=\"fields-group col-xs-12 no-padding\"><div ng-repeat=\"(item, av) in report.obs[key].fields\" ng-if=\"av.type!==\'calculated\'\" class=\"field col-xs-12\"><h4 ng-if=\"av.title === undefined &amp;&amp; av.subTitle === undefined\" class=\"field-title col-xs-12 no-padding\"><strong>{{ ::av.prompt }}</strong></h4><h4 ng-if=\"av.title !== undefined &amp;&amp; av.title !== null\" class=\"field-title col-xs-12 no-padding\"><strong>{{ ::av.title }}</strong></h4><h5 ng-if=\"av.subTitle !== undefined\" class=\"col-xs-12 no-padding\">{{ ::av.subTitle }}</h5><div class=\"options col-xs-12 col-md-8\"><div ng-if=\"av.helpText\" class=\"help-text\"><p><i class=\"fa fa-question-circle\"></i><span>{{ ::av.helpText}}</span><span ng-if=\"av.guidelines\"><a href=\"{{ ::av.guidelines}}\" target=\"_blank\">Submission guidelines</a></span></p></div><div ng-if=\"av.type==\'checkbox\'\" ng-repeat=\"(option, enabled) in av.options\" ng-class=\"{\'inline\':av.inline, \'column-left\':$odd}\" class=\"checkbox col-md-6 col-xs-12\"><label><input type=\"checkbox\" name=\"{{::item}}\" ng-model=\"av.options[option]\" ng-click=\"validate(item, av)\"/>{{ ::option}}</label></div><div ng-if=\"av.type==\'radio\'\" ng-repeat=\"option in av.options\" ng-class=\"{\'inline\':av.inline, \'column-left\':$odd}\" class=\"radio col-md-6 col-xs-12\"><label><input type=\"radio\" ng-model=\"report.obs[key].fields[item].value\" value=\"{{ ::option}}\"/>{{ ::option}}</label></div><div ng-if=\"av.type==\'number\'\" ng-class=\"{\'inline\':av.inline}\" class=\"number col-xs-12\"><label><input type=\"number\" name=\"{{::item}}\" placeholder=\"{{ av.placeholder ? av.placeholder : \'Number between \'+ av.options.min +\' and \'+av.options.max }}\" ng-model=\"report.obs[key].fields[item].value\" ng-blur=\"validate(item, av)\" class=\"form-control\"/></label></div><div ng-if=\"av.type==\'text\'\" ng-class=\"{\'inline\':av.inline}\" class=\"text col-xs-12\"><label><input type=\"text\" name=\"{{::item}}\" placeholder=\"{{ ::av.prompt }}\" ng-model=\"report.obs[key].fields[item].value\" ng-required=\"report.obs[key].fields[av.constraint.field].options[av.constraint.option]\" ng-blur=\"validate(item, av)\" class=\"form-control\"/></label></div><div ng-if=\"av.type==\'dropdown\'\" ng-class=\"{\'inline\':av.inline, \'column-left\':$odd}\" class=\"select col-md-6 col-xs-12 no-padding\"><select ng-options=\"option for option in av.options\" ng-model=\"report.obs[key].fields[item].value\" class=\"form-control\"><option value=\"\">Select option</option></select></div><div ng-if=\"av.type==\'textarea\'\" class=\"textarea col-xs-12\"><textarea rows=\"3\" ng-model=\"report.obs[key].fields[item].value\" class=\"form-control\"></textarea></div><div ng-if=\"av.type==\'datetime\'\" class=\"datetime-input col-xs-12\"><label for=\"datetime\"><input type=\"datetime\" ng-model=\"report.obs[key].fields[item].value\" ac-datetime-picker=\"ac-datetime-picker\" show-only-date=\"av.showOnlyDate\" show-only-time=\"av.showOnlyTime\" max-date-today=\"av.maxDateToday\" placeholder=\"{{av.placeholder ? av.placeholder : \'Click to select date\'}}\" class=\"form-control\"/></label></div><div ng-if=\"acMinForm[item].$invalid\" class=\"error col-xs-12 no-padding\">{{::av.errorMessage}}</div></div><div class=\"options col-xs-12 col-md-4\"></div></div></div></tab></tabset><tabset type=\"pills\" class=\"observation-tabs bottom col-xs-12 no-padding\"><!--Quick report--><tab ac-tab-style=\"{{getTabExtraClasses(\'quickReport\')}}\" active=\"tabs[\'quickReport\']\" ng-click=\"scrollToTop()\"><tab-heading class=\"tab-head\">Quick</tab-heading></tab><tab ng-repeat=\"(key, tab) in additionalFields\" ac-tab-style=\"{{getTabExtraClasses(key)}}\" active=\"tabs[key]\" ng-click=\"scrollToTop()\"><tab-heading class=\"tab-head\">{{ ::tab.name}}</tab-heading></tab></tabset></div></div><div class=\"footer-buttons col-xs-12 no-padding\"><input type=\"button\" value=\"Back\" ng-click=\"goBack(acMinForm.$dirty)\" class=\"btn btn-default btn-styled\"/><div class=\"submit-btn\"><i ng-show=\"minsubmitting\" class=\"fa fa-fw fa-lg fa-spinner fa-spin\"></i><input type=\"button\" ng-click=\"submitForm()\" id=\"submit\" value=\"SUBMIT\" ng-disabled=\"report.latlng.length === 0 || minsubmitting\" class=\"btn btn-default btn-styled\"/></div></div></form><div ng-if=\"minerror\"><div role=\"alert\" class=\"alert alert-danger\"><p>There was an error submitting your report.</p><p ng-if=\"minerrormsg\">{{minerrormsg}}</p></div></div></div>");
 $templateCache.put("min-report-fullpage.html","<div class=\"panel\"><div class=\"panel-body\"><div class=\"row\"><div ng-click=\"closeDrawer()\" class=\"pull-right close-drawer\"><i class=\"fa fa-close\"></i></div><div class=\"col-sm-8 col-xs-12\"><h3>{{::sub.title}}</h3></div><div class=\"col-sm-3 col-xs-12\"><a target=\"_blank\" href=\"{{sponsor.getText(&quot;sponsor.url&quot;)}}\" class=\"pull-right\"><img ng-src=\"{{sponsor.getText(&quot;sponsor.image-229&quot;)}}\"/></a></div></div><div class=\"row submission-header\"><div class=\"col-sm-6 section-label\"><i class=\"fa fa-clock-o\"></i><span>Submitted</span></div><div class=\"col-sm-6 section-label print-link\"><div ng-click=\"print()\" class=\"pull-right\"><i class=\"fa fa-print\"></i><span>Print friendly</span></div></div><div class=\"col-sm-12\"><p>By <span> {{::sub.user}} </span></p><p>On {{::sub.dateFormatted}}</p></div></div></div><div ng-repeat=\"report in activeReports\" class=\"panel-body observation-list\"><div class=\"row-fluid observation-title\">{{::report.obtype}} report</div><div class=\"row-fluid\"><div class=\"row-fluid section-label\"><i class=\"fa fa-info-circle\"></i><span>Information</span></div><div ng-repeat=\"item in report.ob\" class=\"submission-header\"><ul class=\"observation-information\"><li ng-if=\"item.type === \'number\' || item.type === \'radio\'|| item.type === \'dropdown\'\" class=\"observation-item\">{{::item.prompt}} <span class=\"value\">{{::item.value}}</span></li><li ng-if=\"item.type === \'checkbox\'\" class=\"observation-item\">{{::item.prompt}}<ul><li ng-repeat=\"op in item.value track by $index\"><span class=\"value\">{{op}}</span><span ng-if=\"!$last\" class=\"value\">, </span></li></ul></li><li ng-if=\"item.type === \'datetime\'\" class=\"observation-item\">{{::item.prompt}}<span>&nbsp; {{::item.value | dateformat}}</span></li></ul><div ng-if=\"item.type === \'textarea\'\" class=\"observation-item comments\"><div class=\"row-fluid section-label\"><i class=\"fa fa-comment\"></i><span>Comments</span></div><div class=\"row-fluid\"><div class=\"col-sm-12\">{{::item.value}}</div></div></div></div></div></div><div class=\"panel-body upload-n-share\"><div class=\"row-fluid observation-title\">Uploads</div><div ng-if=\"sub.uploads.length &gt; 0\" class=\"row\"><div class=\"col-sm-12 section-label\"><i class=\"fa fa-camera\"></i><span>Uploads (click/tap to enlarge)</span></div><div class=\"col-sm-12\"><ul class=\"list-inline\"><li ng-repeat=\"url in sub.thumbs\"><a ng-href=\"{{::url}}\" target=\"_blank\"><img ng-src=\"{{::url}}\" width=\"75\" alt=\"{{::sub.title}}\"/></a></li></ul></div></div><div class=\"row share-report\"><div class=\"col-sm-12 section-label\"><i class=\"fa fa-share-square-o\"></i><span>Share this report</span></div><div class=\"col-sm-12\"><div class=\"col-sm-12\"><ul class=\"list-inline\"><li><a ng-href=\"https://twitter.com/intent/tweet?status={{::sub.shareUrl}}\"><i class=\"fa fa-twitter fa-fw fa-lg\"></i></a></li><li><a ng-href=\"https://www.facebook.com/sharer/sharer.php?u={{::sub.shareUrl}}\"><i class=\"fa fa-facebook fa-fw fa-lg\"></i></a></li><li><a ng-href=\"https://plus.google.com/share?url={{::sub.shareUrl}}\"><i class=\"fa fa-google-plus fa-fw fa-lg\"></i></a></li></ul></div></div></div></div></div>");
 $templateCache.put("min-report-modal.html","<div id=\"minForm\" role=\"dialog\" class=\"modal fade\"><div class=\"modal-dialog\"><div class=\"modal-content\"><div class=\"modal-header\"><button data-dismiss=\"modal\" class=\"close\"><span>close</span></button><h4 class=\"modal-title\">Mountain Information Network Report</h4></div><div class=\"modal-body\"><div ac-min-report-form=\"ac-min-report-form\"></div></div></div></div></div>");
 $templateCache.put("min-report-popup-modal.html","<div id=\"mobileMapPopup\" role=\"dialog\" class=\"modal fade\"><div class=\"modal-dialog\"><div class=\"modal-content\"><div class=\"modal-body\"></div>                <a href=\"#\" data-dismiss=\"modal\" style=\"position: absolute; right: 10px; top: 10px;\" class=\"pull-right\"><i class=\"fa fa-close fa-lg\"></i></a></div></div></div>");
