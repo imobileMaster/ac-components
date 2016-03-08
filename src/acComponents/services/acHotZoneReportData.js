@@ -131,7 +131,7 @@ angular.module('acComponents.services')
         order: 4
       },
 
-      elevationBetween: {
+      elevationBetweenLow: {
         type: 'number',
         prompt: 'Elevation between:',
         options: {
@@ -143,11 +143,23 @@ angular.module('acComponents.services')
         order: 5
       },
 
+      elevationBetweenHigh: {
+        type: 'number',
+        subTitle: 'and',
+        options: {
+          'min': 0,
+          'max': 5000
+        },
+        value: null,
+        errorMessage: 'Number between 0 and 5000 please.',
+        order: 6
+      },
+
       terrainFeatures: {
         type: 'checkbox',
         prompt: 'Terrain features:',
         options: {
-          'Steeper than:': false,
+          'Steeper than [fill out below]': false,
           'Convex': false,
           'Unsupported': false,
           'Lee Slopes': false,
@@ -157,14 +169,41 @@ angular.module('acComponents.services')
           'Other': false
         },
         inline: true,
-        order: 6
+        helpText: 'If "steeper than" and/or  "other", please describe it below.',
+        order: 7
+      },
+
+      steeperThan: {
+        title: null,
+        type: 'text',
+        prompt: 'Steeper than:',
+        value: null,
+        order: 8,
+        errorMessage: 'Please enter steeper than value',
+        constraint: {
+          field: 'terrainFeatures',
+          option: 'Steeper than [fill out below]'
+        }
+      },
+
+      otherTerrainFeatures: {
+        title: null,
+        type: 'text',
+        prompt: 'Describe other terrain features',
+        value: null,
+        order: 9,
+        errorMessage: 'Please describe what other terrain features.',
+        constraint: {
+          field: 'terrainFeatures',
+          option: 'Other'
+        }
       },
 
       terrainAvoidanceComments: {
         prompt: 'Comments',
         type: 'textarea',
         value: null,
-        order: 7
+        order: 10
       }
 
     };
