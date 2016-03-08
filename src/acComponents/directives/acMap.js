@@ -431,12 +431,27 @@ angular.module('acComponents.directives')
         }
 
         function setRegion(region) {
+
+          var regionType =region.feature.properties.type;
+          if(regionType === 'link'|| regionType === 'parks') {
+            var url = region.feature.properties.url; 
+            if(region.feature.properties.type === 'parks') {
+                url = region.feature.properties.externalUrl
+            } 
+            $window.open(url, '_blank');
+            // Stop the card from displaying
+            $scope.region = undefined;
+            return;
+          }
+
+
           layers.currentRegion = region;
           if ($scope.region !== region) {
             $timeout(function () {
               $scope.region = region;
             }, 10);
           }
+
 
           layers.regions.eachLayer(function (layer) {
             if (layer === region) {

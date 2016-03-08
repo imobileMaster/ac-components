@@ -13,4 +13,37 @@ angular.module('acComponents.directives')
                 $scope.apiUrl = AC_API_ROOT_URL;
             }
         };
+    })
+    .directive('acForecastMiniExternal', function (AC_API_ROOT_URL) {
+        return {
+            restrict: 'E',
+            templateUrl: 'forecast-mini-external.html',
+            scope: { forecast: '=' },
+        };
+    })
+    .directive('acForecastMiniParks', function (AC_API_ROOT_URL) {
+        return {
+            restrict: 'E',
+            templateUrl: 'forecast-mini-parks.html',
+            scope: { forecast: '=' },
+        };
+    })
+    .directive('acForecastMiniAvalx', function (AC_API_ROOT_URL) {
+        return {
+            restrict: 'E',
+            templateUrl: 'forecast-mini-avalx.html',
+            scope: { 
+                forecast: '=',
+                dangerRating: '=',
+                disclaimer: '=',
+                sponsor: '='
+            }
+        };
+    })
+    .directive('whistlerLinks', function (AC_API_ROOT_URL) {
+        return {
+            restrict: 'E',
+            templateUrl: 'wbc-links.html'
+        };
     });
+;
