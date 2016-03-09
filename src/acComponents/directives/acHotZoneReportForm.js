@@ -13,20 +13,14 @@ angular.module('acComponents.directives')
                   $anchorScroll('top');
                 };
 
-                function tabCompleted (tab) {
-                  if (tab === 'quickReport') {
-                    return acReportData.quick.isCompleted($scope.report.obs.quickReport);
-                  } else {
-                    return $scope.report.obs[tab].isCompleted();
-                  }
-                }
+                $scope.locations = ['Renshaw', 'Kakwa'];
 
                 function initReport() {
                   $scope.report = {
                     headline: '',
                     dateissue: moment().format('YYYY-MM-DD hh:mm A'),
                     datevalid: moment().format('YYYY-MM-DD hh:mm A'),
-                    latlng: [],
+                    location: null,
                     files: [],
                     obs: {
                       criticalFactors: angular.copy(acReportData.hotzone.criticalFactors),
@@ -70,6 +64,9 @@ angular.module('acComponents.directives')
                 };
 
                 $scope.submitForm = function() {
+                    if (!$scope.report.location) {
+                        $scope.invalidLatLng = true;
+                    }
 
                     // var reqObj = _.cloneDeep($scope.report);
 

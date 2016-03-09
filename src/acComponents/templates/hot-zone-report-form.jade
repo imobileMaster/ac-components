@@ -18,17 +18,13 @@
                   h4
                     |  Valid until
                   input.form-control(type="datetime", name="datevalid", ng-model="report.datevalid", ac-datetime-picker, max-date-today="false")
-                .form-group(ng-class="{'has-error': invalidLatLng}")
+                .form-group(ng-class="{'has-error': invalidLocation}")
                   h4
-                    |  Enter location by map
-                  .btn-map(ng-click="openMapModal()")
-                    i.fa.fa-map-o
-                  h4
-                    | or enter location by lat/long
-                  input.form-control.latlng(type="text", ng-class="{'modified': tempLatlngModified}", name="tempLatlng", ac-enter="saveLocation()" ng-model="report.tempLatlng", placeholder="e.g. 51.522, -188.883", required)
-                  .save-location(role="button", ng-if="tempLatlngModified", ng-click="saveLocation()")
-                    i.fa.fa-map-marker
-                  .error.col-xs-12.no-padding(ng-if="invalidLatLng") Invalid coordinates format
+                    |  Location
+                  .radio.col-md-6.col-xs-12(ng-repeat="option in locations", style="margin-top: 10px;")
+                    label(style="color: black;")
+                      input(type="radio", ng-model="report.location", value="{{ ::option}}")
+                      | {{ ::option}}
             .uploads
               h3.form-subtitle Step 2. Uploads
 
