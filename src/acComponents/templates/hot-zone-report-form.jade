@@ -3,7 +3,7 @@
         div.form-fields.col-xs-12.no-padding
           div.col-xs-12.col-md-4.form-left-column
             .required-info.clearfix
-              h3.form-subtitle Required Info
+              h3.form-subtitle Step 1. Required Info
 
               .required-info-data.col-xs-12
                 .form-group(ng-class="{'has-error': !acHotZoneForm.title.$valid && acHotZoneForm.title.$dirty }")
@@ -30,7 +30,7 @@
                     i.fa.fa-map-marker
                   .error.col-xs-12.no-padding(ng-if="invalidLatLng") Invalid coordinates format
             .uploads
-              h3.form-subtitle Uploads
+              h3.form-subtitle Step 2. Uploads
 
               p Add a photo (.jpg or .png).
 
@@ -49,8 +49,13 @@
 
 
           div(class="col-xs-12 col-md-8 form-right-column")
-            h3.form-subtitle#top Critical Factors Summary
-            .fields-group.col-xs-12.no-padding(style='margin: 20px 0px;')
+            .row
+              .col-xs-12
+                h3.form-subtitle#top Step 3. Report Details
+            .row
+              .col-xs-12
+                h4.form-subsection Critical Factors Summary
+            .fields-group.col-xs-12.no-padding(style='margin: 0; background-color: white;')
               .field.col-xs-12(ng-repeat="(item, av) in report.obs.criticalFactors.fields", ng-if="av.type!=='calculated'")
 
                 h4.field-title.col-xs-12.no-padding(ng-if="av.title === undefined && av.subTitle === undefined")
@@ -92,8 +97,10 @@
                   .error.col-xs-12.no-padding(ng-if="acHotZoneForm[item].$invalid") {{::av.errorMessage}}
                 .options.col-xs-12.col-md-4
 
-            h3.form-subtitle Terrain Avoidance List
-            .fields-group.col-xs-12.no-padding(style='margin: 20px 0px;')
+            .row
+              .col-xs-12
+                h4.form-subsection Terrain Avoidance List
+            .fields-group.col-xs-12.no-padding(style='margin: 0; background-color: white;')
               .field.col-xs-12(ng-repeat="(item, av) in report.obs.terrainAvoidanceList.fields", ng-if="av.type!=='calculated'")
 
                 h4.field-title.col-xs-12.no-padding(ng-if="av.title === undefined && av.subTitle === undefined")
@@ -135,8 +142,10 @@
                   .error.col-xs-12.no-padding(ng-if="acHotZoneForm[item].$invalid") {{::av.errorMessage}}
                 .options.col-xs-12.col-md-4
 
-            h3.form-subtitle Travel Advice
-            .fields-group.col-xs-12.no-padding(style='margin: 20px 0px;')
+            .row
+              .col-xs-12
+                h4.form-subsection Travel Advice
+            .fields-group.col-xs-12.no-padding(style='margin: 0; background-color: white;')
               .field.col-xs-12(ng-repeat="(item, av) in report.obs.travelAdvice.fields", ng-if="av.type!=='calculated'")
 
                 h4.field-title.col-xs-12.no-padding(ng-if="av.title === undefined && av.subTitle === undefined")

@@ -67,7 +67,7 @@ angular.module('acComponents.services')
       },
 
       criticalFactorsComments: {
-        prompt: 'Comments:',
+        prompt: 'Critical factors comments:',
         type: 'textarea',
         value: null,
         order: 8
@@ -101,7 +101,7 @@ angular.module('acComponents.services')
         options: {
           'Alpine': false,
           'Treeline': false,
-          'Below Treeline': false
+          'Below treeline': false
         },
         inline: true,
         order: 2
@@ -159,17 +159,17 @@ angular.module('acComponents.services')
         type: 'checkbox',
         prompt: 'Terrain features:',
         options: {
-          'Steeper than [fill out below]': false,
+          'Steeper than [enter number below]': false,
           'Convex': false,
           'Unsupported': false,
-          'Lee Slopes': false,
-          'Crossloaded Slopes': false,
-          'Shallow Snowpack': false,
-          'Variable Depth Snowpack': false,
-          'Other': false
+          'Lee slopes': false,
+          'Crossloaded slopes': false,
+          'Shallow snowpack': false,
+          'Variable depth snowpack': false,
+          'Other [describe below]': false
         },
         inline: true,
-        helpText: 'If "steeper than" and/or  "other", please describe it below.',
+        helpText: 'Use input boxes below if "steeper than" and/or "other."',
         order: 7
       },
 
@@ -186,7 +186,7 @@ angular.module('acComponents.services')
         },
         constraint: {
           field: 'terrainFeatures',
-          option: 'Steeper than [fill out below]'
+          option: 'Steeper than [enter number below]'
         }
       },
 
@@ -199,12 +199,12 @@ angular.module('acComponents.services')
         errorMessage: 'Please describe what other terrain features.',
         constraint: {
           field: 'terrainFeatures',
-          option: 'Other'
+          option: 'Other [describe below]'
         }
       },
 
       terrainAvoidanceComments: {
-        prompt: 'Comments',
+        prompt: 'Terrain avoidance comments:',
         type: 'textarea',
         value: null,
         order: 10
