@@ -132,52 +132,6 @@ angular.module('acComponents.directives')
                   return modalInstance.result;
                 }
 
-
-                $scope.openMapModal = function () {
-                  var modalInstance = $modal.open({
-                    animation: false,
-                    templateUrl: 'min-map-modal.html',
-                    controller: 'acMapModal',
-                    size: 'lg',
-                    windowClass: 'map-modal',
-                    resolve: {
-                      latlng: function () {
-                        return $scope.report.latlng
-                      }
-                    }
-                  });
-
-                  modalInstance.result.then(function (latlng) {
-                    $scope.report.latlng = latlng;
-                  });
-                };
-
-                var watch = $scope.$watchCollection(function () { return [$scope.report.latlng, $scope.report.tempLatlng]; }, function (newVal, oldVal) {
-                  if (newVal) {
-                    if (newVal[0] !== oldVal[0]) {
-                      $scope.report.tempLatlng = $scope.report.latlng.join(',');
-                      newVal[1] = $scope.report.tempLatlng;
-                      $scope.tempLatlngModified = false;
-                    }
-                    if (newVal[1] && newVal[1] !== newVal[0].join(',')) {
-                      $scope.tempLatlngModified = true;
-                    }
-                  }
-                });
-
-                $scope.$on('$destroy', function () {
-                  watch();
-                });
-
-                $scope.saveLocation = function () {
-                  if (acFormUtils.validateLocationString($scope.report.tempLatlng)) {
-                    $scope.report.latlng = $scope.report.tempLatlng.split(',');
-                    $scope.tempLatlngModified = false;
-                    $scope.invalidLatLng = false;
-                  } else {
-                    $scope.invalidLatLng = true;
-                  }
-                };
             }
         };
     });
