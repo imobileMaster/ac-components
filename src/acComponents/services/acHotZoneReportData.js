@@ -175,11 +175,15 @@ angular.module('acComponents.services')
 
       steeperThan: {
         title: null,
-        type: 'text',
+        type: 'number',
         prompt: 'Steeper than:',
         value: null,
         order: 8,
         errorMessage: 'Please enter steeper than value',
+        options: {
+          'min': 0,
+          'max': 90
+        },
         constraint: {
           field: 'terrainFeatures',
           option: 'Steeper than [fill out below]'
