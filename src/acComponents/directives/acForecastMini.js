@@ -32,7 +32,7 @@ angular.module('acComponents.directives')
         return {
             restrict: 'E',
             templateUrl: 'forecast-mini-avalx.html',
-            scope: { 
+            scope: {
                 forecast: '=',
                 dangerRating: '=',
                 disclaimer: '=',
