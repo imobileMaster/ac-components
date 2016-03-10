@@ -72,7 +72,7 @@
                     label
                       input(type="checkbox", name="{{::item}}", ng-model="av.options[option]", ng-click="validate(item, av)")
                       | {{ ::option}}
-                  .radio.col-md-12.col-xs-12(ng-if="av.type=='radio'", ng-repeat="option in av.options", ng-class="{'inline':av.inline, 'column-left':$odd}", style="margin: 0;")
+                  .radio.col-md-12.col-xs-12(ng-if="av.type=='radio'", ng-repeat="option in av.options", ng-class="{'inline':av.inline}", style="margin: 0;")
                     label
                       input(type="radio", ng-model="report.obs.criticalFactors.fields[item].value", value="{{ ::option}}")
                       | {{ ::option}}
@@ -113,11 +113,11 @@
                       span {{ ::av.helpText}}
                       span(ng-if="av.guidelines")
                         a(href="{{ ::av.guidelines}}" target="_blank") Submission guidelines
-                  .checkbox.col-md-6.col-xs-12(ng-if="av.type=='checkbox'", ng-repeat="(option, enabled) in av.options", ng-class="{'inline':av.inline, 'column-left':$odd}")
+                  .checkbox.col-md-6.col-xs-12(ng-if="av.type=='checkbox'", ng-repeat="(option, enabled) in av.options", ng-class="{'inline':av.inline, 'column-left':$odd, 'col-md-12': av.prompt==='Elevation band:'}", ng-style="av.prompt==='Elevation band:' && {'margin': '0'}")
                     label
                       input(type="checkbox", name="{{::item}}", ng-model="av.options[option]", ng-click="validate(item, av)")
                       | {{ ::option}}
-                  .radio.col-md-12.col-xs-12(ng-if="av.type=='radio'", ng-repeat="option in av.options", ng-class="{'inline':av.inline, 'column-left':$odd}", style="margin-top: 0;")
+                  .radio.col-md-12.col-xs-12(ng-if="av.type=='radio'", ng-repeat="option in av.options", ng-class="{'inline':av.inline}", style="margin-top: 0;")
                     label
                       input(type="radio", ng-model="report.obs.terrainAvoidanceList.fields[item].value", value="{{ ::option}}")
                       | {{ ::option}}
@@ -162,7 +162,7 @@
                     label
                       input(type="checkbox", name="{{::item}}", ng-model="av.options[option]", ng-click="validate(item, av)")
                       | {{ ::option}}
-                  .radio.col-md-6.col-xs-12(ng-if="av.type=='radio'", ng-repeat="option in av.options", ng-class="{'inline':av.inline, 'column-left':$odd}", style="margin: 0")
+                  .radio.col-md-6.col-xs-12(ng-if="av.type=='radio'", ng-repeat="option in av.options", ng-class="{'inline':av.inline}", style="margin: 0")
                     label
                       input(type="radio", ng-model="report.obs.travelAdvice.fields[item].value", value="{{ ::option}}")
                       | {{ ::option}}

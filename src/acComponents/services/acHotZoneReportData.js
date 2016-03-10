@@ -5,7 +5,7 @@ angular.module('acComponents.services')
 
       persistentAvalancheProblem: {
         type: 'radio',
-        inline: true,
+        inline: false,
         prompt: 'Persistent avalanche problem:',
         options: ['Yes', 'No', 'Unknown'],
         value: null,
