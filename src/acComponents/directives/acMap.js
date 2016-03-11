@@ -75,22 +75,22 @@ angular.module('acComponents.directives')
           },
           hotZone: {
             default: {
-              fillColor: '#cc5200',
-              color: '#cc5200',
+              fillColor: '#e62e00',
+              color: '#e62e00',
               weight: '1'
             },
             selected: {
-              fillColor: '#ff3300',
-              weight: 3
+              fillColor: '#ffff00',
+              weight: 5
             },
             hover: {
-              color: '#cc5200',
-              weight: 3
+              color: '#e62e00',
+              weight: 5
             },
             selectedhover: {
-              fillColor: '#ff3300',
-              color: '#cc5200',
-              weight: 3
+              fillColor: '#ffff00',
+              color: '#e62e00',
+              weight: 5
             }
           },
           reportType: {
