@@ -159,13 +159,13 @@ angular.module('acComponents.services')
         type: 'checkbox',
         prompt: 'Terrain features:',
         options: {
-          'Steeper than [enter number below]': false,
           'Convex': false,
           'Unsupported': false,
           'Lee slopes': false,
           'Crossloaded slopes': false,
           'Shallow snowpack': false,
           'Variable depth snowpack': false,
+          'Steeper than [enter number below]': false,
           'Other [describe below]': false
         },
         inline: true,
