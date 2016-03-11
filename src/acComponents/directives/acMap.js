@@ -272,8 +272,8 @@ angular.module('acComponents.directives')
           }
 
           var opacity = 0.2;
-          var style = getStyle(layers.currentRegion.feature);
           if (layers.currentRegion && $scope.showRegions) {
+            var style = getStyle(layers.currentRegion.feature);
             if (zoom <= 9) {
               style.selected.fillOpacity = opacity;
               layers.currentRegion.setStyle(style.selected);
@@ -475,7 +475,7 @@ angular.module('acComponents.directives')
           }
 
           layers.regions.eachLayer(function (layer) {
-            var style = getStyle(layer.region.feature);
+            var style = getStyle(layer.feature);
             if (layer === region) {
               layer.setStyle(style.selected);
             } else {
