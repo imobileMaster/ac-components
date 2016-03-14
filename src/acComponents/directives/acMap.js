@@ -1,5 +1,5 @@
 angular.module('acComponents.directives')
-  .directive('acMapboxMap', function ($rootScope, $window, $location, $timeout, acBreakpoint, acObservation, acForecast, acSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, $stateParams, acConfig, localStorageService) {
+  .directive('acMapboxMap', function ($rootScope, $window, $location, $timeout, acBreakpoint, acObservation, acForecast, acSubmission, acHZRSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, $stateParams, acConfig, localStorageService) {
     return {
       template: '<div id="map"></div>',
       replace: true,
@@ -10,7 +10,8 @@ angular.module('acComponents.directives')
         obs: '=acObs',
         ob: '=acOb',
         minFilters: '=acMinFilters',
-        currentReport: '=acReport'
+        currentReport: '=acReport',
+        activeHotZones: '=acActiveHotZones'
       },
       link: function ($scope, el, attrs) {
         $scope.device = {};

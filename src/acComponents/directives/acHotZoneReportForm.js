@@ -19,7 +19,7 @@ angular.module('acComponents.directives')
                 function initReport() {
                   $scope.report = {
                     headline: '',
-                    dateissue: moment().format('YYYY-MM-DD hh:mm A'),
+                    dateissued: moment().format('YYYY-MM-DD hh:mm A'),
                     datevalid: moment().format('YYYY-MM-DD hh:mm A'),
                     hotzoneid: null,
                     files: [],

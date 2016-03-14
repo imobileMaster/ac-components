@@ -55,10 +55,8 @@ angular.module('acComponents.services')
                     });
                 });
             },
-            byPeriod: function (period) {
-                var opt = {params: {period: period || '2:days'}};
-
-                return $http.get(endpointUrl, opt).then(function (res) {
+            getAll: function () {
+                return $http.get(endpointUrl).then(function (res) {
                     return res.data;
                 });
             },
