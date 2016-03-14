@@ -2369,6 +2369,7 @@ angular.module('acComponents.services')
         value: null,
         order: 8,
         errorMessage: 'Please enter steeper than value',
+        placeholder: 'Steeper than incline: number between 0 and 90',
         options: {
           'min': 0,
           'max': 90
