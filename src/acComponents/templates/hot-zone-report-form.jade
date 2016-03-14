@@ -21,10 +21,10 @@
                 .form-group(ng-class="{'has-error': invalidLocation}")
                   h4
                     |  Region
-                  .radio.col-md-6.col-xs-12(ng-repeat="option in locations", style="margin-top: 10px;")
+                  .radio.col-md-6.col-xs-12(ng-repeat="option in hotZones", style="margin-top: 10px;")
                     label(style="color: black;")
-                      input(type="radio", ng-model="report.hotzoneid", value="{{ ::option}}", ng-click="invalidLocation = false")
-                      | {{ ::option}}
+                      input(type="radio", ng-model="report.hotzoneid", value="{{option.properties.id}}", ng-click="invalidLocation = false")
+                      | {{option.properties.name}}
             .uploads
               h3.form-subtitle Step 2. Uploads
 

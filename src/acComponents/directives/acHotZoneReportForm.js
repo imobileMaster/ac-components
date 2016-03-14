@@ -3,6 +3,9 @@ angular.module('acComponents.directives')
         return {
             templateUrl: 'hot-zone-report-form.html',
             replace: true,
+            scope: {
+                hotZones: '=acHotZones'
+            },
             link: function($scope, el, attrs) {
 
                 resetFields();
@@ -12,8 +15,6 @@ angular.module('acComponents.directives')
                   $anchorScroll.yOffset = 100;
                   $anchorScroll('top');
                 };
-
-                $scope.locations = ['Renshaw', 'Kakwa'];
 
                 function initReport() {
                   $scope.report = {
