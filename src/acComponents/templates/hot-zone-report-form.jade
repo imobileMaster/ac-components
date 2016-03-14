@@ -20,10 +20,10 @@
                   input.form-control(type="datetime", name="datevalid", ng-model="report.datevalid", ac-datetime-picker, max-date-today="false")
                 .form-group(ng-class="{'has-error': invalidLocation}")
                   h4
-                    |  Location
+                    |  Region
                   .radio.col-md-6.col-xs-12(ng-repeat="option in locations", style="margin-top: 10px;")
                     label(style="color: black;")
-                      input(type="radio", ng-model="report.location", value="{{ ::option}}")
+                      input(type="radio", ng-model="report.hotzoneid", value="{{ ::option}}", ng-click="invalidLocation = false")
                       | {{ ::option}}
             .uploads
               h3.form-subtitle Step 2. Uploads
@@ -52,7 +52,7 @@
               .col-xs-12
                 h4.form-subsection Critical Factors Summary
             .fields-group.col-xs-12.no-padding(style='margin: 0;')
-              .field.col-xs-12(ng-repeat="(item, av) in report.obs.criticalFactors.fields", ng-if="av.type!=='calculated'")
+              .field.col-xs-12(ng-repeat="(item, av) in report.data.criticalFactors.fields", ng-if="av.type!=='calculated'")
 
                 h4.field-title.col-xs-12.no-padding(ng-if="av.title === undefined && av.subTitle === undefined")
                   strong {{ ::av.prompt }}
@@ -74,22 +74,22 @@
                       | {{ ::option}}
                   .radio.col-md-12.col-xs-12(ng-if="av.type=='radio'", ng-repeat="option in av.options", ng-class="{'inline':av.inline}", style="margin: 0;")
                     label
-                      input(type="radio", ng-model="report.obs.criticalFactors.fields[item].value", value="{{ ::option}}")
+                      input(type="radio", ng-model="report.data.criticalFactors.fields[item].value", value="{{ ::option}}")
                       | {{ ::option}}
                   .number.col-xs-12(ng-if="av.type=='number'", ng-class="{'inline':av.inline}")
                     label
-                      input.form-control(type="number", name="{{::item}}" placeholder="{{ av.placeholder ? av.placeholder : 'Number between '+ av.options.min +' and '+av.options.max }}", ng-model="report.obs.criticalFactors.fields[item].value", ng-blur="validate(item, av)")
+                      input.form-control(type="number", name="{{::item}}" placeholder="{{ av.placeholder ? av.placeholder : 'Number between '+ av.options.min +' and '+av.options.max }}", ng-model="report.data.criticalFactors.fields[item].value", ng-blur="validate(item, av)")
                   .text.col-xs-12(ng-if="av.type=='text'", ng-class="{'inline':av.inline}")
                     label
-                      input.form-control(type="text", name="{{::item}}" placeholder="{{ ::av.prompt }}", ng-model="report.obs.criticalFactors.fields[item].value", ng-required="report.obs.criticalFactors.fields[av.constraint.field].options[av.constraint.option]" ng-blur="validate(item, av)")
+                      input.form-control(type="text", name="{{::item}}" placeholder="{{ ::av.prompt }}", ng-model="report.data.criticalFactors.fields[item].value", ng-required="report.data.criticalFactors.fields[av.constraint.field].options[av.constraint.option]" ng-blur="validate(item, av)")
                   .select.col-md-6.col-xs-12.no-padding(ng-if="av.type=='dropdown'", ng-class="{'inline':av.inline, 'column-left':$odd}")
-                    select.form-control(ng-options="option for option in av.options", ng-model="report.obs.criticalFactors.fields[item].value")
+                    select.form-control(ng-options="option for option in av.options", ng-model="report.data.criticalFactors.fields[item].value")
                       option(value="") Select option
                   .textarea.col-xs-12(ng-if="av.type=='textarea'")
-                    textarea.form-control(rows="3", ng-model="report.obs.criticalFactors.fields[item].value")
+                    textarea.form-control(rows="3", ng-model="report.data.criticalFactors.fields[item].value")
                   .datetime-input.col-xs-12(ng-if="av.type=='datetime'")
                     label(for="datetime")
-                      input.form-control(type="datetime", ng-model="report.obs.criticalFactors.fields[item].value", ac-datetime-picker, show-only-date="av.showOnlyDate", show-only-time="av.showOnlyTime", max-date-today="av.maxDateToday" placeholder="{{av.placeholder ? av.placeholder : 'Click to select date'}}")
+                      input.form-control(type="datetime", ng-model="report.data.criticalFactors.fields[item].value", ac-datetime-picker, show-only-date="av.showOnlyDate", show-only-time="av.showOnlyTime", max-date-today="av.maxDateToday" placeholder="{{av.placeholder ? av.placeholder : 'Click to select date'}}")
                   .error.col-xs-12.no-padding(ng-if="acHotZoneForm[item].$invalid") {{::av.errorMessage}}
                 .options.col-xs-12.col-md-4
 
@@ -97,7 +97,7 @@
               .col-xs-12
                 h4.form-subsection Terrain Avoidance List
             .fields-group.col-xs-12.no-padding(style='margin: 0;')
-              .field.col-xs-12(ng-repeat="(item, av) in report.obs.terrainAvoidanceList.fields", ng-if="av.type!=='calculated'")
+              .field.col-xs-12(ng-repeat="(item, av) in report.data.terrainAvoidanceList.fields", ng-if="av.type!=='calculated'")
 
                 h4.field-title.col-xs-12.no-padding(ng-if="av.title === undefined && av.subTitle === undefined")
                   strong {{ ::av.prompt }}
@@ -119,22 +119,22 @@
                       | {{ ::option}}
                   .radio.col-md-12.col-xs-12(ng-if="av.type=='radio'", ng-repeat="option in av.options", ng-class="{'inline':av.inline}", style="margin-top: 0;")
                     label
-                      input(type="radio", ng-model="report.obs.terrainAvoidanceList.fields[item].value", value="{{ ::option}}")
+                      input(type="radio", ng-model="report.data.terrainAvoidanceList.fields[item].value", value="{{ ::option}}")
                       | {{ ::option}}
                   .number.col-xs-12(ng-if="av.type=='number'", ng-class="{'inline':av.inline}")
                     label
-                      input.form-control(type="number", name="{{::item}}" placeholder="{{ av.placeholder ? av.placeholder : 'Number between '+ av.options.min +' and '+av.options.max }}", ng-model="report.obs.terrainAvoidanceList.fields[item].value", ng-blur="validate(item, av)")
+                      input.form-control(type="number", name="{{::item}}" placeholder="{{ av.placeholder ? av.placeholder : 'Number between '+ av.options.min +' and '+av.options.max }}", ng-model="report.data.terrainAvoidanceList.fields[item].value", ng-blur="validate(item, av)")
                   .text.col-xs-12(ng-if="av.type=='text'", ng-class="{'inline':av.inline}")
                     label
-                      input.form-control(type="text", name="{{::item}}" placeholder="{{ ::av.prompt }}", ng-model="report.obs.terrainAvoidanceList.fields[item].value", ng-required="report.obs.terrainAvoidanceList.fields[av.constraint.field].options[av.constraint.option]" ng-blur="validate(item, av)")
+                      input.form-control(type="text", name="{{::item}}" placeholder="{{ ::av.prompt }}", ng-model="report.data.terrainAvoidanceList.fields[item].value", ng-required="report.data.terrainAvoidanceList.fields[av.constraint.field].options[av.constraint.option]" ng-blur="validate(item, av)")
                   .select.col-md-6.col-xs-12.no-padding(ng-if="av.type=='dropdown'", ng-class="{'inline':av.inline, 'column-left':$odd}")
-                    select.form-control(ng-options="option for option in av.options", ng-model="report.obs.terrainAvoidanceList.fields[item].value")
+                    select.form-control(ng-options="option for option in av.options", ng-model="report.data.terrainAvoidanceList.fields[item].value")
                       option(value="") Select option
                   .textarea.col-xs-12(ng-if="av.type=='textarea'")
-                    textarea.form-control(rows="3", ng-model="report.obs.terrainAvoidanceList.fields[item].value")
+                    textarea.form-control(rows="3", ng-model="report.data.terrainAvoidanceList.fields[item].value")
                   .datetime-input.col-xs-12(ng-if="av.type=='datetime'")
                     label(for="datetime")
-                      input.form-control(type="datetime", ng-model="report.obs.terrainAvoidanceList.fields[item].value", ac-datetime-picker, show-only-date="av.showOnlyDate", show-only-time="av.showOnlyTime", max-date-today="av.maxDateToday" placeholder="{{av.placeholder ? av.placeholder : 'Click to select date'}}")
+                      input.form-control(type="datetime", ng-model="report.data.terrainAvoidanceList.fields[item].value", ac-datetime-picker, show-only-date="av.showOnlyDate", show-only-time="av.showOnlyTime", max-date-today="av.maxDateToday" placeholder="{{av.placeholder ? av.placeholder : 'Click to select date'}}")
                   .error.col-xs-12.no-padding(ng-if="acHotZoneForm[item].$invalid") {{::av.errorMessage}}
                 .options.col-xs-12.col-md-4
 
@@ -142,7 +142,7 @@
               .col-xs-12
                 h4.form-subsection Travel Advice
             .fields-group.col-xs-12.no-padding(style='margin: 0;')
-              .field.col-xs-12(ng-repeat="(item, av) in report.obs.travelAdvice.fields", ng-if="av.type!=='calculated'")
+              .field.col-xs-12(ng-repeat="(item, av) in report.data.travelAdvice.fields", ng-if="av.type!=='calculated'")
 
                 h4.field-title.col-xs-12.no-padding(ng-if="av.title === undefined && av.subTitle === undefined")
                   strong {{ ::av.prompt }}
@@ -164,22 +164,22 @@
                       | {{ ::option}}
                   .radio.col-md-6.col-xs-12(ng-if="av.type=='radio'", ng-repeat="option in av.options", ng-class="{'inline':av.inline}", style="margin: 0")
                     label
-                      input(type="radio", ng-model="report.obs.travelAdvice.fields[item].value", value="{{ ::option}}")
+                      input(type="radio", ng-model="report.data.travelAdvice.fields[item].value", value="{{ ::option}}")
                       | {{ ::option}}
                   .number.col-xs-12(ng-if="av.type=='number'", ng-class="{'inline':av.inline}")
                     label
-                      input.form-control(type="number", name="{{::item}}" placeholder="{{ av.placeholder ? av.placeholder : 'Number between '+ av.options.min +' and '+av.options.max }}", ng-model="report.obs.travelAdvice.fields[item].value", ng-blur="validate(item, av)")
+                      input.form-control(type="number", name="{{::item}}" placeholder="{{ av.placeholder ? av.placeholder : 'Number between '+ av.options.min +' and '+av.options.max }}", ng-model="report.data.travelAdvice.fields[item].value", ng-blur="validate(item, av)")
                   .text.col-xs-12(ng-if="av.type=='text'", ng-class="{'inline':av.inline}")
                     label
-                      input.form-control(type="text", name="{{::item}}" placeholder="{{ ::av.prompt }}", ng-model="report.obs.travelAdvice.fields[item].value", ng-required="report.obs.travelAdvice.fields[av.constraint.field].options[av.constraint.option]" ng-blur="validate(item, av)")
+                      input.form-control(type="text", name="{{::item}}" placeholder="{{ ::av.prompt }}", ng-model="report.data.travelAdvice.fields[item].value", ng-required="report.data.travelAdvice.fields[av.constraint.field].options[av.constraint.option]" ng-blur="validate(item, av)")
                   .select.col-md-6.col-xs-12.no-padding(ng-if="av.type=='dropdown'", ng-class="{'inline':av.inline, 'column-left':$odd}")
-                    select.form-control(ng-options="option for option in av.options", ng-model="report.obs.travelAdvice.fields[item].value")
+                    select.form-control(ng-options="option for option in av.options", ng-model="report.data.travelAdvice.fields[item].value")
                       option(value="") Select option
                   .textarea.col-xs-12(ng-if="av.type=='textarea'")
-                    textarea.form-control(rows="3", ng-model="report.obs.travelAdvice.fields[item].value")
+                    textarea.form-control(rows="3", ng-model="report.data.travelAdvice.fields[item].value")
                   .datetime-input.col-xs-12(ng-if="av.type=='datetime'")
                     label(for="datetime")
-                      input.form-control(type="datetime", ng-model="report.obs.travelAdvice.fields[item].value", ac-datetime-picker, show-only-date="av.showOnlyDate", show-only-time="av.showOnlyTime", max-date-today="av.maxDateToday" placeholder="{{av.placeholder ? av.placeholder : 'Click to select date'}}")
+                      input.form-control(type="datetime", ng-model="report.data.travelAdvice.fields[item].value", ac-datetime-picker, show-only-date="av.showOnlyDate", show-only-time="av.showOnlyTime", max-date-today="av.maxDateToday" placeholder="{{av.placeholder ? av.placeholder : 'Click to select date'}}")
                   .error.col-xs-12.no-padding(ng-if="acHotZoneForm[item].$invalid") {{::av.errorMessage}}
                 .options.col-xs-12.col-md-4
 
