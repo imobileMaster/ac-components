@@ -1,28 +1,31 @@
 .panel
     .panel-body.ac-forecast-mini-body
         .row
-            .col-xs-12
-                h3.ac-hot-zone-headline Headline Goes Here
-        .row
           .col-xs-12
-                h4.ac-hot-zone-headline REGION
+              h4.ac-forecast-region {{ region.name }} Pilot Project
         .row.ac-forecast-dates
             .col-md-6
                 dl
                     dd.small
                         strong.ac-text-primary DATE ISSUED
                     dt.small
-                        span.ac-text-default {{ hotZone.dateIssued | date:'EEEE MMMM d, y h:mm a'  | uppercase }}
+                        span.ac-text-default {{ hotZone.dateissued || 'N/A'| date:'EEEE MMMM d, y h:mm a'  | uppercase }}
             .col-md-6
                 dl
                     dd.small
                         strong.ac-text-primary VALID UNTIL
                     dt.small
-                        span.ac-text-default {{ hotZone.validUntil | date:'EEEE MMMM d, y h:mm a' | uppercase }}
+                        span.ac-text-default {{ hotZone.datevalid || 'N/A'| date:'EEEE MMMM d, y h:mm a' | uppercase }}
+        .row(ng-if='hotZone !== "default"')
+            .col-xs-12
+                h3.ac-hot-zone-headline {{ hotZone.report.headline }}
+        .row(ng-if='hotZone === "default"')
+            .col-xs-12
+                h3.ac-hot-zone-headline No data for this hot zone
         .row
             .col-xs-12
                 #infoAccordion.panel-group
-                    .panel.panel-primary
+                    .panel.panel-primary(ng-if='hotZone !== "default"')
                         .panel-heading
                             h4.panel-title
                                 a(href='', data-target="#criticalSummary", data-toggle='collapse', data-parent='#infoAccordion')
@@ -36,45 +39,45 @@
                                         | Critical factors influence avalanche hazard. The more critical factors, the greater the potential for avalanches.
                                 .row
                                     .col-xs-6
-                                        strong.pull-right.text-right Persistent Avalanche Problem:
+                                        strong.pull-right.text-right Persistent avalanche problem:
                                     .col-xs-6
-                                        | Yes
+                                        | {{ hotZone.report.data.criticalFactors.persistentAvalancheProblem || 'N/A' }}
                                 .row
                                     .col-xs-6
                                         strong.pull-right.text-right Slab avalanches in the last 48 hours:
                                     .col-xs-6
-                                        | Yes
+                                        | {{ hotZone.report.data.criticalFactors.slabAvalanches || 'N/A' }}
                                 .row
                                     .col-xs-6
                                         strong.pull-right.text-right Signs of instability:
                                     .col-xs-6
-                                        | Unknown
+                                        | {{ hotZone.report.data.criticalFactors.instability || 'N/A' }}
                                 .row
                                     .col-xs-6
                                         strong.pull-right.text-right  Recent snowfall > 30cm:
                                     .col-xs-6
-                                        | No
+                                        | {{ hotZone.report.data.criticalFactors.recentSnowfall || 'N/A' }}
                                 .row
                                     .col-xs-6
                                         strong.pull-right.text-right  Recent rainfall:
                                     .col-xs-6
-                                        | No
+                                        | {{ hotZone.report.data.criticalFactors.recentRainfall || 'N/A' }}
                                 .row
                                     .col-xs-6
                                         strong.pull-right.text-right  Recent windloading:
                                     .col-xs-6
-                                        | Yes
+                                        | {{ hotZone.report.data.criticalFactors.recentWindloading || 'N/A' }}
                                 .row
                                     .col-xs-6
                                         strong.pull-right.text-right  Significant warming:
                                     .col-xs-6
-                                        | Unknown
+                                        | {{ hotZone.report.data.criticalFactors.significantWarming || 'N/A' }}
                                 .row
                                     .col-xs-6
                                         strong.pull-right.text-right Comments:
                                     .col-xs-6
-                                        | More information about conditions would be helpful. If you are riding in this area, please submit to the MIN.
-                    .panel.panel-primary
+                                        | {{ criticalFactorsComments || 'N/A' }}
+                    .panel.panel-primary(ng-if='hotZone !== "default"')
                         .panel-heading
                             h4.panel-title
                                 a(href='', data-target="#terrainSummary", data-toggle='collapse', data-parent='#infoAccordion')
@@ -90,45 +93,48 @@
                                     .col-xs-6
                                         strong.pull-right.text-right Aspect:
                                     .col-xs-6
-                                        | N, NE, E
+                                        | {{ hotZone.report.data.terrainAvoidanceList.aspect || 'N/A' | acFormatList }}
                                 .row
                                     .col-xs-6
                                         strong.pull-right.text-right Elevation band:
                                     .col-xs-6
-                                        | Alpine, Treeline
+                                        | {{ hotZone.report.data.terrainAvoidanceList.elevationBand || 'N/A' | acFormatList }}
                                 .row
                                     .col-xs-6
                                         strong.pull-right.text-right Elevation below:
                                     .col-xs-6
-                                        | N/A
+                                        | {{ hotZone.report.data.terrainAvoidanceList.elevationBelow || 'N/A' }}
                                 .row
                                     .col-xs-6
                                         strong.pull-right.text-right Elevation above:
                                     .col-xs-6
-                                        | N/A
+                                        | {{ hotZone.report.data.terrainAvoidanceList.elevationAbove || 'N/A' }}
                                 .row
                                     .col-xs-6
                                         strong.pull-right.text-right Elevation between:
                                     .col-xs-6
-                                        | 1800 and 3000 metres
-                                .row
-                                    .col-xs-6
-                                        strong.pull-right.text-right Slopes steeper than:
-                                    .col-xs-6
-                                        | 35 degrees
+                                        | {{ hotZone.report.data.terrainAvoidanceList.elevationBetweenLow || 'N/A' }} and {{ hotZone.report.data.terrainAvoidanceList.elevationBetweenHigh || 'N/A' }} metres
                                 .row
                                     .col-xs-6
                                         strong.pull-right.text-right Terrain features:
                                     .col-xs-6
-                                        | Convex, Unsupported, Lee slopes, Text from "Other" terrain features comment box.
+                                        | {{ hotZone.report.data.terrainAvoidanceList.terrainFeatures || 'N/A' | acFormatList }}
+                                .row
+                                    .col-xs-6
+                                        strong.pull-right.text-right Slopes steeper than:
+                                    .col-xs-6
+                                        | {{ hotZone.report.data.terrainAvoidanceList.steeperThan || 'N/A' }}
+                                .row
+                                    .col-xs-6
+                                        strong.pull-right.text-right Other terrain features:
+                                    .col-xs-6
+                                        | {{ hotZone.report.data.terrainAvoidanceList.otherTerrainFeatures || 'N/A' }}
                                 .row
                                     .col-xs-6
                                         strong.pull-right.text-right Comments:
                                     .col-xs-6
-                                        | Text from terrain avoidance comments box.
-
-
-                    .panel.panel-primary
+                                        | {{ hotZone.report.data.terrainAvoidanceList.terrainAvoidanceComments || 'N/A' }}
+                    .panel.panel-primary(ng-if='hotZone !== "default"')
                         .panel-heading
                             h4.panel-title
                                 a(href='', data-target="#travelSummary", data-toggle='collapse', data-parent='#infoAccordion')
@@ -138,13 +144,13 @@
                         #travelSummary.panel-collapse.collapse
                             .panel-body
                                 p
-                                    | Text from travel advice statement 1 text box
+                                    | {{ hotZone.report.data.travelAdvice.travelAdviceStatement1 || 'N/A' }}
                                 p
-                                    | Text from travel advice statement 2 text box
+                                    | {{ hotZone.report.data.travelAdvice.travelAdviceStatement2 || 'N/A' }}
                                 p
-                                    | Text from travel advice statement 3 text box
+                                    | {{ hotZone.report.data.travelAdvice.travelAdviceStatement3 || 'N/A' }}
                                 p
-                                    | Text from travel advice comments text box.
+                                    | {{ hotZone.report.data.travelAdvice.travelAdviceComments || 'N/A' }}
 
                     .panel.panel-primary(style="margin-bottom: 10px;")
                         .panel-heading
@@ -154,4 +160,4 @@
                                     i.fa.fa-fw.fa-level-down.fa-lg.pull-right
                                     small.pull-right click to expand
                         #infoSummary.panel-collapse.collapse
-                            .panel-body(ng-bind-html='hotZone.infoSummary')
+                            .panel-body(ng-bind-html='infoSummary')
