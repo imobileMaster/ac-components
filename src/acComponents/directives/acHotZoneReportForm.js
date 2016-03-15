@@ -57,6 +57,7 @@ angular.module('acComponents.directives')
                 $scope.submitForm = function() {
                     if (!$scope.report.hotzoneid) {
                         $scope.invalidLocation = true;
+                        return;
                     }
 
                     var reqObj = _.cloneDeep($scope.report);
