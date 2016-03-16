@@ -31,7 +31,7 @@
                 ul.list-inline
                     li(ng-repeat="url in hotZone.report.thumbs")
                         a(ng-href="{{url}}", target="_blank")
-                        img(ng-src="{{url}}", width="75", alt="{{hotZone.report.headline}}")
+                            img(ng-src="{{url}}", width="75", alt="{{hotZone.report.headline}}")
         .row
             .col-xs-12
                 #infoAccordion.panel-group
