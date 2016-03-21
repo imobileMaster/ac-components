@@ -168,6 +168,22 @@ angular.module('acComponents.directives')
           });
         };
 
+        function showRegion(layer) {
+          if (map.getZoom() < 9) {
+            var padding = getMapPadding();
+
+            map.fitBounds(layer.getBounds(), {
+              paddingBottomRight: padding
+            });
+          }
+
+          layers.currentRegion = layer;
+
+          $scope.$apply(function () {
+            $scope.region = layer;
+          });
+        }
+
         function initRegionsLayer() {
           layers.regions = L.geoJson($scope.regions, {
             style: function (feature) {
@@ -181,24 +197,9 @@ angular.module('acComponents.directives')
               var style = getStyle(featureData);
               layer.bindLabel(featureData.properties.name);
 
-              function showRegion(evt) {
-                if (map.getZoom() < 9) {
-                  var padding = getMapPadding();
-
-                  map.fitBounds(layer.getBounds(), {
-                    paddingBottomRight: padding
-                  });
-                }
-
-                layers.currentRegion = layer;
-
-                $scope.$apply(function () {
-                  $scope.region = layer;
-                });
-
-              }
-
-              layer.on('click', showRegion);
+              layer.on('click', function (evt) {
+                showRegion(layer);
+              });
 
               layer.on('mouseover', function () {
                 if (layer == layers.currentRegion) {
@@ -240,7 +241,14 @@ angular.module('acComponents.directives')
               }
             }
           });
-
+          setTimeout(function() {
+            if($location.path().indexOf('forecast') !== -1) {
+              var currentLayer = _.findWhere(layers.regions.getLayers(), function (region) {
+                return region.feature.id === $stateParams.regionid || region.feature.properties.id === $stateParams.regionid;
+              });
+              showRegion(currentLayer);
+            }
+          }, 500);
           refreshLayers();
         }
 
@@ -286,10 +294,6 @@ angular.module('acComponents.directives')
             }
           }
 
-          if (layers.obs) {
-            //map.addLayer(layers.obs);
-          }
-
           var opacity = 0.2;
           if (layers.currentRegion && $scope.showRegions) {
             var style = getStyle(layers.currentRegion.feature);
@@ -318,8 +322,6 @@ angular.module('acComponents.directives')
               }
             }
           }
-
-          getFilters();
         }
 
         function getMarkerColor(type) {
@@ -327,10 +329,6 @@ angular.module('acComponents.directives')
             type = 'quick';
           }
           return styles.reportType[type];
-        }
-
-        function getFilters() {
-
         }
 
         function setReport(ob) {
@@ -366,7 +364,7 @@ angular.module('acComponents.directives')
               marker.subid = ob.subid;
 
               marker.on('click', function (e) {
-                $state.go('ac.focus', { markerid:marker.subid });
+                setReport(ob);
               });
 
               marker.eachLayer(function (layer) {
@@ -408,9 +406,7 @@ angular.module('acComponents.directives')
                   }
                 });
               }
-            }, 1000);
-
-
+            }, 500);
 
           } else {
 
