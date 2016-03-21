@@ -423,7 +423,7 @@ angular.module('acComponents.directives')
     }]);
 
 angular.module('acComponents.directives')
-  .directive('acMapboxMap', ["$rootScope", "$window", "$location", "$timeout", "acBreakpoint", "acObservation", "acForecast", "acSubmission", "acHZRSubmission", "MAPBOX_ACCESS_TOKEN", "MAPBOX_MAP_ID", "$stateParams", "acConfig", "localStorageService", function ($rootScope, $window, $location, $timeout, acBreakpoint, acObservation, acForecast, acSubmission, acHZRSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, $stateParams, acConfig, localStorageService) {
+  .directive('acMapboxMap', ["$rootScope", "$window", "$location", "$timeout", "$state", "acBreakpoint", "acObservation", "acForecast", "acSubmission", "acHZRSubmission", "MAPBOX_ACCESS_TOKEN", "MAPBOX_MAP_ID", "$stateParams", "acConfig", "localStorageService", function ($rootScope, $window, $location, $timeout, $state, acBreakpoint, acObservation, acForecast, acSubmission, acHZRSubmission, MAPBOX_ACCESS_TOKEN, MAPBOX_MAP_ID, $stateParams, acConfig, localStorageService) {
     return {
       template: '<div id="map"></div>',
       replace: true,
@@ -757,6 +757,20 @@ angular.module('acComponents.directives')
 
         }
 
+        function setReport(ob) {
+          $rootScope.requestInProgress = true;
+
+          acSubmission.getOne(ob.subid).then(function(results) {
+            results.requested = ob.obtype;
+            $scope.currentReport = results;
+            $rootScope.requestInProgress = false;
+          });
+
+          map.setView(ob.latlng, map.getZoom());
+          localStorageService.set('mapZoom', map.getZoom());
+          localStorageService.set('mapCenter', map.getCenter());
+        }
+
         function refreshObsLayer() {
           clusterOverlays.clearLayers();
 
@@ -776,17 +790,7 @@ angular.module('acComponents.directives')
               marker.subid = ob.subid;
 
               marker.on('click', function (e) {
-                $rootScope.requestInProgress = true;
-
-                acSubmission.getOne(ob.subid).then(function(results) {
-                  results.requested = ob.obtype;
-                  $scope.currentReport = results;
-                  $rootScope.requestInProgress = false;
-                });
-
-                map.setView(ob.latlng, map.getZoom());
-                localStorageService.set('mapZoom', map.getZoom());
-                localStorageService.set('mapCenter', map.getCenter());
+                $state.go('ac.focus', { markerid:marker.subid });
               });
 
               marker.eachLayer(function (layer) {
@@ -807,14 +811,12 @@ angular.module('acComponents.directives')
 
             setTimeout(function() {
               if($location.path().indexOf('focus') !== -1) {
-                var currentMarker = null;
-                _.each($scope.visibleObs, function (marker) {
-                  if (marker.subid === $stateParams.markerid) {
-                    currentMarker = marker;
-                    marker.fire('click');
-                    return false;
-                  }
+                var currentMarker = _.findWhere($scope.visibleObs, function (marker) {
+                  return marker.subid === $stateParams.markerid;
                 });
+                setReport(_.findWhere($scope.obs, function (ob) {
+                  return ob.subid === $stateParams.markerid;
+                }));
 
                 _.each(markers._featureGroup.getLayers(), function(cluster) {
                   if(typeof cluster.getAllChildMarkers === 'function') {
