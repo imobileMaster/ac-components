@@ -9,13 +9,13 @@
                     dd.small
                         strong.ac-text-primary DATE ISSUED
                     dt.small
-                        span.ac-text-default {{ hotZone.dateissued || 'N/A'| date:'EEEE MMMM d, y h:mm a'  | uppercase }}
+                        span.ac-text-default {{ formatDate(hotZone.report.dateissued) || 'N/A'| date:'EEEE MMMM d, y h:mm a'  | uppercase }}
             .col-md-6
                 dl
                     dd.small
                         strong.ac-text-primary VALID UNTIL
                     dt.small
-                        span.ac-text-default {{ hotZone.datevalid || 'N/A'| date:'EEEE MMMM d, y h:mm a' | uppercase }}
+                        span.ac-text-default {{ formatDate(hotZone.report.datevalid)  || 'N/A'| date:'EEEE MMMM d, y h:mm a' | uppercase }}
         .row(ng-if='hotZone !== "default"')
             .col-xs-12
                 h3.ac-hot-zone-headline {{ hotZone.report.headline }}
