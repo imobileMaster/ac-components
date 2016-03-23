@@ -132,7 +132,8 @@ angular.module('acComponents.directives')
                   //}
                 };
 
-                $scope.submitForm = function() {
+                $scope.submitForm = function(form) {
+                    if (!form.$valid || $scope.minsubmitting) return;
 
                     var reqObj = _.cloneDeep($scope.report);
 
