@@ -90,7 +90,7 @@
                                     .col-xs-6.sm-pad-right
                                         strong.pull-right.text-right Comments:
                                     .col-xs-6.sm-pad-left
-                                        | {{ criticalFactorsComments || 'N/A' }}
+                                        | {{ hotZone.report.data.criticalFactors.criticalFactorsComments || 'N/A' }}
                     .panel.panel-primary(ng-if='hotZone !== "default"')
                         .panel-heading
                             h4.panel-title
