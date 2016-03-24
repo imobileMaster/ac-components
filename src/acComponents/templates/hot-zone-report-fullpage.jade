@@ -11,11 +11,11 @@
                 #date-issued.forecast-date-inner
                     | Date Issued &nbsp;
                     br.visible-xs-inline
-                    span  {{ report.dateissued | date:'EEE MMMM d, h:mm a' | uppercase }}
+                    span  {{ formatDate(report.report.dateissued) | date:'EEE MMMM d, h:mm a' | uppercase }}
                 #date-valid.forecast-date-inner(style='width: 574px;')
                     | &nbsp; Valid Until &nbsp;
                     br.visible-xs-inline
-                    span {{ report.datevalid | date:'EEE MMMM d, h:mm a' | uppercase }}
+                    span {{ formatDate(report.report.datevalid) | date:'EEE MMMM d, h:mm a' | uppercase }}
                 #date-issued.forecast-date-inner(ng-if='report.user')
                     | Forecaster &nbsp;
                     br.visible-xs-inline
