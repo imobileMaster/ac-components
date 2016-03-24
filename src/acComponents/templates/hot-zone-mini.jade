@@ -1,8 +1,12 @@
 .panel
     .panel-body.ac-forecast-mini-body
         .row
-          .col-xs-12
+          .col-xs-6
               h4.ac-forecast-region {{ region.name }} Pilot Project
+          .col-xs-6.section-label.full-page-link(ng-if='hotZone !== "default"')
+              div.pull-right(ng-click='viewFullPage(hotZone.subid)', style='padding-top: 10px; cursor: pointer;')
+                i.fa.fa-external-link
+                span &nbsp; FULL PAGE
         .row.ac-forecast-dates
             .col-md-6
                 dl

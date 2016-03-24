@@ -1,0 +1,82 @@
+.panel
+  .panel-body
+    .row
+      .pull-right.close-drawer(ng-click="closeDrawer()")
+        i.fa.fa-close
+      .col-sm-8.col-xs-12
+        h3 {{::sub.title}}
+      .col-sm-3.col-xs-12
+        a.pull-right(target='_blank', href='{{sponsor.getText("sponsor.url")}}')
+          img(ng-src='{{sponsor.getText("sponsor.image-229")}}')
+    .row.submission-header
+      .col-sm-6.section-label
+        i.fa.fa-clock-o
+        span Submitted
+      .col-sm-6.section-label.print-link
+        div(class="pull-right", ng-click="print()")
+          i.fa.fa-print
+          span Print friendly
+      .col-sm-12
+        p By <span> {{::sub.user}} </span>
+        p On {{::sub.dateFormatted}}
+
+  .panel-body.observation-list(ng-repeat="report in activeReports")
+    .row-fluid.observation-title
+      | {{::report.obtype}} report
+    .row-fluid
+      .row-fluid.section-label
+        i.fa.fa-info-circle
+        span Information
+      div.submission-header(ng-repeat="item in report.ob")
+        ul.observation-information
+          li.observation-item(ng-if="item.type === 'number' || item.type === 'radio'|| item.type === 'dropdown'")
+            | {{::item.prompt}} 
+            span.value {{::item.value}}
+          li.observation-item(ng-if="item.type === 'checkbox'")
+            | {{::item.prompt}}
+            ul
+              li(ng-repeat="op in item.value track by $index")
+                span.value {{op}}
+                span.value(ng-if="!$last")
+                  = ", "
+          li.observation-item(ng-if="item.type === 'datetime'")
+            | {{::item.prompt}}
+            span &nbsp; {{::item.value | dateformat}}
+
+        .observation-item.comments(ng-if="item.type === 'textarea'")
+          .row-fluid.section-label
+            i.fa.fa-comment
+            span Comments
+          .row-fluid
+            .col-sm-12 {{::item.value}}
+
+  .panel-body.upload-n-share
+    .row-fluid.observation-title
+      | Uploads
+    .row(ng-if="sub.uploads.length > 0")
+      .col-sm-12.section-label
+        i.fa.fa-camera
+        span Uploads (click/tap to enlarge)
+
+      .col-sm-12
+        ul.list-inline
+          li(ng-repeat="url in sub.thumbs")
+            a(ng-href="{{::url}}", target="_blank")
+              img(ng-src="{{::url}}", width="75", alt="{{::sub.title}}")
+    .row.share-report
+      .col-sm-12.section-label
+        i.fa.fa-share-square-o
+        span Share this report
+
+      .col-sm-12
+        .col-sm-12
+          ul.list-inline
+            li
+              a(ng-href="https://twitter.com/intent/tweet?status={{::sub.shareUrl}}")
+                i.fa.fa-twitter.fa-fw.fa-lg
+            li
+              a(ng-href="https://www.facebook.com/sharer/sharer.php?u={{::sub.shareUrl}}")
+                i.fa.fa-facebook.fa-fw.fa-lg
+            li
+              a(ng-href="https://plus.google.com/share?url={{::sub.shareUrl}}")
+                i.fa.fa-google-plus.fa-fw.fa-lg
