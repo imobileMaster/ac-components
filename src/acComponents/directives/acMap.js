@@ -254,9 +254,7 @@ angular.module('acComponents.directives')
                 marker.setZIndexOffset(zindex);
 
                 marker.on('click', function () {
-                  //zindex = zindex === 1 ? 200 : 1;
-                  //smarker.setZIndexOffset(zindex);
-                  showRegion();
+                  showRegion(layer);
                 });
 
                 layers.dangerIcons.addLayer(marker);
