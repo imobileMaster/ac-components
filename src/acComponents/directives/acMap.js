@@ -291,7 +291,7 @@ angular.module('acComponents.directives')
               map.removeLayer(layers.regions);
             } else if (zoom >= 6 && !regionsVisible) {
               map.addLayer(layers.regions);
-            } else if (zoom > 10 && regionsVisible) {
+            } else if (zoom > 11 && regionsVisible) {
               map.removeLayer(layers.regions);
             }
           }
