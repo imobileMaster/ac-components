@@ -217,6 +217,7 @@ angular.module('acComponents.directives')
 
               layer.on('click', function (evt) {
                 showRegion(layer);
+                $state.go('ac.forecast', {regionid: layer.feature.id || layer.feature.properties.id}, {notify:false, reload:false});
               });
 
               layer.on('mouseover', function () {
@@ -255,6 +256,7 @@ angular.module('acComponents.directives')
 
                 marker.on('click', function () {
                   showRegion(layer);
+                  $state.go('ac.forecast', {regionid: layer.feature.id || layer.feature.properties.id}, {notify:false, reload:false});
                 });
 
                 layers.dangerIcons.addLayer(marker);
@@ -387,6 +389,7 @@ angular.module('acComponents.directives')
 
               marker.on('click', function (e) {
                 setReport(ob);
+                $state.go('ac.focus', {markerid: ob.subid}, {notify:false, reload:false});
               });
 
               marker.eachLayer(function (layer) {
