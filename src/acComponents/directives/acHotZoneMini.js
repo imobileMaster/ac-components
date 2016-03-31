@@ -1,5 +1,5 @@
 angular.module('acComponents.directives')
-    .directive('acHotZoneMini', function ($state, acHotZoneReportData) {
+    .directive('acHotZoneMini', function ($state, $stateParams, acHotZoneReportData) {
         return {
             templateUrl: 'hot-zone-mini.html',
             scope: {
@@ -20,6 +20,12 @@ angular.module('acComponents.directives')
                     },
                     viewFullPage: function (id) {
                         $state.go('ac.hzr', { subid:id });
+                    },
+                    closeDrawer: function () {
+                        $scope.hotZone = null;
+                        if($stateParams.regionid) {
+                            $state.go('ac.map');
+                        }
                     }
                 });
             }

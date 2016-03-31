@@ -1,6 +1,8 @@
 .panel
     .panel-body.ac-forecast-mini-body
         .row
+            .pull-right.close-drawer(ng-click="closeDrawer()")
+                i.fa.fa-close
           .col-xs-6
               h4.ac-forecast-region {{ region.name }} Pilot Project
           .col-xs-6.section-label.full-page-link(ng-if='hotZone !== "default"')

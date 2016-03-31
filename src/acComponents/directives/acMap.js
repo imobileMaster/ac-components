@@ -683,7 +683,7 @@ angular.module('acComponents.directives')
         }
 
         function isHotZone(feature) {
-          return feature.properties.type === 'hotzone';
+          return feature && feature.properties && feature.properties.type === 'hotzone';
         }
 
         function newHotZone(feature) {
