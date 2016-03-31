@@ -46,10 +46,13 @@
                 a(href="/weather", role='tab') Weather
 
 
+
             .tab-content
                 #forecast.tab-pane.active
-                    .row
-                        .col-xs-12
+                    .row(ng-switch="forecast.dangerMode")
+                        div(ng-switch-when="Spring situation")
+                          ac-spring-conditions(forecast="forecast")
+                        .col-xs-12(ng-switch-default)
                             .panel.panel-primary
                                 .panel-heading
                                     | {{ forecast.dangerRatings[0].date | dateUtc:'dddd' }}
