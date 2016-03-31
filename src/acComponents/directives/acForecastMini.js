@@ -14,7 +14,7 @@ angular.module('acComponents.directives')
                 $scope.closeDrawer = function () {
                     $scope.forecast = null;
                     if($stateParams.regionid) {
-                        $state.go('ac.map');
+                        $state.go('ac.map', {regionid: null}, {notify:false, reload:false});
                     }
                 };
             }

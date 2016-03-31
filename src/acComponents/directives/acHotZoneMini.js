@@ -24,7 +24,7 @@ angular.module('acComponents.directives')
                     closeDrawer: function () {
                         $scope.hotZone = null;
                         if($stateParams.regionid) {
-                            $state.go('ac.map');
+                            $state.go('ac.map', {regionid: null}, {notify:false, reload:false});
                         }
                     }
                 });

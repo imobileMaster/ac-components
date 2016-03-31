@@ -7,6 +7,7 @@ angular.module('acComponents.directives')
         region: '=acRegion',
         regions: '=acRegions',
         showRegions: '=acShowRegions',
+        showHotZones: '=acShowHotZones',
         obs: '=acObs',
         ob: '=acOb',
         minFilters: '=acMinFilters',
@@ -16,6 +17,7 @@ angular.module('acComponents.directives')
       link: function ($scope, el, attrs) {
         $scope.device = {};
         $scope.showRegions = $scope.showRegions || true;
+        $scope.showHotZones = $scope.showHotZones || true;
         $scope.visibleObs = [];
 
         var mapConfig = {
@@ -77,7 +79,7 @@ angular.module('acComponents.directives')
           hotZone: {
             default: {
               fillColor: 'transparent',
-              color: '#e62e00',
+              color: '#d82631',
               weight: 1
             },
             selected: {
@@ -86,61 +88,61 @@ angular.module('acComponents.directives')
             },
             hover: {
               fillColor: 'transparent',
-              color: '#e62e00',
+              color: '#d82631',
               weight: 5
             },
             selectedhover: {
               fillColor: 'transparent',
-              color: '#e62e00',
+              color: '#d82631',
               weight: 5
             }
           },
           activeHotZone: {
             default: {
-              fillColor: '#e62e00',
+              fillColor: '#d82631',
               fillOpacity: 0.4,
-              color: '#e62e00',
+              color: '#d82631',
               weight: 1
             },
             selected: {
-              fillColor: '#e62e00',
+              fillColor: '#d82631',
               fillOpacity: 0.6,
               weight: 5
             },
             hover: {
-              fillColor: '#e62e00',
+              fillColor: '#d82631',
               fillOpacity: 0.4,
-              color: '#e62e00',
+              color: '#d82631',
               weight: 5
             },
             selectedhover: {
-              fillColor: '#e62e00',
+              fillColor: '#d82631',
               fillOpacity: 0.6,
-              color: '#e62e00',
+              color: '#d82631',
               weight: 5
             }
           },
           newHotZone: {
             default: {
-              fillColor: '#e62e00',
-              color: '#e62e00',
+              fillColor: '#d82631',
+              color: '#d82631',
               weight: 1,
               fillOpacity: 0.7
             },
             selected: {
-              fillColor: '#e62e00',
+              fillColor: '#d82631',
               fillOpacity: 0.9,
               weight: 5
             },
             hover: {
-              fillColor: '#e62e00',
-              color: '#e62e00',
+              fillColor: '#d82631',
+              color: '#d82631',
               weight: 5,
               fillOpacity: 0.7
             },
             selectedhover: {
-              fillColor: '#e62e00',
-              color: '#e62e00',
+              fillColor: '#d82631',
+              color: '#d82631',
               fillOpacity: 0.9,
               weight: 5
             }
@@ -225,12 +227,19 @@ angular.module('acComponents.directives')
         }
 
         function initRegionsLayer() {
-          layers.regions = L.geoJson($scope.regions, {
+          layers.regions = new L.layerGroup();
+          layers.hotZones = new L.layerGroup();
+          L.geoJson($scope.regions, {
             style: function (feature) {
               var style = getStyle(feature);
               return style.default;
             },
             onEachFeature: function (featureData, layer) {
+              if (isHotZone(layer.feature)) {
+                layers.hotZones.addLayer(layer);
+              } else {
+                layers.regions.addLayer(layer);
+              }
               var style = getStyle(featureData);
               if (isHotZone(layer.feature) && newHotZone(layer.feature)) {
                 layer.bindLabel('New Hot Zone Report - ' + featureData.properties.name);
@@ -281,8 +290,13 @@ angular.module('acComponents.directives')
           setTimeout(function() {
             if($location.path().indexOf('forecast') !== -1) {
               var currentLayer = _.findWhere(layers.regions.getLayers(), function (region) {
-                return region.feature.id === $stateParams.regionid || region.feature.properties.id === $stateParams.regionid;
+                return region.feature.id === $stateParams.regionid;
               });
+              if (!currentLayer) {
+                currentLayer = _.findWhere(layers.hotZones.getLayers(), function (region) {
+                  return region.feature.properties.id === $stateParams.regionid;
+                });
+              }
               showRegion(currentLayer);
             }
           }, 500);
@@ -301,15 +315,29 @@ angular.module('acComponents.directives')
         function refreshLayers() {
           var zoom = map.getZoom();
 
-          if (layers.regions && $scope.showRegions) {
+          if (layers.regions) {
             var regionsVisible = map.hasLayer(layers.regions);
 
             if (zoom < 6 && regionsVisible) {
               map.removeLayer(layers.regions);
-            } else if (zoom >= 6 && !regionsVisible) {
+            } else if (zoom >= 6 && !regionsVisible && $scope.showRegions) {
               map.addLayer(layers.regions);
-            } else if (zoom > 20 && regionsVisible) {
+            } else if (zoom >=6 && regionsVisible && $scope.showRegions) {
               map.removeLayer(layers.regions);
+            } else if (zoom > 10 && regionsVisible) {
+              map.removeLayer(layers.regions);
+            }
+          }
+
+          if (layers.hotZones) {
+            var hotZonesVisible = map.hasLayer(layers.hotZones);
+
+            if (zoom < 6 && hotZonesVisible) {
+              map.removeLayer(layers.hotZones);
+            } else if (zoom >= 6 && !hotZonesVisible && $scope.showHotZones) {
+              map.addLayer(layers.hotZones);
+            } else if (zoom >= 6 && hotZonesVisible && !$scope.showHotZones) {
+              map.removeLayer(layers.hotZones);
             }
           }
 
@@ -318,8 +346,10 @@ angular.module('acComponents.directives')
 
             if (map.getZoom() < 6 && dangerIconsVisible) {
               map.removeLayer(layers.dangerIcons);
-            } else if (map.getZoom() >= 6 && !dangerIconsVisible) {
+            } else if (map.getZoom() >= 6 && !dangerIconsVisible && $scope.showRegions) {
               map.addLayer(layers.dangerIcons);
+            } else if (map.getZoom() >=6 && dangerIconsVisible && !$scope.showRegions) {
+              map.removeLayer(layers.dangerIcons);
             }
 
             var dangerIcon = layers.dangerIcons.getLayers()[0];
@@ -332,7 +362,7 @@ angular.module('acComponents.directives')
           }
 
           var opacity = 0.2;
-          if (layers.currentRegion && $scope.showRegions && !isHotZone(layers.currentRegion.feature)) {
+          if (layers.currentRegion && !isHotZone(layers.currentRegion.feature)) {
             var style = getStyle(layers.currentRegion.feature);
             if (zoom <= 9) {
               style.selected.fillOpacity = opacity;
@@ -488,23 +518,21 @@ angular.module('acComponents.directives')
 
 
         function setRegionFocus() {
-          if ($scope.showRegions) {
-            var regionLayers = layers.regions.getLayers();
-            var mapCenter = getMapCenter();
+          var regionLayers = layers.regions.getLayers();
+          var mapCenter = getMapCenter();
 
-            var region = _.find(regionLayers, function (r) {
-              return gju.pointInPolygon(latLngToGeoJSON(mapCenter), r.feature.geometry);
+          var region = _.find(regionLayers, function (r) {
+            return gju.pointInPolygon(latLngToGeoJSON(mapCenter), r.feature.geometry);
+          });
+
+          if (!region) {
+            region = _.min(regionLayers, function (r) {
+              var centroid = L.latLng(r.feature.properties.centroid[1], r.feature.properties.centroid[0]);
+              return centroid.distanceTo(mapCenter);
             });
-
-            if (!region) {
-              region = _.min(regionLayers, function (r) {
-                var centroid = L.latLng(r.feature.properties.centroid[1], r.feature.properties.centroid[0]);
-                return centroid.distanceTo(mapCenter);
-              });
-            }
-
-            if (region) setRegion(region);
           }
+
+          if (region) setRegion(region);
         }
 
         function setRegion(region) {
@@ -530,6 +558,14 @@ angular.module('acComponents.directives')
           }
 
           layers.regions.eachLayer(function (layer) {
+            var style = getStyle(layer.feature);
+            if (layer === region) {
+              layer.setStyle(style.selected);
+            } else {
+              layer.setStyle(style.default);
+            }
+          });
+          layers.hotZones.eachLayer(function (layer) {
             var style = getStyle(layer.feature);
             if (layer === region) {
               layer.setStyle(style.selected);
@@ -563,17 +599,13 @@ angular.module('acComponents.directives')
 
         $scope.$watch('showRegions', function (newShowRegions, oldShowRegions) {
           if (newShowRegions !== oldShowRegions) {
-            if (!newShowRegions && map.hasLayer(layers.regions)) {
-              if (layers.currentRegion) {
-                $scope.region = null;
-                var style = getStyle(layers.currentRegion.feature);
-                layers.currentRegion.setStyle(style.default);
-              }
-              map.removeLayer(layers.regions);
-            } else if (newShowRegions && !map.hasLayer(layers.regions)) {
-              map.addLayer(layers.regions);
-              setRegionFocus();
-            }
+            refreshLayers();
+          }
+        });
+
+        $scope.$watch('showHotZones', function (newShowHotZones, oldShowHotZones) {
+          if (newShowHotZones !== oldShowHotZones) {
+            refreshLayers();
           }
         });
 
