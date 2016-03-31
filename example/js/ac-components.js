@@ -538,43 +538,71 @@ angular.module('acComponents.directives')
           hotZone: {
             default: {
               fillColor: 'transparent',
-              color: '#e62e00',
+              color: '#245EAC',
               weight: 1
-            },
-            active: {
-              fillColor: '#e62e00',
-              color: '#e62e00',
-              weight: 1
-            },
-            new: {
-              fillColor: '#e62e00',
-              color: '#e62e00',
-              weight: 1,
-              fillOpacity: 1
             },
             selected: {
-              fillColor: '#ffff00',
+              fillColor: 'transparent',
               weight: 5
             },
             hover: {
               fillColor: 'transparent',
-              color: '#e62e00',
+              color: '#245EAC',
               weight: 5
-            },
-            activehover: {
-              fillColor: '#e62e00',
-              color: '#e62e00',
-              weight: 5
-            },
-            newhover: {
-              fillColor: '#e62e00',
-              color: '#e62e00',
-              weight: 5,
-              fillOpacity: 1
             },
             selectedhover: {
-              fillColor: '#ffff00',
-              color: '#e62e00',
+              fillColor: 'transparent',
+              color: '#245EAC',
+              weight: 5
+            }
+          },
+          activeHotZone: {
+            default: {
+              fillColor: '#245EAC',
+              fillOpacity: 0.6,
+              color: '#245EAC',
+              weight: 1
+            },
+            selected: {
+              fillColor: '#245EAC',
+              fillOpacity: 0.8,
+              weight: 5
+            },
+            hover: {
+              fillColor: '#245EAC',
+              fillOpacity: 0.6,
+              color: '#245EAC',
+              weight: 5
+            },
+            selectedhover: {
+              fillColor: '#245EAC',
+              fillOpacity: 0.8,
+              color: '#245EAC',
+              weight: 5
+            }
+          },
+          newHotZone: {
+            default: {
+              fillColor: '#e62e00',
+              color: '#2b2f33',
+              weight: 1,
+              fillOpacity: 0.6
+            },
+            selected: {
+              fillColor: '#e62e00',
+              fillOpacity: 0.8,
+              weight: 5
+            },
+            hover: {
+              fillColor: '#e62e00',
+              color: '#2b2f33',
+              weight: 5,
+              fillOpacity: 0.6
+            },
+            selectedhover: {
+              fillColor: '#e62e00',
+              color: '#2b2f33',
+              fillOpacity: 0.8,
               weight: 5
             }
           },
@@ -661,11 +689,6 @@ angular.module('acComponents.directives')
           layers.regions = L.geoJson($scope.regions, {
             style: function (feature) {
               var style = getStyle(feature);
-              if(isHotZone(feature) && hotZoneActive(feature) && newHotZone(feature)) {
-                return style.new;
-              } else if (isHotZone(feature) && hotZoneActive(feature)) {
-                return style.active;
-              }
               return style.default;
             },
             onEachFeature: function (featureData, layer) {
@@ -684,10 +707,6 @@ angular.module('acComponents.directives')
               layer.on('mouseover', function () {
                 if (layer == layers.currentRegion) {
                   layer.setStyle(style.selectedhover);
-                } else if (isHotZone(layer.feature) && hotZoneActive(layer.feature) && newHotZone(layer.feature)) {
-                  layer.setStyle(style.newhover);
-                } else if (isHotZone(layer.feature) && hotZoneActive(layer.feature)) {
-                  layer.setStyle(style.activehover);
                 } else {
                   layer.setStyle(style.hover);
                 }
@@ -696,10 +715,6 @@ angular.module('acComponents.directives')
               layer.on('mouseout', function () {
                 if (layer == layers.currentRegion) {
                   layer.setStyle(style.selected);
-                } else if (isHotZone(layer.feature) && hotZoneActive(layer.feature) && newHotZone(layer.feature)) {
-                  layer.setStyle(style.new);
-                } else if (isHotZone(layer.feature) && hotZoneActive(layer.feature)) {
-                  layer.setStyle(style.active);
                 } else {
                   layer.setStyle(style.default);
                 }
@@ -778,7 +793,7 @@ angular.module('acComponents.directives')
           }
 
           var opacity = 0.2;
-          if (layers.currentRegion && $scope.showRegions) {
+          if (layers.currentRegion && $scope.showRegions && !isHotZone(layers.currentRegion.feature)) {
             var style = getStyle(layers.currentRegion.feature);
             if (zoom <= 9) {
               style.selected.fillOpacity = opacity;
@@ -798,13 +813,7 @@ angular.module('acComponents.directives')
               style.selected.fillOpacity = opacity;
               layers.currentRegion.setStyle(style.selected);
             } else {
-              if (isHotZone(layers.currentRegion.feature) && hotZoneActive(layers.currentRegion.feature) && newHotZone(layers.currentRegion.feature)) {
-                layers.currentRegion.setStyle(style.new);
-              } else if (isHotZone(layers.currentRegion.feature) && hotZoneActive(layers.currentRegion.feature)) {
-                layers.currentRegion.setStyle(style.active);
-              } else {
-                layers.currentRegion.setStyle(style.default);
-              }
+              layers.currentRegion.setStyle(style.default);
             }
           }
         }
@@ -985,10 +994,6 @@ angular.module('acComponents.directives')
             var style = getStyle(layer.feature);
             if (layer === region) {
               layer.setStyle(style.selected);
-            } else if (isHotZone(layer.feature) && hotZoneActive(layer.feature) && newHotZone(layer.feature)) {
-              layer.setStyle(style.new);
-            } else if (isHotZone(layer.feature) && hotZoneActive(layer.feature)) {
-              layer.setStyle(style.active);
             } else {
               layer.setStyle(style.default);
             }
@@ -1023,13 +1028,7 @@ angular.module('acComponents.directives')
               if (layers.currentRegion) {
                 $scope.region = null;
                 var style = getStyle(layers.currentRegion.feature);
-                if (isHotZone(layers.currentRegion.feature) && hotZoneActive(layers.currentRegion.feature) && newHotZone(layers.currentRegion.feature)) {
-                  layers.currentRegion.setStyle(style.new);
-                } else if (isHotZone(layers.currentRegion.feature) && hotZoneActive(layers.currentRegion.feature)) {
-                  layers.currentRegion.setStyle(style.active);
-                } else {
-                  layers.currentRegion.setStyle(style.default);
-                }
+                layers.currentRegion.setStyle(style.default);
               }
               map.removeLayer(layers.regions);
             } else if (newShowRegions && !map.hasLayer(layers.regions)) {
@@ -1129,7 +1128,15 @@ angular.module('acComponents.directives')
         }
 
         function getStyle(feature) {
-          return style = feature.properties.type === "hotzone" ? styles.hotZone : styles.region;
+          if (isHotZone(feature) && newHotZone(feature)) {
+            return styles.newHotZone;
+          } else if (isHotZone(feature) && hotZoneActive(feature)) {
+            return styles.activeHotZone;
+          } else if (isHotZone(feature)) {
+            return styles.hotZone;
+          } else {
+            return styles.region;
+          }
         }
 
         function hotZoneActive(feature) {
