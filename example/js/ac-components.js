@@ -538,7 +538,7 @@ angular.module('acComponents.directives')
           hotZone: {
             default: {
               fillColor: 'transparent',
-              color: '#245EAC',
+              color: '#e62e00',
               weight: 1
             },
             selected: {
@@ -547,62 +547,62 @@ angular.module('acComponents.directives')
             },
             hover: {
               fillColor: 'transparent',
-              color: '#245EAC',
+              color: '#e62e00',
               weight: 5
             },
             selectedhover: {
               fillColor: 'transparent',
-              color: '#245EAC',
+              color: '#e62e00',
               weight: 5
             }
           },
           activeHotZone: {
             default: {
-              fillColor: '#245EAC',
-              fillOpacity: 0.6,
-              color: '#245EAC',
+              fillColor: '#e62e00',
+              fillOpacity: 0.4,
+              color: '#e62e00',
               weight: 1
             },
             selected: {
-              fillColor: '#245EAC',
-              fillOpacity: 0.8,
+              fillColor: '#e62e00',
+              fillOpacity: 0.6,
               weight: 5
             },
             hover: {
-              fillColor: '#245EAC',
-              fillOpacity: 0.6,
-              color: '#245EAC',
+              fillColor: '#e62e00',
+              fillOpacity: 0.4,
+              color: '#e62e00',
               weight: 5
             },
             selectedhover: {
-              fillColor: '#245EAC',
-              fillOpacity: 0.8,
-              color: '#245EAC',
+              fillColor: '#e62e00',
+              fillOpacity: 0.6,
+              color: '#e62e00',
               weight: 5
             }
           },
           newHotZone: {
             default: {
               fillColor: '#e62e00',
-              color: '#2b2f33',
+              color: '#e62e00',
               weight: 1,
-              fillOpacity: 0.6
+              fillOpacity: 0.7
             },
             selected: {
               fillColor: '#e62e00',
-              fillOpacity: 0.8,
+              fillOpacity: 0.9,
               weight: 5
             },
             hover: {
               fillColor: '#e62e00',
-              color: '#2b2f33',
+              color: '#e62e00',
               weight: 5,
-              fillOpacity: 0.6
+              fillOpacity: 0.7
             },
             selectedhover: {
               fillColor: '#e62e00',
-              color: '#2b2f33',
-              fillOpacity: 0.8,
+              color: '#e62e00',
+              fillOpacity: 0.9,
               weight: 5
             }
           },
