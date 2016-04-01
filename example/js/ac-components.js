@@ -795,21 +795,27 @@ angular.module('acComponents.directives')
 
         function refreshLayers() {
           var zoom = map.getZoom();
+          var regionsUpdated = false;
 
           if (layers.regions) {
             var regionsVisible = map.hasLayer(layers.regions);
 
             if (zoom < 6 && regionsVisible) {
-
+              map.removeLayer(layers.regions);
             } else if (regionsVisible && !$scope.showRegions) {
               map.removeLayer(layers.regions);
             } else if (!regionsVisible && $scope.showRegions) {
               map.addLayer(layers.regions);
+              regionsUpdated = true;
             }
           }
 
           if (layers.hotZones) {
             var hotZonesVisible = map.hasLayer(layers.hotZones);
+            if (regionsUpdated && hotZonesVisible && $scope.showHotZones) {
+              map.removeLayer(layers.hotZones);
+              map.addLayer(layers.hotZones);
+            }
 
             if (zoom < 6 && hotZonesVisible) {
               map.removeLayer(layers.hotZones)
