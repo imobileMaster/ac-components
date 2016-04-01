@@ -10780,7 +10780,8 @@ aside {
       clear: both; }
     @media screen and (min-width: 600px) {
       #forecast #inner-forecast {
-        background: transparent url(../assets/images/forecast-inner-map-bg.jpg) left top repeat-y; } }
+/*        background: transparent url(../assets/images/forecast-inner-map-bg.jpg) left top repeat-y; */
+      } }
     #forecast #inner-forecast #back-link {
       width: 60px;
       height: 60px;
@@ -11940,7 +11941,8 @@ aside {
         clear: both; } }
     @media screen and (min-width: 600px) and (min-width: 600px) {
       #forecast #inner-forecast {
-        background: transparent url(../assets/images/forecast-inner-map-bg.jpg) left top repeat-y; } }
+/*        background: transparent url(../assets/images/forecast-inner-map-bg.jpg) left top repeat-y; */
+      } }
 @media screen and (min-width: 600px) {
       #forecast #inner-forecast #back-link {
         width: 60px;
