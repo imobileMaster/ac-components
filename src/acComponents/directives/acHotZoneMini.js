@@ -19,7 +19,8 @@ angular.module('acComponents.directives')
                         return date;
                     },
                     viewFullPage: function (id) {
-                        $state.go('ac.hzr', { subid:id });
+                        var url = $state.href('ac.hzr', { subid:id });
+                        window.open(url, '_blank');
                     },
                     closeDrawer: function () {
                         $scope.hotZone = null;

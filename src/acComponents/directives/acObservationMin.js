@@ -81,7 +81,8 @@ angular.module('acComponents.directives')
         }
 
         function viewFullPage(id){
-          $state.go('ac.reports', { subid:id });
+          var url = $state.href('ac.reports', { subid:id });
+          window.open(url, '_blank');
         }
 
       }
