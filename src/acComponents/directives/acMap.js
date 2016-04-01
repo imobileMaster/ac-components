@@ -261,7 +261,7 @@ angular.module('acComponents.directives')
               });
 
               layer.on('mouseover', function () {
-                if (layer == layers.currentRegion) {
+                if (layers.currentRegion && layer == layers.currentRegion) {
                   layer.setStyle(style.selectedhover);
                 } else {
                   layer.setStyle(style.hover);
@@ -269,7 +269,7 @@ angular.module('acComponents.directives')
               });
 
               layer.on('mouseout', function () {
-                if (layer == layers.currentRegion) {
+                if (layers.currentRegion && layer == layers.currentRegion) {
                   layer.setStyle(style.selected);
                 } else {
                   layer.setStyle(style.default);
