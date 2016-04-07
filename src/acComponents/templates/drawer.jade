@@ -1,10 +1,16 @@
 .ac-drawer
-
-    a.ac-drawer-close.visible-xs(ng-click="drawer.right.visible = false", ng-if="drawerPosition === 'right'")
-        i.fa.fa-close.fa-lg
     .ac-drawer-tools
         ul
-            li(ng-if="drawerPosition === 'right'", ng-click="toggleForecast()", ng-class="{on: drawer.right.visible && drawer.right.enabled}", style="margin-bottom: 50px;")
+            li.ac-submit-report-tab.on(ng-if="drawerPosition === 'right' && isForecaster", ng-click="goToHotZoneReport()")
+              i.fa.fa-plus.fa-2x
+              i.fa.fa-exclamation-triangle.fa-inverse.fa-2x
+              span Create HZR Report
+
+            li.ac-report-tab(ng-if="drawerPosition === 'right'", ng-click="toggleForecast('hotzone')", ng-class="{on: hotZonesVisible}")
+              i.fa.fa-exclamation-triangle.fa-inverse.fa-2x
+              span Hot Zone Report
+
+            li(ng-if="drawerPosition === 'right'", ng-click="toggleForecast('region')", ng-class="{on: regionsVisible}", style="margin-bottom: 50px;")
                 div(ac-danger-icon, style="height: 60px; width:60px;")
 
             li.ac-submit-report-tab.on(ng-if="drawerPosition === 'left'", ng-click="goToSubmitReport()")

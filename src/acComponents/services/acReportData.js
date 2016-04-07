@@ -1,12 +1,13 @@
 angular.module('acComponents.services')
-  .factory('acReportData', function(acQuickReportData, acAvalancheReportData, acSnowpackReportData, acWeatherReportData, acIncidentReportData) {
+  .factory('acReportData', function(acQuickReportData, acAvalancheReportData, acSnowpackReportData, acWeatherReportData, acIncidentReportData, acHotZoneReportData) {
 
     return {
       quick: acQuickReportData,
       avalanche: acAvalancheReportData,
       snowpack: acSnowpackReportData,
       weather: acWeatherReportData,
-      incident: acIncidentReportData
+      incident: acIncidentReportData,
+      hotzone: acHotZoneReportData
     };
 
   });

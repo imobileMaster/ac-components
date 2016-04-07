@@ -1,0 +1,158 @@
+.panel
+    .panel-body
+        .row
+            header.col-xs-12
+                #header-inner
+                    h1 {{ report.hotzoneid | acCapitalize }} Pilot Project
+                    .section-label.print-link.pull-right(ng-click='print()')
+                        i.fa.fa-external-link
+                        span &nbsp; Print Friendly
+            section#forecast-date.col-xs-12
+                #date-issued.forecast-date-inner
+                    | Date Issued &nbsp;
+                    br.visible-xs-inline
+                    span  {{ formatDate(report.report.dateissued) | date:'EEE MMMM d, h:mm a' | uppercase }}
+                #date-valid.forecast-date-inner(style='width: 574px;')
+                    | &nbsp; Valid Until &nbsp;
+                    br.visible-xs-inline
+                    span {{ formatDate(report.report.datevalid) | date:'EEE MMMM d, h:mm a' | uppercase }}
+                #date-issued.forecast-date-inner(ng-if='report.user')
+                    | Forecaster &nbsp;
+                    br.visible-xs-inline
+                    span {{ report.user }}
+                #date-valid.forecast-date-inner(ng-if='report.user', style='width: 574px;')
+
+            section#forecast-body.col-xs-12.col-md-12
+                #highlights
+                    h2 {{report.report.headline}}
+
+                .upload-n-share(ng-if="report.report.uploads.length > 0")
+                    .row-fluid.observation-title
+                        | Uploads
+                    .row
+                        .col-sm-12.section-label
+                            i.fa.fa-camera
+                            span Uploads (click/tap to enlarge)
+
+                        .col-sm-12
+                            ul.list-inline
+                                li(ng-repeat="url in report.report.thumbs")
+                                    a(ng-href="{{::url}}", target="_blank")
+                                    img(ng-src="{{::url}}", width="75", alt="{{::report.report.headline}}")
+                .panel-group
+                    .panel.panel-primary
+                        .panel-heading
+                            | Critical Factors Summary
+                        .panel-body
+                            .row
+                                .col-xs-12
+                                    | Critical factors influence avalanche hazard. The more critical factors, the greater the potential for avalanches.
+                            .row
+                                .col-xs-6.sm-pad-right
+                                    strong.pull-right.text-right Persistent avalanche problem:
+                                .col-xs-6.sm-pad-left
+                                    | {{ report.report.data.criticalFactors.persistentAvalancheProblem || 'N/A' }}
+                            .row
+                                .col-xs-6.sm-pad-right
+                                    strong.pull-right.text-right Slab avalanches in the last 48 hours:
+                                .col-xs-6.sm-pad-left
+                                    | {{ report.report.data.criticalFactors.slabAvalanches || 'N/A' }}
+                            .row
+                                .col-xs-6.sm-pad-right
+                                    strong.pull-right.text-right Signs of instability:
+                                .col-xs-6.sm-pad-left
+                                    | {{ report.report.data.criticalFactors.instability || 'N/A' }}
+                            .row
+                                .col-xs-6.sm-pad-right
+                                    strong.pull-right.text-right  Recent snowfall > 30cm:
+                                .col-xs-6.sm-pad-left
+                                    | {{ report.report.data.criticalFactors.recentSnowfall || 'N/A' }}
+                            .row
+                                .col-xs-6.sm-pad-right
+                                    strong.pull-right.text-right  Recent rainfall:
+                                .col-xs-6.sm-pad-left
+                                    | {{ report.report.data.criticalFactors.recentRainfall || 'N/A' }}
+                            .row
+                                .col-xs-6.sm-pad-right
+                                    strong.pull-right.text-right  Recent windloading:
+                                .col-xs-6.sm-pad-left
+                                    | {{ report.report.data.criticalFactors.recentWindloading || 'N/A' }}
+                            .row
+                                .col-xs-6.sm-pad-right
+                                    strong.pull-right.text-right  Significant warming:
+                                .col-xs-6.sm-pad-left
+                                    | {{ report.report.data.criticalFactors.significantWarming || 'N/A' }}
+                            .row
+                                .col-xs-6.sm-pad-right
+                                    strong.pull-right.text-right Comments:
+                                .col-xs-6.sm-pad-left
+                                    | {{ report.report.criticalFactors.criticalFactorsComments || 'N/A' }}
+                    .panel.panel-primary
+                        .panel-heading
+                            | Terrain Recommendations
+                        .panel-body
+                            .row
+                                .col-xs-12
+                                    | Based on the critical factors, AVOIDING the following is recommended to reduce risk.
+                            .row
+                                .col-xs-6.sm-pad-right
+                                    strong.pull-right.text-right Aspect:
+                                .col-xs-6.sm-pad-left
+                                    | {{ report.report.data.terrainAvoidanceList.aspect || 'N/A' | acFormatList }}
+                            .row
+                                .col-xs-6.sm-pad-right
+                                    strong.pull-right.text-right Elevation band:
+                                .col-xs-6.sm-pad-left
+                                    | {{ report.report.data.terrainAvoidanceList.elevationBand || 'N/A' | acFormatList }}
+                            .row
+                                .col-xs-6.sm-pad-right
+                                    strong.pull-right.text-right Elevation below:
+                                .col-xs-6.sm-pad-left
+                                    | {{ report.report.data.terrainAvoidanceList.elevationBelow || 'N/A' }}
+                            .row
+                                .col-xs-6.sm-pad-right
+                                    strong.pull-right.text-right Elevation above:
+                                .col-xs-6.sm-pad-left
+                                    | {{ report.report.data.terrainAvoidanceList.elevationAbove || 'N/A' }}
+                            .row
+                                .col-xs-6.sm-pad-right
+                                    strong.pull-right.text-right Elevation between:
+                                .col-xs-6.sm-pad-left
+                                    | {{ report.report.data.terrainAvoidanceList.elevationBetweenLow || 'N/A' }} and {{ report.report.data.terrainAvoidanceList.elevationBetweenHigh || 'N/A' }} metres
+                            .row
+                                .col-xs-6.sm-pad-right
+                                    strong.pull-right.text-right Terrain features:
+                                .col-xs-6.sm-pad-left
+                                    | {{ report.report.data.terrainAvoidanceList.terrainFeatures || 'N/A' | acFormatList }}
+                            .row
+                                .col-xs-6.sm-pad-right
+                                    strong.pull-right.text-right Slopes steeper than:
+                                .col-xs-6.sm-pad-left
+                                    | {{ report.report.data.terrainAvoidanceList.steeperThan || 'N/A' }}
+                            .row
+                                .col-xs-6.sm-pad-right
+                                    strong.pull-right.text-right Other terrain features:
+                                .col-xs-6.sm-pad-left
+                                    | {{ report.report.data.terrainAvoidanceList.otherTerrainFeatures || 'N/A' }}
+                            .row
+                                .col-xs-6.sm-pad-right
+                                    strong.pull-right.text-right Comments:
+                                .col-xs-6.sm-pad-left
+                                    | {{ report.report.data.terrainAvoidanceList.terrainAvoidanceComments || 'N/A' }}
+                    .panel.panel-primary
+                        .panel-heading
+                            | Travel Advice
+                        .panel-body
+                            p
+                                | {{ report.report.data.travelAdvice.travelAdviceStatement1 }}
+                            p
+                                | {{ report.report.data.travelAdvice.travelAdviceStatement2 }}
+                            p
+                                | {{ report.report.data.travelAdvice.travelAdviceStatement3 }}
+                            p
+                                | {{ report.report.data.travelAdvice.travelAdviceComments }}
+                    .panel.panel-primary
+                        .panel-heading
+                            | More Information
+                        .panel-body(ng-bind-html='infoSummary')
+

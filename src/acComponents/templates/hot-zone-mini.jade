@@ -1,0 +1,187 @@
+.panel
+    .panel-body.ac-forecast-mini-body
+        .row
+            .pull-right.close-drawer(ng-click="closeDrawer()")
+                i.fa.fa-close
+          .col-xs-6
+              h4.ac-forecast-region {{ region.name }} Pilot Project
+          .col-xs-6.section-label.full-page-link(ng-if='hotZone !== "default"')
+              div.pull-right(ng-click='viewFullPage(hotZone.subid)', style='padding-top: 10px; cursor: pointer;')
+                i.fa.fa-external-link
+                span &nbsp; FULL PAGE
+        .row.ac-forecast-dates
+            .col-md-6
+                dl
+                    dd.small
+                        strong.ac-text-primary DATE ISSUED
+                    dt.small
+                        span.ac-text-default {{ formatDate(hotZone.report.dateissued) || 'N/A'| date:'EEEE MMMM d, y h:mm a'  | uppercase }}
+            .col-md-6
+                dl
+                    dd.small
+                        strong.ac-text-primary VALID UNTIL
+                    dt.small
+                        span.ac-text-default {{ formatDate(hotZone.report.datevalid)  || 'N/A'| date:'EEEE MMMM d, y h:mm a' | uppercase }}
+        .row(ng-if='hotZone !== "default"')
+            .col-xs-12
+                h3.ac-hot-zone-headline {{ hotZone.report.headline }}
+        .row(ng-if='hotZone === "default"')
+            .col-xs-12
+                h3.ac-hot-zone-headline A Hot Zone Report is not <br> available at this time.
+        .row(ng-if="hotZone.report.uploads.length > 0")
+            .col-sm-12.section-label
+                i.fa.fa-camera
+                span    Uploads (click/tap to enlarge)
+
+            .col-sm-12
+                ul.list-inline
+                    li(ng-repeat="url in hotZone.report.thumbs")
+                        a(ng-href="{{url}}", target="_blank")
+                            img(ng-src="{{url}}", width="75", alt="{{hotZone.report.headline}}")
+        .row
+            .col-xs-12
+                #infoAccordion.panel-group
+                    .panel.panel-primary(ng-if='hotZone !== "default"')
+                        .panel-heading
+                            h4.panel-title
+                                a(href='', data-target="#criticalSummary", data-toggle='collapse', data-parent='#infoAccordion')
+                                    | Critical Factors Summary
+                                    i.fa.fa-fw.fa-level-down.fa-lg.pull-right
+                                    small.pull-right click to expand
+                        #criticalSummary.panel-collapse.collapse
+                            .panel-body
+                                .row
+                                    .col-xs-12
+                                        | Critical factors influence avalanche hazard. The more critical factors, the greater the potential for avalanches.
+                                .row
+                                    .col-xs-6.sm-pad-right
+                                        strong.pull-right.text-right Persistent avalanche problem:
+                                    .col-xs-6.sm-pad-left
+                                        | {{ hotZone.report.data.criticalFactors.persistentAvalancheProblem || 'N/A' }}
+                                .row
+                                    .col-xs-6.sm-pad-right
+                                        strong.pull-right.text-right Slab avalanches in the last 48 hours:
+                                    .col-xs-6.sm-pad-left
+                                        | {{ hotZone.report.data.criticalFactors.slabAvalanches || 'N/A' }}
+                                .row
+                                    .col-xs-6.sm-pad-right
+                                        strong.pull-right.text-right Signs of instability:
+                                    .col-xs-6.sm-pad-left
+                                        | {{ hotZone.report.data.criticalFactors.instability || 'N/A' }}
+                                .row
+                                    .col-xs-6.sm-pad-right
+                                        strong.pull-right.text-right  Recent snowfall > 30cm:
+                                    .col-xs-6.sm-pad-left
+                                        | {{ hotZone.report.data.criticalFactors.recentSnowfall || 'N/A' }}
+                                .row
+                                    .col-xs-6.sm-pad-right
+                                        strong.pull-right.text-right  Recent rainfall:
+                                    .col-xs-6.sm-pad-left
+                                        | {{ hotZone.report.data.criticalFactors.recentRainfall || 'N/A' }}
+                                .row
+                                    .col-xs-6.sm-pad-right
+                                        strong.pull-right.text-right  Recent windloading:
+                                    .col-xs-6.sm-pad-left
+                                        | {{ hotZone.report.data.criticalFactors.recentWindloading || 'N/A' }}
+                                .row
+                                    .col-xs-6.sm-pad-right
+                                        strong.pull-right.text-right  Significant warming:
+                                    .col-xs-6.sm-pad-left
+                                        | {{ hotZone.report.data.criticalFactors.significantWarming || 'N/A' }}
+                                .row
+                                    .col-xs-6.sm-pad-right
+                                        strong.pull-right.text-right Comments:
+                                    .col-xs-6.sm-pad-left
+                                        | {{ hotZone.report.data.criticalFactors.criticalFactorsComments || 'N/A' }}
+                    .panel.panel-primary(ng-if='hotZone !== "default"')
+                        .panel-heading
+                            h4.panel-title
+                                a(href='', data-target="#terrainSummary", data-toggle='collapse', data-parent='#infoAccordion')
+                                    | Terrain Recommendations
+                                    i.fa.fa-fw.fa-level-down.fa-lg.pull-right
+                                    small.pull-right click to expand
+                        #terrainSummary.panel-collapse.collapse
+                            .panel-body
+                                .row
+                                    .col-xs-12
+                                        | Based on the critical factors, AVOIDING the following is recommended to reduce risk.
+                                .row
+                                    .col-xs-6.sm-pad-right
+                                        strong.pull-right.text-right Aspect:
+                                    .col-xs-6.sm-pad-left
+                                        | {{ hotZone.report.data.terrainAvoidanceList.aspect || 'N/A' | acFormatList }}
+                                .row
+                                    .col-xs-6.sm-pad-right
+                                        strong.pull-right.text-right Elevation band:
+                                    .col-xs-6.sm-pad-left
+                                        | {{ hotZone.report.data.terrainAvoidanceList.elevationBand || 'N/A' | acFormatList }}
+                                .row
+                                    .col-xs-6.sm-pad-right
+                                        strong.pull-right.text-right Elevation below:
+                                    .col-xs-6.sm-pad-left
+                                        | {{ hotZone.report.data.terrainAvoidanceList.elevationBelow || 'N/A' }}
+                                .row
+                                    .col-xs-6.sm-pad-right
+                                        strong.pull-right.text-right Elevation above:
+                                    .col-xs-6.sm-pad-left
+                                        | {{ hotZone.report.data.terrainAvoidanceList.elevationAbove || 'N/A' }}
+                                .row
+                                    .col-xs-6.sm-pad-right
+                                        strong.pull-right.text-right Elevation between:
+                                    .col-xs-6.sm-pad-left
+                                        | {{ hotZone.report.data.terrainAvoidanceList.elevationBetweenLow || 'N/A' }} and {{ hotZone.report.data.terrainAvoidanceList.elevationBetweenHigh || 'N/A' }} metres
+                                .row
+                                    .col-xs-6.sm-pad-right
+                                        strong.pull-right.text-right Terrain features:
+                                    .col-xs-6.sm-pad-left
+                                        | {{ hotZone.report.data.terrainAvoidanceList.terrainFeatures || 'N/A' | acFormatList }}
+                                .row
+                                    .col-xs-6.sm-pad-right
+                                        strong.pull-right.text-right Slopes steeper than:
+                                    .col-xs-6.sm-pad-left
+                                        | {{ hotZone.report.data.terrainAvoidanceList.steeperThan || 'N/A' }}
+                                .row
+                                    .col-xs-6.sm-pad-right
+                                        strong.pull-right.text-right Other terrain features:
+                                    .col-xs-6.sm-pad-left
+                                        | {{ hotZone.report.data.terrainAvoidanceList.otherTerrainFeatures || 'N/A' }}
+                                .row
+                                    .col-xs-6.sm-pad-right
+                                        strong.pull-right.text-right Comments:
+                                    .col-xs-6.sm-pad-left
+                                        | {{ hotZone.report.data.terrainAvoidanceList.terrainAvoidanceComments || 'N/A' }}
+                    .panel.panel-primary(ng-if='hotZone !== "default"')
+                        .panel-heading
+                            h4.panel-title
+                                a(href='', data-target="#travelSummary", data-toggle='collapse', data-parent='#infoAccordion')
+                                    | Travel Advice
+                                    i.fa.fa-fw.fa-level-down.fa-lg.pull-right
+                                    small.pull-right click to expand
+                        #travelSummary.panel-collapse.collapse
+                            .panel-body
+                                p
+                                    | {{ hotZone.report.data.travelAdvice.travelAdviceStatement1 }}
+                                p
+                                    | {{ hotZone.report.data.travelAdvice.travelAdviceStatement2 }}
+                                p
+                                    | {{ hotZone.report.data.travelAdvice.travelAdviceStatement3 }}
+                                p
+                                    | {{ hotZone.report.data.travelAdvice.travelAdviceComments }}
+                    .panel.panel-primary(ng-if='hotZone === "default"')
+                        .panel-heading
+                            h4.panel-title
+                                a(href='', data-target="#noDataSummary", data-toggle='collapse', data-parent='#infoAccordion')
+                                    | More Information
+                                    i.fa.fa-fw.fa-level-down.fa-lg.pull-right
+                                    small.pull-right click to expand
+                        #noDataSummary.panel-collapse.collapse
+                            .panel-body(ng-bind-html='noDataSummary')
+                    .panel.panel-primary(style="margin-bottom: 10px;")
+                        .panel-heading
+                            h4.panel-title
+                                a(href='', data-target="#infoSummary", data-toggle='collapse', data-parent='#infoAccordion')
+                                    | About
+                                    i.fa.fa-fw.fa-level-down.fa-lg.pull-right
+                                    small.pull-right click to expand
+                        #infoSummary.panel-collapse.collapse
+                            .panel-body(ng-bind-html='infoSummary')

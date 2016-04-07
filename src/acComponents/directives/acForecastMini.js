@@ -1,5 +1,5 @@
 angular.module('acComponents.directives')
-    .directive('acForecastMini', function (AC_API_ROOT_URL) {
+    .directive('acForecastMini', function ($state, $stateParams, AC_API_ROOT_URL) {
         return {
             templateUrl: 'forecast-mini.html',
             scope: {
@@ -11,6 +11,12 @@ angular.module('acComponents.directives')
             link: function ($scope, el, attrs) {
                 el.addClass('ac-forecast-mini');
                 $scope.apiUrl = AC_API_ROOT_URL;
+                $scope.closeDrawer = function () {
+                    $scope.forecast = null;
+                    if($stateParams.regionid) {
+                        $state.go('ac.map', {regionid: null}, {notify:false, reload:false});
+                    }
+                };
             }
         };
     })
@@ -32,7 +38,7 @@ angular.module('acComponents.directives')
         return {
             restrict: 'E',
             templateUrl: 'forecast-mini-avalx.html',
-            scope: { 
+            scope: {
                 forecast: '=',
                 dangerRating: '=',
                 disclaimer: '=',

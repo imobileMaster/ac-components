@@ -34,7 +34,7 @@ angular.module('acComponents.directives')
         function closeDrawer() {
           scope.sub = null;
           if($stateParams.subid || $stateParams.markerid) {
-            $state.go('ac.map');
+            $state.go('ac.map', {markerid: null}, {notify:false, reload:false});
           }
         }
 
@@ -81,7 +81,8 @@ angular.module('acComponents.directives')
         }
 
         function viewFullPage(id){
-          $state.go('ac.reports', { subid:id });
+          var url = $state.href('ac.reports', { subid:id });
+          window.open(url, '_blank');
         }
 
       }

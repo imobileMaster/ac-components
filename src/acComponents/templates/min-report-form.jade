@@ -164,10 +164,10 @@
           input.btn.btn-default.btn-styled(type="button", value="Back", ng-click="goBack(acMinForm.$dirty)")
           .submit-btn
             i.fa.fa-fw.fa-lg.fa-spinner.fa-spin(ng-show="minsubmitting")
-            input.btn.btn-default.btn-styled(type="button", ng-click="submitForm()", id="submit", value="SUBMIT", ng-disabled="report.latlng.length === 0 || minsubmitting")
+            input.btn.btn-default.btn-styled(type="button", ng-click="submitForm(acMinForm)", id="submit", value="SUBMIT", ng-disabled="report.latlng.length === 0 || minsubmitting")
 
     div(ng-if="minerror")
         .alert.alert-danger(role="alert")
-            p There was an error submittting you report.
+            p There was an error submitting your report.
             p(ng-if="minerrormsg") {{minerrormsg}}
 
