@@ -115,8 +115,8 @@
                                         | And while this report is valid:
                                         ul
                                             li
-                                                | AVOID terrain features marked with an &nbsp;
-                                                i.fa.fa-times-circle-o
+                                                | AVOID terrain features marked with a &nbsp;
+                                                i.fa.fa-check-square-o
                                             li Follow the advice in the comments section.
                                 .row
                                     .col-xs-12.terrain-title
@@ -131,9 +131,9 @@
                                                 ul.terrain-list
                                                     li(ng-repeat="(name, value) in hotZone.report.data.alpineTerrainAvoidance.aspect", ng-class="{'terrain-highlight': value}")
                                                         .row
-                                                            .col-xs-3.terrain-icon
+                                                            .col-xs-2.sm-pad-right.terrain-icon
                                                                 i.fa.pull-right(ng-class="{'fa-square-o': !value, 'fa-check-square-o': value}")
-                                                            .col-xs-9
+                                                            .col-xs-10.sm-pad-left
                                                                 span.pull-left {{ name }}
                                     .col-xs-6
                                         .row
@@ -144,9 +144,9 @@
                                                 ul.terrain-list
                                                     li(ng-repeat="(name, value) in hotZone.report.data.alpineTerrainAvoidance.terrainFeatures", ng-class="{'terrain-highlight': value}")
                                                         .row
-                                                            .col-xs-3.terrain-icon
+                                                            .col-xs-2.sm-pad-right.terrain-icon
                                                                 i.fa.pull-right(ng-class="{'fa-square-o': !value, 'fa-check-square-o': value}")
-                                                            .col-xs-9
+                                                            .col-xs-10.sm-pad-left
                                                                 span.pull-left {{ name }}
                                 .row
                                     .col-xs-12
@@ -166,9 +166,9 @@
                                                 ul.terrain-list
                                                     li(ng-repeat="(name, value) in hotZone.report.data.treelineTerrainAvoidance.aspect", ng-class="{'terrain-highlight': value}")
                                                         .row
-                                                            .col-xs-3.terrain-icon
+                                                            .col-xs-2.sm-pad-right.terrain-icon
                                                                 i.fa.pull-right(ng-class="{'fa-square-o': !value, 'fa-check-square-o': value}")
-                                                            .col-xs-9
+                                                            .col-xs-10.sm-pad-left
                                                                 span.pull-left {{ name }}
                                     .col-xs-6
                                         .row
@@ -179,9 +179,9 @@
                                                 ul.terrain-list
                                                     li(ng-repeat="(name, value) in hotZone.report.data.treelineTerrainAvoidance.terrainFeatures", ng-class="{'terrain-highlight': value}")
                                                         .row
-                                                            .col-xs-3.terrain-icon
+                                                            .col-xs-2.sm-pad-right.terrain-icon
                                                                 i.fa.pull-right(ng-class="{'fa-square-o': !value, 'fa-check-square-o': value}")
-                                                            .col-xs-9
+                                                            .col-xs-10.sm-pad-left
                                                                 span.pull-left {{ name }}
                                 .row
                                     .col-xs-12
@@ -201,9 +201,9 @@
                                                 ul.terrain-list
                                                     li(ng-repeat="(name, value) in hotZone.report.data.belowTreelineTerrainAvoidance.aspect", ng-class="{'terrain-highlight': value}")
                                                         .row
-                                                            .col-xs-3.terrain-icon
+                                                            .col-xs-2.sm-pad-right.terrain-icon
                                                                 i.fa.pull-right(ng-class="{'fa-square-o': !value, 'fa-check-square-o': value}")
-                                                            .col-xs-9
+                                                            .col-xs-10.sm-pad-left
                                                                 span.pull-left {{ name }}
                                     .col-xs-6
                                         .row
@@ -214,9 +214,9 @@
                                                 ul.terrain-list
                                                     li(ng-repeat="(name, value) in hotZone.report.data.belowTreelineTerrainAvoidance.terrainFeatures", ng-class="{'terrain-highlight': value}")
                                                         .row
-                                                            .col-xs-3.terrain-icon
+                                                            .col-xs-2.sm-pad-right.terrain-icon
                                                                 i.fa.pull-right(ng-class="{'fa-square-o': !value, 'fa-check-square-o': value}")
-                                                            .col-xs-9
+                                                            .col-xs-10.sm-pad-left
                                                                 span.pull-left {{ name }}
                                 .row
                                     .col-xs-12
