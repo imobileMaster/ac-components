@@ -122,27 +122,27 @@
                                     .col-xs-12.text-center
                                         h4 ALPINE:
                                 .row
-                                    .col-xs-5
+                                    .col-xs-6
                                         .row
                                             .col-xs-12
                                                 strong Aspect:
                                         .row
                                             .col-xs-12
                                                 ul.terrain-list
-                                                    li(ng-repeat="(name, value) in hotZone.report.data.alpineTerrainAvoidance.aspect", ng-class="{highlight: value}")
+                                                    li(ng-repeat="(name, value) in hotZone.report.data.alpineTerrainAvoidance.aspect", ng-class="{'terrain-highlight': value}")
                                                         .row
                                                             .col-xs-3
                                                                 i.fa.pull-right(ng-class="{'fa-circle-o': !value, 'fa-times-circle-o': value}")
                                                             .col-xs-9
                                                                 span.pull-left {{ name }}
-                                    .col-xs-5
+                                    .col-xs-6
                                         .row
                                             .col-xs-12
                                                 strong Terrain features:
                                         .row
                                             .col-xs-12
                                                 ul.terrain-list
-                                                    li(ng-repeat="(name, value) in hotZone.report.data.alpineTerrainAvoidance.terrainFeatures", ng-class="{highlight: value}")
+                                                    li(ng-repeat="(name, value) in hotZone.report.data.alpineTerrainAvoidance.terrainFeatures", ng-class="{'terrain-highlight': value}")
                                                         .row
                                                             .col-xs-3
                                                                 i.fa.pull-right(ng-class="{'fa-circle-o': !value, 'fa-times-circle-o': value}")
@@ -164,7 +164,7 @@
                                         .row
                                             .col-xs-12
                                                 ul.terrain-list
-                                                    li(ng-repeat="(name, value) in hotZone.report.data.treelineTerrainAvoidance.aspect", ng-class="{highlight: value}")
+                                                    li(ng-repeat="(name, value) in hotZone.report.data.treelineTerrainAvoidance.aspect", ng-class="{'terrain-highlight': value}")
                                                         .row
                                                             .col-xs-3
                                                                 i.fa.pull-right(ng-class="{'fa-circle-o': !value, 'fa-times-circle-o': value}")
@@ -177,7 +177,7 @@
                                         .row
                                             .col-xs-12
                                                 ul.terrain-list
-                                                    li(ng-repeat="(name, value) in hotZone.report.data.treelineTerrainAvoidance.terrainFeatures", ng-class="{highlight: value}")
+                                                    li(ng-repeat="(name, value) in hotZone.report.data.treelineTerrainAvoidance.terrainFeatures", ng-class="{'terrain-highlight': value}")
                                                         .row
                                                             .col-xs-3
                                                                 i.fa.pull-right(ng-class="{'fa-circle-o': !value, 'fa-times-circle-o': value}")
@@ -199,7 +199,7 @@
                                         .row
                                             .col-xs-12
                                                 ul.terrain-list
-                                                    li(ng-repeat="(name, value) in hotZone.report.data.belowTreelineTerrainAvoidance.aspect", ng-class="{highlight: value}")
+                                                    li(ng-repeat="(name, value) in hotZone.report.data.belowTreelineTerrainAvoidance.aspect", ng-class="{'terrain-highlight': value}")
                                                         .row
                                                             .col-xs-3
                                                                 i.fa.pull-right(ng-class="{'fa-circle-o': !value, 'fa-times-circle-o': value}")
@@ -212,7 +212,7 @@
                                         .row
                                             .col-xs-12
                                                 ul.terrain-list
-                                                    li(ng-repeat="(name, value) in hotZone.report.data.belowTreelineTerrainAvoidance.terrainFeatures", ng-class="{highlight: value}")
+                                                    li(ng-repeat="(name, value) in hotZone.report.data.belowTreelineTerrainAvoidance.terrainFeatures", ng-class="{'terrain-highlight': value}")
                                                         .row
                                                             .col-xs-3
                                                                 i.fa.pull-right(ng-class="{'fa-circle-o': !value, 'fa-times-circle-o': value}")

@@ -83,74 +83,134 @@
                                 .col-xs-6.sm-pad-left
                                     | {{ report.report.data.criticalFactors.significantWarming || 'N/A' }}
                             .row
-                                .col-xs-6.sm-pad-right
-                                    strong.pull-right.text-right Comments:
-                                .col-xs-6.sm-pad-left
+                                .col-xs-12.text-center
+                                    strong Comments
+                                .col-xs-12.text-center
                                     | {{ report.report.criticalFactors.criticalFactorsComments || 'N/A' }}
                     .panel.panel-primary
                         .panel-heading
-                            | Terrain Recommendations
+                            | Terrain and Travel Advice
                         .panel-body
                             .row
                                 .col-xs-12
-                                    | Based on the critical factors, AVOIDING the following is recommended to reduce risk.
+                                    | To minimize risk, always:
+                                    ul
+                                        li Expose only one person at a time in avalanche terrain.
+                                        li Group up only in safe locations well away from avalanche runout zones.
+                                        li Avoid terrain traps whenever possible.
                             .row
-                                .col-xs-6.sm-pad-right
-                                    strong.pull-right.text-right Aspect:
-                                .col-xs-6.sm-pad-left
-                                    | {{ report.report.data.terrainAvoidanceList.aspect || 'N/A' | acFormatList }}
+                                .col-xs-12
+                                    | And while this report is valid:
+                                    ul
+                                        li
+                                            | AVOID terrain features marked with an &nbsp;
+                                            i.fa.fa-times-circle-o
+                                        li Follow the advice in the comments section.
                             .row
-                                .col-xs-6.sm-pad-right
-                                    strong.pull-right.text-right Elevation band:
-                                .col-xs-6.sm-pad-left
-                                    | {{ report.report.data.terrainAvoidanceList.elevationBand || 'N/A' | acFormatList }}
+                                .col-xs-12.text-center
+                                    h4 ALPINE:
                             .row
-                                .col-xs-6.sm-pad-right
-                                    strong.pull-right.text-right Elevation below:
-                                .col-xs-6.sm-pad-left
-                                    | {{ report.report.data.terrainAvoidanceList.elevationBelow || 'N/A' }}
+                                .col-xs-6
+                                    .row
+                                        .col-xs-12
+                                            strong Aspect:
+                                    .row
+                                        .col-xs-12
+                                            ul.terrain-list
+                                                li(ng-repeat="(name, value) in report.report.data.alpineTerrainAvoidance.aspect", ng-class="{'terrain-highlight': value}")
+                                                    .row
+                                                        .col-xs-2
+                                                            i.fa(ng-class="{'fa-circle-o': !value, 'fa-times-circle-o': value}")
+                                                        .col-xs-10
+                                                            span.pull-left {{ name }}
+                                .col-xs-6
+                                    .row
+                                        .col-xs-12
+                                            strong Terrain features:
+                                    .row
+                                        .col-xs-12
+                                            ul.terrain-list
+                                                li(ng-repeat="(name, value) in report.report.data.alpineTerrainAvoidance.terrainFeatures", ng-class="{'terrain-highlight': value}")
+                                                    .row
+                                                        .col-xs-2
+                                                            i.fa(ng-class="{'fa-circle-o': !value, 'fa-times-circle-o': value}")
+                                                        .col-xs-10
+                                                            span.pull-left {{ name }}
                             .row
-                                .col-xs-6.sm-pad-right
-                                    strong.pull-right.text-right Elevation above:
-                                .col-xs-6.sm-pad-left
-                                    | {{ report.report.data.terrainAvoidanceList.elevationAbove || 'N/A' }}
+                                .col-xs-12.text-center
+                                    strong Comments
+                                .col-xs-12.text-center
+                                    | {{ report.report.data.alpineTerrainAvoidance.terrainAvoidanceComments || 'N/A' }}
                             .row
-                                .col-xs-6.sm-pad-right
-                                    strong.pull-right.text-right Elevation between:
-                                .col-xs-6.sm-pad-left
-                                    | {{ report.report.data.terrainAvoidanceList.elevationBetweenLow || 'N/A' }} and {{ report.report.data.terrainAvoidanceList.elevationBetweenHigh || 'N/A' }} metres
+                                .col-xs-12.text-center
+                                    h4 TREELINE:
                             .row
-                                .col-xs-6.sm-pad-right
-                                    strong.pull-right.text-right Terrain features:
-                                .col-xs-6.sm-pad-left
-                                    | {{ report.report.data.terrainAvoidanceList.terrainFeatures || 'N/A' | acFormatList }}
+                                .col-xs-6
+                                    .row
+                                        .col-xs-12
+                                            strong Aspect:
+                                    .row
+                                        .col-xs-12
+                                            ul.terrain-list
+                                                li(ng-repeat="(name, value) in report.report.data.treelineTerrainAvoidance.aspect", ng-class="{'terrain-highlight': value}")
+                                                    .row
+                                                        .col-xs-2
+                                                            i.fa(ng-class="{'fa-circle-o': !value, 'fa-times-circle-o': value}")
+                                                        .col-xs-10
+                                                            span.pull-left {{ name }}
+                                .col-xs-6
+                                    .row
+                                        .col-xs-12
+                                            strong Terrain features:
+                                    .row
+                                        .col-xs-12
+                                            ul.terrain-list
+                                                li(ng-repeat="(name, value) in report.report.data.treelineTerrainAvoidance.terrainFeatures", ng-class="{'terrain-highlight': value}")
+                                                    .row
+                                                        .col-xs-2
+                                                            i.fa(ng-class="{'fa-circle-o': !value, 'fa-times-circle-o': value}")
+                                                        .col-xs-10
+                                                            span.pull-left {{ name }}
                             .row
-                                .col-xs-6.sm-pad-right
-                                    strong.pull-right.text-right Slopes steeper than:
-                                .col-xs-6.sm-pad-left
-                                    | {{ report.report.data.terrainAvoidanceList.steeperThan || 'N/A' }}
+                                .col-xs-12.text-center
+                                    strong Comments
+                                .col-xs-12.text-center
+                                    | {{ report.report.data.treelineTerrainAvoidance.terrainAvoidanceComments || 'N/A' }}
                             .row
-                                .col-xs-6.sm-pad-right
-                                    strong.pull-right.text-right Other terrain features:
-                                .col-xs-6.sm-pad-left
-                                    | {{ report.report.data.terrainAvoidanceList.otherTerrainFeatures || 'N/A' }}
+                                .col-xs-12.text-center
+                                    h4 BELOW TREELINE:
                             .row
-                                .col-xs-6.sm-pad-right
-                                    strong.pull-right.text-right Comments:
-                                .col-xs-6.sm-pad-left
-                                    | {{ report.report.data.terrainAvoidanceList.terrainAvoidanceComments || 'N/A' }}
-                    .panel.panel-primary
-                        .panel-heading
-                            | Travel Advice
-                        .panel-body
-                            p
-                                | {{ report.report.data.travelAdvice.travelAdviceStatement1 }}
-                            p
-                                | {{ report.report.data.travelAdvice.travelAdviceStatement2 }}
-                            p
-                                | {{ report.report.data.travelAdvice.travelAdviceStatement3 }}
-                            p
-                                | {{ report.report.data.travelAdvice.travelAdviceComments }}
+                                .col-xs-6
+                                    .row
+                                        .col-xs-12
+                                            strong Aspect:
+                                    .row
+                                        .col-xs-12
+                                            ul.terrain-list
+                                                li(ng-repeat="(name, value) in report.report.data.belowTreelineTerrainAvoidance.aspect", ng-class="{'terrain-highlight': value}")
+                                                    .row
+                                                        .col-xs-2
+                                                            i.fa(ng-class="{'fa-circle-o': !value, 'fa-times-circle-o': value}")
+                                                        .col-xs-10
+                                                            span.pull-left {{ name }}
+                                .col-xs-6
+                                    .row
+                                        .col-xs-12
+                                            strong Terrain features:
+                                    .row
+                                        .col-xs-12
+                                            ul.terrain-list
+                                                li(ng-repeat="(name, value) in report.report.data.belowTreelineTerrainAvoidance.terrainFeatures", ng-class="{'terrain-highlight': value}")
+                                                    .row
+                                                        .col-xs-2
+                                                            i.fa(ng-class="{'fa-circle-o': !value, 'fa-times-circle-o': value}")
+                                                        .col-xs-10
+                                                            span.pull-left {{ name }}
+                            .row
+                                .col-xs-12.text-center
+                                    strong Comments
+                                .col-xs-12.text-center
+                                    | {{ report.report.data.belowTreelineTerrainAvoidance.terrainAvoidanceComments || 'N/A' }}
                     .panel.panel-primary
                         .panel-heading
                             | More Information
