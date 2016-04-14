@@ -25,8 +25,9 @@ angular.module('acComponents.directives')
                     files: [],
                     data: {
                       criticalFactors: acReportData.hotzone.criticalFactors,
-                      terrainAvoidanceList: acReportData.hotzone.terrainAvoidanceList,
-                      travelAdvice: acReportData.hotzone.travelAdvice
+                      alpineTerrainAvoidance: acReportData.hotzone.alpineTerrainAvoidance,
+                      treelineTerrainAvoidance: acReportData.hotzone.treelineTerrainAvoidance,
+                      belowTreelineTerrainAvoidance: acReportData.hotzone.belowTreelineTerrainAvoidance
                     }
                   };
                 }
@@ -42,8 +43,9 @@ angular.module('acComponents.directives')
 
                 function resetFields() {
                   acReportData.hotzone.criticalFactors.reset();
-                  acReportData.hotzone.terrainAvoidanceList.reset();
-                  acReportData.hotzone.travelAdvice.reset();
+                  acReportData.hotzone.alpineTerrainAvoidance.reset();
+                  acReportData.hotzone.treelineTerrainAvoidance.reset();
+                  acReportData.hotzone.belowTreelineTerrainAvoidance.reset();
                 }
 
                 $scope.resetForm = resetForm;
