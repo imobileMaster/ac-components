@@ -133,7 +133,7 @@
                                                 li(ng-repeat="(name, value) in report.report.data.alpineTerrainAvoidance.terrainFeatures", ng-class="{'terrain-highlight': value}")
                                                     .row
                                                         .col-xs-2.terrain-icon
-                                                            i.fa(ng-class="{'fa-circle-o': !value, 'fa-times-circle-o': value}")
+                                                            i.fa(ng-class="{'fa-square-o': !value, 'fa-check-square-o': value}")
                                                         .col-xs-10
                                                             span.pull-left {{ name }}
                             .row
@@ -142,8 +142,8 @@
                                 .col-xs-12
                                     | {{ report.report.data.alpineTerrainAvoidance.terrainAvoidanceComments || 'N/A' }}
                             .row
-                                .col-xs-12
-                                    h4 TREELINE:
+                                .col-xs-12.terrain-title
+                                    h4 TREELINE
                             .row
                                 .col-xs-6
                                     .row
@@ -155,7 +155,7 @@
                                                 li(ng-repeat="(name, value) in report.report.data.treelineTerrainAvoidance.aspect", ng-class="{'terrain-highlight': value}")
                                                     .row
                                                         .col-xs-2.terrain-icon
-                                                            i.fa(ng-class="{'fa-circle-o': !value, 'fa-times-circle': value}")
+                                                            i.fa(ng-class="{'fa-square-o': !value, 'fa-check-square-o': value}")
                                                         .col-xs-10
                                                             span.pull-left {{ name }}
                                 .col-xs-6
@@ -168,7 +168,7 @@
                                                 li(ng-repeat="(name, value) in report.report.data.treelineTerrainAvoidance.terrainFeatures", ng-class="{'terrain-highlight': value}")
                                                     .row
                                                         .col-xs-2.terrain-icon
-                                                            i.fa(ng-class="{'fa-circle-o': !value, 'fa-times-circle-o': value}")
+                                                            i.fa(ng-class="{'fa-square-o': !value, 'fa-check-square-o': value}")
                                                         .col-xs-10
                                                             span.pull-left {{ name }}
                             .row
@@ -177,8 +177,8 @@
                                 .col-xs-12
                                     | {{ report.report.data.treelineTerrainAvoidance.terrainAvoidanceComments || 'N/A' }}
                             .row
-                                .col-xs-12
-                                    h4 BELOW TREELINE:
+                                .col-xs-12.terrain-title
+                                    h4 BELOW TREELINE
                             .row
                                 .col-xs-6
                                     .row
@@ -190,7 +190,7 @@
                                                 li(ng-repeat="(name, value) in report.report.data.belowTreelineTerrainAvoidance.aspect", ng-class="{'terrain-highlight': value}")
                                                     .row
                                                         .col-xs-2.terrain-icon
-                                                            i.fa(ng-class="{'fa-circle-o': !value, 'fa-times-circle-o': value}")
+                                                            i.fa(ng-class="{'fa-square-o': !value, 'fa-check-square-o': value}")
                                                         .col-xs-10
                                                             span.pull-left {{ name }}
                                 .col-xs-6
@@ -203,7 +203,7 @@
                                                 li(ng-repeat="(name, value) in report.report.data.belowTreelineTerrainAvoidance.terrainFeatures", ng-class="{'terrain-highlight': value}")
                                                     .row
                                                         .col-xs-2.terrain-icon
-                                                            i.fa(ng-class="{'fa-circle-o': !value, 'fa-times-circle-o': value}")
+                                                            i.fa(ng-class="{'fa-square-o': !value, 'fa-check-square-o': value}")
                                                         .col-xs-10
                                                             span.pull-left {{ name }}
                             .row
