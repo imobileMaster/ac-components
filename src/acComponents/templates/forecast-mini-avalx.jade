@@ -1,6 +1,9 @@
 .panel-body.ac-forecast-mini-body
     .row
-        .col-xs-6
+        .col-xs-1
+            .pull-left.close-drawer(ng-click="closeDrawer()")
+                i.fa.fa-close
+        .col-xs-5(style="margin: 10px 0;")
             h4.ac-forecast-region {{ forecast.bulletinTitle | acNormalizeForecastTitle }}
         div(ng-switch='forecast.region')
 

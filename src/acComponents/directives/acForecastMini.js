@@ -1,5 +1,5 @@
 angular.module('acComponents.directives')
-    .directive('acForecastMini', function ($state, $stateParams, AC_API_ROOT_URL) {
+    .directive('acForecastMini', function (AC_API_ROOT_URL) {
         return {
             templateUrl: 'forecast-mini.html',
             scope: {
@@ -11,12 +11,6 @@ angular.module('acComponents.directives')
             link: function ($scope, el, attrs) {
                 el.addClass('ac-forecast-mini');
                 $scope.apiUrl = AC_API_ROOT_URL;
-                $scope.closeDrawer = function () {
-                    $scope.forecast = null;
-                    if($stateParams.regionid) {
-                        $state.go('ac.map', {regionid: null}, {notify:false, reload:false});
-                    }
-                };
             }
         };
     })
@@ -34,7 +28,7 @@ angular.module('acComponents.directives')
             scope: { forecast: '=' },
         };
     })
-    .directive('acForecastMiniAvalx', function (AC_API_ROOT_URL) {
+    .directive('acForecastMiniAvalx', function ($state, $stateParams, AC_API_ROOT_URL) {
         return {
             restrict: 'E',
             templateUrl: 'forecast-mini-avalx.html',
@@ -43,6 +37,14 @@ angular.module('acComponents.directives')
                 dangerRating: '=',
                 disclaimer: '=',
                 sponsor: '='
+            },
+            link: function ($scope, el, attrs) {
+                $scope.closeDrawer = function () {
+                    $scope.forecast = null;
+                    if($stateParams.regionid) {
+                        $state.go('ac.map', {regionid: null}, {notify:false, reload:false});
+                    }
+                }
             }
         };
     })
