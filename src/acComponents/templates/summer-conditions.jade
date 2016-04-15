@@ -1,0 +1,8 @@
+
+.col-xs-12
+  .panel.panel-primary
+    .panel-heading Summer Conditions: {{ forecast.dangerRatings[0].date | dateUtc:'dddd' }}
+    .panel-body.summer-conditions
+      .col-xs-4
+        img(style="max-width:90%" src="http://www.avalanche.ca/assets/images/summer_conditions_icon.svg")
+      div.col-xs-8 <ac-summer-conditions-text/>
