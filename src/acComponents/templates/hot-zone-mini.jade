@@ -90,8 +90,9 @@
                                     .col-xs-6.sm-pad-left
                                         | {{ hotZone.report.data.criticalFactors.significantWarming || 'N/A' }}
                                 .row
-                                    .col-xs-12.text-center
-                                        strong Comments
+                                    .col-xs-6.sm-pad-right
+                                        strong.pull-right.text-right Comments:
+                                .row
                                     .col-xs-12.text-center
                                         | {{ hotZone.report.data.criticalFactors.criticalFactorsComments || 'N/A' }}
                     .panel.panel-primary(ng-if='hotZone !== "default"')
@@ -116,7 +117,7 @@
                                         ul
                                             li
                                                 | AVOID terrain features marked with a &nbsp;
-                                                i.fa.fa-check-square-o
+                                                i.fa.fa-check-square-o.terrain-highlight
                                             li Follow the advice in the comments section.
                                 .row
                                     .col-xs-12.terrain-title
@@ -150,7 +151,7 @@
                                                                 span.pull-left {{ name }}
                                 .row
                                     .col-xs-12
-                                        strong Comments
+                                        strong Comments:
                                     .col-xs-12
                                         | {{ hotZone.report.data.alpineTerrainAvoidance.terrainAvoidanceComments || 'N/A' }}
                                 .row
@@ -185,7 +186,7 @@
                                                                 span.pull-left {{ name }}
                                 .row
                                     .col-xs-12
-                                        strong Comments
+                                        strong Comments:
                                     .col-xs-12
                                         | {{ hotZone.report.data.treelineTerrainAvoidance.terrainAvoidanceComments || 'N/A' }}
                                 .row
@@ -220,7 +221,7 @@
                                                                 span.pull-left {{ name }}
                                 .row
                                     .col-xs-12
-                                        strong Comments
+                                        strong Comments:
                                     .col-xs-12
                                         | {{ hotZone.report.data.belowTreelineTerrainAvoidance.terrainAvoidanceComments || 'N/A' }}
 
