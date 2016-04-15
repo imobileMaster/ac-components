@@ -6,10 +6,15 @@
                     i.fa.fa-close
             .col-xs-6(style="margin: 10px 0; padding: 0;")
                 h4.ac-forecast-region {{ region.name }} Pilot Project
-            .col-xs-5.section-label.full-page-link(ng-if='hotZone !== "default"', style="margin: 10px 0;")
-                div.pull-right(ng-click='viewFullPage(hotZone.subid)', style='padding-top: 10px; cursor: pointer;')
+            .col-xs-5
+                a.pull-right(target='_blank', href='{{sponsor.getText("sponsor.url")}}')
+                    img(src='{{sponsor.getText("sponsor.image-229")}}')
+        .row
+            .col-sm-12.section-label.full-page-link(ng-if='hotZone !== "default"', style="margin: 10px 0;")
+                div.pull-right(ng-click='viewFullPage(hotZone.subid)')
                     i.fa.fa-external-link
                     span &nbsp; FULL PAGE
+
         .row.ac-forecast-dates
             .col-md-6
                 dl

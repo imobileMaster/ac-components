@@ -4,7 +4,8 @@ angular.module('acComponents.directives')
             templateUrl: 'hot-zone-mini.html',
             scope: {
               hotZone: '=acHotZone',
-              region: '=acRegion'
+              region: '=acRegion',
+              sponsor: '=sponsor'
             },
             link: function ($scope, el, attrs) {
                 el.addClass('ac-forecast-mini');
