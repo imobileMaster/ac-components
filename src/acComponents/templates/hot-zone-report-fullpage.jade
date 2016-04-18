@@ -44,7 +44,7 @@
                             ul.list-inline
                                 li(ng-repeat="url in report.report.thumbs")
                                     a(ng-href="{{::url}}", target="_blank")
-                                    img(ng-src="{{::url}}", width="75", alt="{{::report.report.headline}}")
+                                        img(ng-src="{{::url}}", width="75", alt="{{::report.report.headline}}")
                 .panel-group
                     .panel.panel-primary
                         .panel-heading
@@ -53,46 +53,37 @@
                             .row
                                 .col-xs-12
                                     | Critical factors influence avalanche hazard. The more critical factors, the greater the potential for avalanches.
-                            .row
-                                .col-xs-3.sm-pad-right
-                                    strong.pull-right.text-right Persistent avalanche problem:
-                                .col-xs-9.sm-pad-left
-                                    | {{ report.report.data.criticalFactors.persistentAvalancheProblem || 'N/A' }}
-                            .row
-                                .col-xs-3.sm-pad-right
-                                    strong.pull-right.text-right Slab avalanches in the last 48 hours:
-                                .col-xs-9.sm-pad-left
-                                    | {{ report.report.data.criticalFactors.slabAvalanches || 'N/A' }}
-                            .row
-                                .col-xs-3.sm-pad-right
-                                    strong.pull-right.text-right Signs of instability:
-                                .col-xs-9.sm-pad-left
-                                    | {{ report.report.data.criticalFactors.instability || 'N/A' }}
-                            .row
-                                .col-xs-3.sm-pad-right
-                                    strong.pull-right.text-right  Recent snowfall > 30cm:
-                                .col-xs-9.sm-pad-left
-                                    | {{ report.report.data.criticalFactors.recentSnowfall || 'N/A' }}
-                            .row
-                                .col-xs-3.sm-pad-right
-                                    strong.pull-right.text-right  Recent rainfall:
-                                .col-xs-9.sm-pad-left
-                                    | {{ report.report.data.criticalFactors.recentRainfall || 'N/A' }}
-                            .row
-                                .col-xs-3.sm-pad-right
-                                    strong.pull-right.text-right  Recent windloading:
-                                .col-xs-9.sm-pad-left
-                                    | {{ report.report.data.criticalFactors.recentWindloading || 'N/A' }}
-                            .row
-                                .col-xs-3.sm-pad-right
-                                    strong.pull-right.text-right  Significant warming:
-                                .col-xs-9.sm-pad-left
-                                    | {{ report.report.data.criticalFactors.significantWarming || 'N/A' }}
-                            .row
-                                .col-xs-3.sm-pad-right
-                                    strong.pull-right.text-right Comments:
-                                .col-xs-9.sm-pad-left
-                                    | {{ report.report.criticalFactors.criticalFactorsComments || 'N/A' }}
+                            .row-fluid.section-label
+                                i.fa.fa-info-circle
+                                span Information
+                            ul.observation-information
+                                li.observation-item
+                                    | Persistent avalanche problem: &nbsp;
+                                    span.value {{ hotZone.report.data.criticalFactors.persistentAvalancheProblem || 'N/A' }}
+                                li.observation-item
+                                    | Slab avalanches in the last 48 hours: &nbsp;
+                                    span.value {{ hotZone.report.data.criticalFactors.slabAvalanches || 'N/A' }}
+                                li.observation-item
+                                    | Signs of instability: &nbsp;
+                                    span.value {{ hotZone.report.data.criticalFactors.instability || 'N/A' }}
+                                li.observation-item
+                                    | Recent snowfall > 30cm: &nbsp;
+                                    span.value {{ hotZone.report.data.criticalFactors.recentSnowfall || 'N/A' }}
+                                li.observation-item
+                                    | Recent rainfall: &nbsp;
+                                    span.value {{ hotZone.report.data.criticalFactors.recentRainfall || 'N/A' }}
+                                li.observation-item
+                                    | Recent windloading: &nbsp;
+                                    span.value {{ hotZone.report.data.criticalFactors.recentWindloading || 'N/A' }}
+                                li.observation-item
+                                    | Significant warming: &nbsp;
+                                    span.value {{ hotZone.report.data.criticalFactors.significantWarming || 'N/A' }}
+                            .observation-item.comments
+                                .row-fluid.section-label
+                                    i.fa.fa-comment
+                                    span Comments
+                                .row-fluid
+                                    .col-sm-12 {{ hotZone.report.data.criticalFactors.criticalFactorsComments || 'N/A' }}
                     .panel.panel-primary
                         .panel-heading
                             | Terrain and Travel Advice
@@ -111,7 +102,7 @@
                                         li
                                             | AVOID terrain features marked with a &nbsp;
                                             i.fa.fa-check-square-o.terrain-highlight
-                                        li Follow the advice in the comments section.
+                                        li Follow the travel advice below.
                             .row
                                 .col-xs-12.terrain-title
                                     h4 ALPINE
@@ -144,7 +135,7 @@
                                                             span.pull-left {{ name }}
                             .row
                                 .col-xs-12
-                                    strong Comments:
+                                    strong Travel advice:
                                 .col-xs-12
                                     | {{ report.report.data.alpineTerrainAvoidance.terrainAvoidanceComments || 'N/A' }}
                             .row
@@ -179,7 +170,7 @@
                                                             span.pull-left {{ name }}
                             .row
                                 .col-xs-12
-                                    strong Comments:
+                                    strong Travel advice:
                                 .col-xs-12
                                     | {{ report.report.data.treelineTerrainAvoidance.terrainAvoidanceComments || 'N/A' }}
                             .row
@@ -214,7 +205,7 @@
                                                             span.pull-left {{ name }}
                             .row
                                 .col-xs-12
-                                    strong Comments:
+                                    strong Travel advice:
                                 .col-xs-12
                                     | {{ report.report.data.belowTreelineTerrainAvoidance.terrainAvoidanceComments || 'N/A' }}
                     .panel.panel-primary
