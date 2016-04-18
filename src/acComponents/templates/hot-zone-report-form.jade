@@ -13,11 +13,11 @@
                 .form-group(ng-class="{'has-error': !acHotZoneForm.dateissued.$valid}")
                   h4
                     |  Date of issue
-                  input.form-control(type="datetime", name="dateissued", ng-model="report.dateissued", ac-datetime-picker, max-date-today="true")
+                  input.form-control(type="datetime", name="dateissued", ng-model="report.dateissued", ac-datetime-picker, max-date-today="false", min-date-today="true")
                 .form-group(ng-class="{'has-error': !acHotZoneForm.datevalid.$valid}")
                   h4
                     |  Valid until
-                  input.form-control(type="datetime", name="datevalid", ng-model="report.datevalid", ac-datetime-picker, max-date-today="false")
+                  input.form-control(type="datetime", name="datevalid", ng-model="report.datevalid", ac-datetime-picker, max-date-today="false", min-date-today="true")
                 .form-group(ng-class="{'has-error': invalidLocation}")
                   h4
                     |  Region
