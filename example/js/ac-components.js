@@ -2421,7 +2421,7 @@ angular.module('acComponents.services')
       },
 
       terrainAvoidanceComments: {
-        prompt: 'Alpine terrain avoidance comments:',
+        prompt: 'Travel advice:',
         type: 'textarea',
         value: null,
         order: 10
@@ -2465,7 +2465,7 @@ angular.module('acComponents.services')
       },
 
       terrainAvoidanceComments: {
-        prompt: 'Treeline terrain avoidance comments:',
+        prompt: 'Travel advice:',
         type: 'textarea',
         value: null,
         order: 10
@@ -2509,7 +2509,7 @@ angular.module('acComponents.services')
       },
 
       terrainAvoidanceComments: {
-        prompt: 'Below treeline terrain avoidance comments:',
+        prompt: 'Travel advice:',
         type: 'textarea',
         value: null,
         order: 10
