@@ -56,6 +56,20 @@ angular.module('acComponents.directives')
                       $state.go('ac.map');
                 };
 
+                $scope.checkAll = function (key, items) {
+                    if (key === 'All' && items[key]) {
+                        for (var key in items) {
+                            items[key] = true;
+                        }
+                    } else if (key === 'All' && !items[key]) {
+                        for (var key in items) {
+                            items[key] = false;
+                        }
+                    } else {
+                        items['All'] = false;
+                    }
+                };
+
                 $scope.submitForm = function() {
                     if (!$scope.report.hotzoneid) {
                         $scope.invalidLocation = true;

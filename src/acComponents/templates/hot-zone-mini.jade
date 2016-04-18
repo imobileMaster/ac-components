@@ -33,7 +33,7 @@
                 h3.ac-hot-zone-headline {{ hotZone.report.headline }}
         .row(ng-if='hotZone === "default"')
             .col-xs-12
-                h3.ac-hot-zone-headline A Hot Zone Report is not <br> available at this time.
+                h3.ac-hot-zone-headline A Hot Zone Report is not available.
         .row(ng-if="hotZone.report.uploads.length > 0")
             .col-sm-12.section-label
                 i.fa.fa-camera
@@ -125,7 +125,7 @@
                                         .row
                                             .col-xs-12
                                                 ul.terrain-list
-                                                    li(ng-repeat="(name, value) in hotZone.report.data.alpineTerrainAvoidance.aspect", ng-class="{'terrain-highlight': value}")
+                                                    li(ng-repeat="(name, value) in hotZone.report.data.alpineTerrainAvoidance.aspect", ng-class="{'terrain-highlight': value}", ng-if="name !== 'All'")
                                                         .row
                                                             .col-xs-2.sm-pad-right.terrain-icon
                                                                 i.fa.pull-right(ng-class="{'fa-square-o': !value, 'fa-check-square-o': value}")
@@ -160,7 +160,7 @@
                                         .row
                                             .col-xs-12
                                                 ul.terrain-list
-                                                    li(ng-repeat="(name, value) in hotZone.report.data.treelineTerrainAvoidance.aspect", ng-class="{'terrain-highlight': value}")
+                                                    li(ng-repeat="(name, value) in hotZone.report.data.treelineTerrainAvoidance.aspect", ng-class="{'terrain-highlight': value}", ng-if="name !== 'All'")
                                                         .row
                                                             .col-xs-2.sm-pad-right.terrain-icon
                                                                 i.fa.pull-right(ng-class="{'fa-square-o': !value, 'fa-check-square-o': value}")
@@ -195,7 +195,7 @@
                                         .row
                                             .col-xs-12
                                                 ul.terrain-list
-                                                    li(ng-repeat="(name, value) in hotZone.report.data.belowTreelineTerrainAvoidance.aspect", ng-class="{'terrain-highlight': value}")
+                                                    li(ng-repeat="(name, value) in hotZone.report.data.belowTreelineTerrainAvoidance.aspect", ng-class="{'terrain-highlight': value}", ng-if="name !== 'All'")
                                                         .row
                                                             .col-xs-2.sm-pad-right.terrain-icon
                                                                 i.fa.pull-right(ng-class="{'fa-square-o': !value, 'fa-check-square-o': value}")

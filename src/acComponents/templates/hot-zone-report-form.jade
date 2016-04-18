@@ -115,7 +115,7 @@
                         a(href="{{ ::av.guidelines}}" target="_blank") Submission guidelines
                   .checkbox.col-md-6.col-xs-12(ng-if="av.type=='checkbox'", ng-repeat="(option, enabled) in av.options", ng-class="{'inline':av.inline, 'column-left':$odd, 'col-md-12': av.prompt==='Elevation band:'}", ng-style="av.prompt==='Elevation band:' && {'margin': '0'}")
                     label
-                      input(type="checkbox", name="{{::item}}", ng-model="av.options[option]", ng-click="validate(item, av)")
+                      input(type="checkbox", name="{{::item}}", ng-model="av.options[option]", ng-click="checkAll(option, av.options)")
                       | {{ ::option}}
                   .radio.col-md-12.col-xs-12(ng-if="av.type=='radio'", ng-repeat="option in av.options", ng-class="{'inline':av.inline}", style="margin-top: 0;")
                     label
@@ -160,7 +160,7 @@
                         a(href="{{ ::av.guidelines}}" target="_blank") Submission guidelines
                   .checkbox.col-md-6.col-xs-12(ng-if="av.type=='checkbox'", ng-repeat="(option, enabled) in av.options", ng-class="{'inline':av.inline, 'column-left':$odd, 'col-md-12': av.prompt==='Elevation band:'}", ng-style="av.prompt==='Elevation band:' && {'margin': '0'}")
                     label
-                      input(type="checkbox", name="{{::item}}", ng-model="av.options[option]", ng-click="validate(item, av)")
+                      input(type="checkbox", name="{{::item}}", ng-model="av.options[option]", ng-click="checkAll(option, av.options)")
                       | {{ ::option}}
                   .radio.col-md-12.col-xs-12(ng-if="av.type=='radio'", ng-repeat="option in av.options", ng-class="{'inline':av.inline}", style="margin-top: 0;")
                     label
@@ -205,7 +205,7 @@
                         a(href="{{ ::av.guidelines}}" target="_blank") Submission guidelines
                   .checkbox.col-md-6.col-xs-12(ng-if="av.type=='checkbox'", ng-repeat="(option, enabled) in av.options", ng-class="{'inline':av.inline, 'column-left':$odd, 'col-md-12': av.prompt==='Elevation band:'}", ng-style="av.prompt==='Elevation band:' && {'margin': '0'}")
                     label
-                      input(type="checkbox", name="{{::item}}", ng-model="av.options[option]", ng-click="validate(item, av)")
+                      input(type="checkbox", name="{{::item}}", ng-model="av.options[option]", ng-click="checkAll(option, av.options)")
                       | {{ ::option}}
                   .radio.col-md-12.col-xs-12(ng-if="av.type=='radio'", ng-repeat="option in av.options", ng-class="{'inline':av.inline}", style="margin-top: 0;")
                     label

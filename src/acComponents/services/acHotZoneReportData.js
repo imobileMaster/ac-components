@@ -81,6 +81,7 @@ angular.module('acComponents.services')
         type: 'checkbox',
         prompt: 'Aspect:',
         options: {
+          'All': false,
           'N': false,
           'NE': false,
           'E': false,
@@ -88,8 +89,7 @@ angular.module('acComponents.services')
           'S': false,
           'SW': false,
           'W': false,
-          'NW': false,
-          'All': false
+          'NW': false
         },
         inline: true,
         order: 1
@@ -125,6 +125,7 @@ angular.module('acComponents.services')
         type: 'checkbox',
         prompt: 'Aspect:',
         options: {
+          'All': false,
           'N': false,
           'NE': false,
           'E': false,
@@ -132,8 +133,7 @@ angular.module('acComponents.services')
           'S': false,
           'SW': false,
           'W': false,
-          'NW': false,
-          'All': false
+          'NW': false
         },
         inline: true,
         order: 1
@@ -169,6 +169,7 @@ angular.module('acComponents.services')
         type: 'checkbox',
         prompt: 'Aspect:',
         options: {
+          'All': false,
           'N': false,
           'NE': false,
           'E': false,
@@ -176,8 +177,7 @@ angular.module('acComponents.services')
           'S': false,
           'SW': false,
           'W': false,
-          'NW': false,
-          'All': false
+          'NW': false
         },
         inline: true,
         order: 1
