@@ -278,9 +278,11 @@ angular.module('acComponents.directives')
           if (layers.hotZoneMarkers) {
             var hotZonesVisible = map.hasLayer(layers.hotZoneMarkers);
 
-            if (hotZonesVisible && !$scope.showHotZones) {
+            if (zoom < 6 && hotZonesVisible) {
               map.removeLayer(layers.hotZoneMarkers);
-            } else if (!hotZonesVisible && $scope.showHotZones) {
+            } else if (hotZonesVisible && !$scope.showHotZones) {
+              map.removeLayer(layers.hotZoneMarkers);
+            } else if (zoom >= 6 && !hotZonesVisible && $scope.showHotZones) {
               map.addLayer(layers.hotZoneMarkers);
             }
           }
@@ -288,9 +290,11 @@ angular.module('acComponents.directives')
           if (layers.dangerIcons) {
             var dangerIconsVisible = map.hasLayer(layers.dangerIcons);
 
-            if (!dangerIconsVisible && $scope.showRegions) {
+            if (zoom < 6 && dangerIconsVisible) {
+              map.removeLayer(layers.dangerIcons);
+            } else if (!dangerIconsVisible && $scope.showRegions) {
               map.addLayer(layers.dangerIcons);
-            } else if (dangerIconsVisible && !$scope.showRegions) {
+            } else if (zoom >= 6 && dangerIconsVisible && !$scope.showRegions) {
               map.removeLayer(layers.dangerIcons);
             }
 
