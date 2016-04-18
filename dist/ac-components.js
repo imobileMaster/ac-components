@@ -314,7 +314,7 @@ angular.module('acComponents.directives')
                         for (var key in items) {
                             items[key] = false;
                         }
-                    } else {
+                    } else if (items['All']) {
                         items['All'] = false;
                     }
                 };
