@@ -3,15 +3,15 @@
         .row
             header.col-xs-12
                 #header-inner
-                    .section-label.print-link.pull-left(ng-click='print()')
-                        i.fa.fa-external-link
-                        span &nbsp; Print Friendly
                     h1 {{ report.hotzoneid | acCapitalize }} Pilot Project
                     div
                         #forecast-sponsor-desktop.hidden-xs
                             p Brought to you by
                             a(target='_blank', href='http://www.avalanche.ca')
                                 img(src='http://www.avalanche.ca/assets/avalanche_canada.svg')
+                    .section-label.print-link.pull-right(ng-click='print()', style="position: absolute; top: 130px; right: 0;")
+                        i.fa.fa-external-link
+                        span &nbsp; Print Friendly
 
             section#forecast-date.col-xs-12
                 #date-issued.forecast-date-inner
