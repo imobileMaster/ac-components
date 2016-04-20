@@ -55,6 +55,8 @@
                     .row(ng-switch="forecast.dangerMode")
                         div(ng-switch-when="Spring situation")
                           ac-spring-conditions(forecast="forecast")
+                        div(ng-switch-when="Off season")
+                          ac-summer-conditions(forecast="forecast")
                         .col-xs-12(ng-switch-default)
                             .panel.panel-primary
                                 .panel-heading

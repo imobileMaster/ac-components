@@ -2,7 +2,7 @@
 .col-xs-12
   .panel.panel-primary
     .panel-heading Spring Conditions: {{ forecast.dangerRatings[0].date | dateUtc:'dddd' }}
-    .panel-body
+    .panel-body.spring-conditions
       .col-xs-4
         img(style="max-width:90%" src="http://www.avalanche.ca/assets/images/spring_situation_icon.svg")
       div.col-xs-8 <ac-spring-conditions-text/>
