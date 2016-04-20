@@ -3,7 +3,8 @@ angular.module('acComponents.directives')
         return {
             templateUrl: 'hot-zone-report-fullpage.html',
             scope: {
-                report: '=report'
+                report: '=report',
+                sponsor: '=sponsor'
         },
         link: function ($scope, el, attrs) {
             el.addClass('ac-observation-drawer');

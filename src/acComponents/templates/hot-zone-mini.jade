@@ -1,14 +1,20 @@
 .panel
     .panel-body.ac-forecast-mini-body
         .row
-            .pull-right.close-drawer(ng-click="closeDrawer()")
-                i.fa.fa-close
-          .col-xs-6
-              h4.ac-forecast-region {{ region.name }} Pilot Project
-          .col-xs-6.section-label.full-page-link(ng-if='hotZone !== "default"')
-              div.pull-right(ng-click='viewFullPage(hotZone.subid)', style='padding-top: 10px; cursor: pointer;')
-                i.fa.fa-external-link
-                span &nbsp; FULL PAGE
+            .col-xs-1
+                .pull-left.close-drawer(ng-click="closeDrawer()")
+                    i.fa.fa-close
+            .col-xs-6(style="margin: 10px 0; padding: 0;")
+                h4.ac-forecast-region {{ region.name }} Pilot Project
+            .col-xs-5
+                a.pull-right(target='_blank', href='http://www.avalanche.ca')
+                    img(src='http://www.avalanche.ca/assets/avalanche_canada.svg')
+        .row
+            .col-sm-12.section-label.full-page-link(ng-if='hotZone !== "default"', style="margin: 10px 0;")
+                div.pull-right(ng-click='viewFullPage(hotZone.subid)')
+                    i.fa.fa-external-link
+                    span &nbsp; FULL PAGE
+
         .row.ac-forecast-dates
             .col-md-6
                 dl
@@ -27,7 +33,7 @@
                 h3.ac-hot-zone-headline {{ hotZone.report.headline }}
         .row(ng-if='hotZone === "default"')
             .col-xs-12
-                h3.ac-hot-zone-headline A Hot Zone Report is not <br> available at this time.
+                h3.ac-hot-zone-headline A Hot Zone Report is not available.
         .row(ng-if="hotZone.report.uploads.length > 0")
             .col-sm-12.section-label
                 i.fa.fa-camera
@@ -53,120 +59,167 @@
                                 .row
                                     .col-xs-12
                                         | Critical factors influence avalanche hazard. The more critical factors, the greater the potential for avalanches.
-                                .row
-                                    .col-xs-6.sm-pad-right
-                                        strong.pull-right.text-right Persistent avalanche problem:
-                                    .col-xs-6.sm-pad-left
-                                        | {{ hotZone.report.data.criticalFactors.persistentAvalancheProblem || 'N/A' }}
-                                .row
-                                    .col-xs-6.sm-pad-right
-                                        strong.pull-right.text-right Slab avalanches in the last 48 hours:
-                                    .col-xs-6.sm-pad-left
-                                        | {{ hotZone.report.data.criticalFactors.slabAvalanches || 'N/A' }}
-                                .row
-                                    .col-xs-6.sm-pad-right
-                                        strong.pull-right.text-right Signs of instability:
-                                    .col-xs-6.sm-pad-left
-                                        | {{ hotZone.report.data.criticalFactors.instability || 'N/A' }}
-                                .row
-                                    .col-xs-6.sm-pad-right
-                                        strong.pull-right.text-right  Recent snowfall > 30cm:
-                                    .col-xs-6.sm-pad-left
-                                        | {{ hotZone.report.data.criticalFactors.recentSnowfall || 'N/A' }}
-                                .row
-                                    .col-xs-6.sm-pad-right
-                                        strong.pull-right.text-right  Recent rainfall:
-                                    .col-xs-6.sm-pad-left
-                                        | {{ hotZone.report.data.criticalFactors.recentRainfall || 'N/A' }}
-                                .row
-                                    .col-xs-6.sm-pad-right
-                                        strong.pull-right.text-right  Recent windloading:
-                                    .col-xs-6.sm-pad-left
-                                        | {{ hotZone.report.data.criticalFactors.recentWindloading || 'N/A' }}
-                                .row
-                                    .col-xs-6.sm-pad-right
-                                        strong.pull-right.text-right  Significant warming:
-                                    .col-xs-6.sm-pad-left
-                                        | {{ hotZone.report.data.criticalFactors.significantWarming || 'N/A' }}
-                                .row
-                                    .col-xs-6.sm-pad-right
-                                        strong.pull-right.text-right Comments:
-                                    .col-xs-6.sm-pad-left
-                                        | {{ hotZone.report.data.criticalFactors.criticalFactorsComments || 'N/A' }}
+                                .row-fluid.section-label
+                                    i.fa.fa-info-circle
+                                    span Information
+                                ul.observation-information
+                                    li.observation-item
+                                        | Persistent avalanche problem: &nbsp;
+                                        span.value {{ hotZone.report.data.criticalFactors.persistentAvalancheProblem || 'N/A' }}
+                                    li.observation-item
+                                        | Slab avalanches in the last 48 hours: &nbsp;
+                                        span.value {{ hotZone.report.data.criticalFactors.slabAvalanches || 'N/A' }}
+                                    li.observation-item
+                                        | Signs of instability: &nbsp;
+                                        span.value {{ hotZone.report.data.criticalFactors.instability || 'N/A' }}
+                                    li.observation-item
+                                        | Recent snowfall > 30cm: &nbsp;
+                                        span.value {{ hotZone.report.data.criticalFactors.recentSnowfall || 'N/A' }}
+                                    li.observation-item
+                                        | Recent rainfall: &nbsp;
+                                        span.value {{ hotZone.report.data.criticalFactors.recentRainfall || 'N/A' }}
+                                    li.observation-item
+                                        | Recent windloading: &nbsp;
+                                        span.value {{ hotZone.report.data.criticalFactors.recentWindloading || 'N/A' }}
+                                    li.observation-item
+                                        | Significant warming: &nbsp;
+                                        span.value {{ hotZone.report.data.criticalFactors.significantWarming || 'N/A' }}
+                                .observation-item.comments
+                                    .row-fluid.section-label
+                                        i.fa.fa-comment
+                                        span Comments
+                                    .row-fluid
+                                        .col-sm-12 {{ hotZone.report.data.criticalFactors.criticalFactorsComments || 'N/A' }}
                     .panel.panel-primary(ng-if='hotZone !== "default"')
                         .panel-heading
                             h4.panel-title
                                 a(href='', data-target="#terrainSummary", data-toggle='collapse', data-parent='#infoAccordion')
-                                    | Terrain Recommendations
+                                    | Terrain and Travel Advice
                                     i.fa.fa-fw.fa-level-down.fa-lg.pull-right
                                     small.pull-right click to expand
                         #terrainSummary.panel-collapse.collapse
                             .panel-body
                                 .row
                                     .col-xs-12
-                                        | Based on the critical factors, AVOIDING the following is recommended to reduce risk.
+                                        | To minimize risk, always:
+                                        ul
+                                            li Expose only one person at a time in avalanche terrain.
+                                            li Group up only in safe locations well away from avalanche runout zones.
+                                            li Avoid terrain traps whenever possible.
                                 .row
-                                    .col-xs-6.sm-pad-right
-                                        strong.pull-right.text-right Aspect:
-                                    .col-xs-6.sm-pad-left
-                                        | {{ hotZone.report.data.terrainAvoidanceList.aspect || 'N/A' | acFormatList }}
+                                    .col-xs-12
+                                        | And while this report is valid:
+                                        ul
+                                            li
+                                                | AVOID terrain features marked with a &nbsp;
+                                                i.fa.fa-check-square-o.terrain-highlight
+                                            li Follow the travel advice below.
                                 .row
-                                    .col-xs-6.sm-pad-right
-                                        strong.pull-right.text-right Elevation band:
-                                    .col-xs-6.sm-pad-left
-                                        | {{ hotZone.report.data.terrainAvoidanceList.elevationBand || 'N/A' | acFormatList }}
+                                    .col-xs-12.terrain-title
+                                        h4 ALPINE
                                 .row
-                                    .col-xs-6.sm-pad-right
-                                        strong.pull-right.text-right Elevation below:
-                                    .col-xs-6.sm-pad-left
-                                        | {{ hotZone.report.data.terrainAvoidanceList.elevationBelow || 'N/A' }}
+                                    .col-xs-6
+                                        .row
+                                            .col-xs-12
+                                                strong Aspect:
+                                        .row
+                                            .col-xs-12
+                                                ul.terrain-list
+                                                    li(ng-repeat="(name, value) in hotZone.report.data.alpineTerrainAvoidance.aspect", ng-class="{'terrain-highlight': value}", ng-if="name !== 'All'")
+                                                        .row
+                                                            .col-xs-2.sm-pad-right.terrain-icon
+                                                                i.fa.pull-right(ng-class="{'fa-square-o': !value, 'fa-check-square-o': value}")
+                                                            .col-xs-10.sm-pad-left
+                                                                span.pull-left {{ name }}
+                                    .col-xs-6
+                                        .row
+                                            .col-xs-12
+                                                strong Terrain features:
+                                        .row
+                                            .col-xs-12
+                                                ul.terrain-list
+                                                    li(ng-repeat="(name, value) in hotZone.report.data.alpineTerrainAvoidance.terrainFeatures", ng-class="{'terrain-highlight': value}")
+                                                        .row
+                                                            .col-xs-2.sm-pad-right.terrain-icon
+                                                                i.fa.pull-right(ng-class="{'fa-square-o': !value, 'fa-check-square-o': value}")
+                                                            .col-xs-10.sm-pad-left
+                                                                span.pull-left {{ name }}
                                 .row
-                                    .col-xs-6.sm-pad-right
-                                        strong.pull-right.text-right Elevation above:
-                                    .col-xs-6.sm-pad-left
-                                        | {{ hotZone.report.data.terrainAvoidanceList.elevationAbove || 'N/A' }}
+                                    .col-xs-12
+                                        strong Travel advice:
+                                    .col-xs-12
+                                        | {{ hotZone.report.data.alpineTerrainAvoidance.terrainAvoidanceComments || 'N/A' }}
                                 .row
-                                    .col-xs-6.sm-pad-right
-                                        strong.pull-right.text-right Elevation between:
-                                    .col-xs-6.sm-pad-left
-                                        | {{ hotZone.report.data.terrainAvoidanceList.elevationBetweenLow || 'N/A' }} and {{ hotZone.report.data.terrainAvoidanceList.elevationBetweenHigh || 'N/A' }} metres
+                                    .col-xs-12.terrain-title
+                                        h4 TREELINE
                                 .row
-                                    .col-xs-6.sm-pad-right
-                                        strong.pull-right.text-right Terrain features:
-                                    .col-xs-6.sm-pad-left
-                                        | {{ hotZone.report.data.terrainAvoidanceList.terrainFeatures || 'N/A' | acFormatList }}
+                                    .col-xs-6
+                                        .row
+                                            .col-xs-12
+                                                strong Aspect:
+                                        .row
+                                            .col-xs-12
+                                                ul.terrain-list
+                                                    li(ng-repeat="(name, value) in hotZone.report.data.treelineTerrainAvoidance.aspect", ng-class="{'terrain-highlight': value}", ng-if="name !== 'All'")
+                                                        .row
+                                                            .col-xs-2.sm-pad-right.terrain-icon
+                                                                i.fa.pull-right(ng-class="{'fa-square-o': !value, 'fa-check-square-o': value}")
+                                                            .col-xs-10.sm-pad-left
+                                                                span.pull-left {{ name }}
+                                    .col-xs-6
+                                        .row
+                                            .col-xs-12
+                                                strong Terrain features:
+                                        .row
+                                            .col-xs-12
+                                                ul.terrain-list
+                                                    li(ng-repeat="(name, value) in hotZone.report.data.treelineTerrainAvoidance.terrainFeatures", ng-class="{'terrain-highlight': value}")
+                                                        .row
+                                                            .col-xs-2.sm-pad-right.terrain-icon
+                                                                i.fa.pull-right(ng-class="{'fa-square-o': !value, 'fa-check-square-o': value}")
+                                                            .col-xs-10.sm-pad-left
+                                                                span.pull-left {{ name }}
                                 .row
-                                    .col-xs-6.sm-pad-right
-                                        strong.pull-right.text-right Slopes steeper than:
-                                    .col-xs-6.sm-pad-left
-                                        | {{ hotZone.report.data.terrainAvoidanceList.steeperThan || 'N/A' }}
+                                    .col-xs-12
+                                        strong Travel advice:
+                                    .col-xs-12
+                                        | {{ hotZone.report.data.treelineTerrainAvoidance.terrainAvoidanceComments || 'N/A' }}
                                 .row
-                                    .col-xs-6.sm-pad-right
-                                        strong.pull-right.text-right Other terrain features:
-                                    .col-xs-6.sm-pad-left
-                                        | {{ hotZone.report.data.terrainAvoidanceList.otherTerrainFeatures || 'N/A' }}
+                                    .col-xs-12.terrain-title
+                                        h4 BELOW TREELINE
                                 .row
-                                    .col-xs-6.sm-pad-right
-                                        strong.pull-right.text-right Comments:
-                                    .col-xs-6.sm-pad-left
-                                        | {{ hotZone.report.data.terrainAvoidanceList.terrainAvoidanceComments || 'N/A' }}
-                    .panel.panel-primary(ng-if='hotZone !== "default"')
-                        .panel-heading
-                            h4.panel-title
-                                a(href='', data-target="#travelSummary", data-toggle='collapse', data-parent='#infoAccordion')
-                                    | Travel Advice
-                                    i.fa.fa-fw.fa-level-down.fa-lg.pull-right
-                                    small.pull-right click to expand
-                        #travelSummary.panel-collapse.collapse
-                            .panel-body
-                                p
-                                    | {{ hotZone.report.data.travelAdvice.travelAdviceStatement1 }}
-                                p
-                                    | {{ hotZone.report.data.travelAdvice.travelAdviceStatement2 }}
-                                p
-                                    | {{ hotZone.report.data.travelAdvice.travelAdviceStatement3 }}
-                                p
-                                    | {{ hotZone.report.data.travelAdvice.travelAdviceComments }}
+                                    .col-xs-6
+                                        .row
+                                            .col-xs-12
+                                                strong Aspect:
+                                        .row
+                                            .col-xs-12
+                                                ul.terrain-list
+                                                    li(ng-repeat="(name, value) in hotZone.report.data.belowTreelineTerrainAvoidance.aspect", ng-class="{'terrain-highlight': value}", ng-if="name !== 'All'")
+                                                        .row
+                                                            .col-xs-2.sm-pad-right.terrain-icon
+                                                                i.fa.pull-right(ng-class="{'fa-square-o': !value, 'fa-check-square-o': value}")
+                                                            .col-xs-10.sm-pad-left
+                                                                span.pull-left {{ name }}
+                                    .col-xs-6
+                                        .row
+                                            .col-xs-12
+                                                strong Terrain features:
+                                        .row
+                                            .col-xs-12
+                                                ul.terrain-list
+                                                    li(ng-repeat="(name, value) in hotZone.report.data.belowTreelineTerrainAvoidance.terrainFeatures", ng-class="{'terrain-highlight': value}")
+                                                        .row
+                                                            .col-xs-2.sm-pad-right.terrain-icon
+                                                                i.fa.pull-right(ng-class="{'fa-square-o': !value, 'fa-check-square-o': value}")
+                                                            .col-xs-10.sm-pad-left
+                                                                span.pull-left {{ name }}
+                                .row
+                                    .col-xs-12
+                                        strong Travel advice:
+                                    .col-xs-12
+                                        | {{ hotZone.report.data.belowTreelineTerrainAvoidance.terrainAvoidanceComments || 'N/A' }}
+
                     .panel.panel-primary(ng-if='hotZone === "default"')
                         .panel-heading
                             h4.panel-title
