@@ -655,10 +655,48 @@ angular.module('acComponents.directives')
           }
 
           layers.currentRegion = layer;
+          setRegion(layer);
+        }
 
-          $scope.$apply(function () {
-            $scope.region = layer;
-          });
+        /*
+         * Returns true for any feature that should be opened in a new tab
+         */
+        function isExternalLink(feature) {
+          var regionType = feature.properties.type;
+          return (regionType === 'link'|| regionType === 'parks');
+        }
+
+        /*
+         * Use as a single method to extract the url from parks/link regions
+         * that use different keys for the url
+         */
+        function getExternalUrl(feature) {
+          var regionType = feature.properties.type;
+          var url = feature.properties.url;
+          if(feature.properties.type === 'parks') {
+              url = feature.properties.externalUrl;
+          }
+          return url;
+        }
+
+        /*
+         * Open a regions target URL in a new window
+         */
+        function openLink(region) {
+          if(isExternalLink(region.feature)) {
+            $window.open(getExternalUrl(region.feature), '_blank');
+          }
+        }
+
+        function regionClick(layer) {
+          if(isExternalLink(layer.feature)) {
+            // TODO(wnh) Fix this hack
+            $scope.region = null;
+            openLink(layer);
+          } else {
+            showRegion(layer);
+            $state.go('ac.forecast', {regionid: layer.feature.id || layer.feature.properties.id}, {notify:false, reload:false});
+          }
         }
 
         function initRegionsLayer() {
@@ -672,8 +710,7 @@ angular.module('acComponents.directives')
                 layer.bindLabel(featureData.properties.name);
 
                 layer.on('click', function (evt) {
-                  showRegion(layer);
-                  $state.go('ac.forecast', {regionid: layer.feature.id || layer.feature.properties.id}, {notify:false, reload:false});
+                  regionClick(layer);
                 });
 
                 layer.on('mouseover', function () {
@@ -720,17 +757,15 @@ angular.module('acComponents.directives')
                 }
 
                 marker.on('click', function () {
-                  showRegion(layer);
-                  $state.go('ac.forecast', {regionid: layer.feature.id || layer.feature.properties.id}, {notify:false, reload:false});
+                  regionClick(layer);
                 });
               }
             }
           });
           setTimeout(function() {
             if($location.path().indexOf('forecast') !== -1) {
-              var currentLayer = _.findWhere(layers.regions.getLayers(), function (region) {
-                return region.feature.id === $stateParams.regionid;
-              });
+              console.log('the layers:', layers.regions.getLayers());
+              var currentLayer = _.findWhere(layers.regions.getLayers(), {feature: {id: $stateParams.regionid}})
               if (currentLayer) {
                 showRegion(currentLayer);
                 return;
@@ -978,25 +1013,11 @@ angular.module('acComponents.directives')
 
         function setRegion(region) {
 
-          var regionType =region.feature.properties.type;
-          if(regionType === 'link'|| regionType === 'parks') {
-            var url = region.feature.properties.url;
-            if(region.feature.properties.type === 'parks') {
-                url = region.feature.properties.externalUrl
-            }
-            $window.open(url, '_blank');
-            // Stop the card from displaying
-            $scope.region = undefined;
-            return;
-          }
-
+          $timeout(function () {
+            $scope.region = region;
+          }, 0);
 
           layers.currentRegion = region;
-          if ($scope.region !== region) {
-            $timeout(function () {
-              $scope.region = region;
-            }, 10);
-          }
 
           layers.regions.eachLayer(function (layer) {
             if (layer === region) {
@@ -1011,11 +1032,6 @@ angular.module('acComponents.directives')
         //map.on('dragend', setRegionFocus);
         map.on('zoomend', refreshLayers);
 
-        $scope.$watch('region', function (newRegion, oldRegion) {
-          if (layers.regions && newRegion && newRegion !== oldRegion) {
-            setRegion(newRegion);
-          }
-        });
 
         $scope.$watch('regions', function (newRegions, oldRegions) {
           if (newRegions && newRegions.features && $scope.activeHotZones) {
